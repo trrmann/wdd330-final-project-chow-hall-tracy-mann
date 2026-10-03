@@ -1,0 +1,18 @@
+{
+  "name": "wdd330-final-project-chow-hall-tracy-mann",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "lint": "^1.2.2",
+    "pretty": "^2.0.0"
+  }
+}
