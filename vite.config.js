@@ -21,6 +21,9 @@ export default defineConfig({
       input: {
         main: resolve(projectRoot, 'index.html'),
         mealPlan: resolve(projectRoot, 'MealPlan/index.html'),
+        inventory: resolve(projectRoot, 'Inventory/index.html'),
+        shopping: resolve(projectRoot, 'Shopping/index.html'),
+        search: resolve(projectRoot, 'Search/index.html'),
       },
     },
   },

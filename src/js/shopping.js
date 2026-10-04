@@ -5,7 +5,7 @@ import '../css/laptop.css'
 import '../css/desktop.css'
 import {
   ShoppingPage
-} from './modules/shopping-page.js'
+} from './modules/shopping.js'
 import {
   loadSiteShell
 } from './site-shell.js'

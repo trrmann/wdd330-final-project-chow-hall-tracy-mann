@@ -5,7 +5,7 @@ import '../css/laptop.css'
 import '../css/desktop.css'
 import {
   SearchPage
-} from './modules/search-page.js'
+} from './modules/search.js'
 import {
   loadSiteShell
 } from './site-shell.js'

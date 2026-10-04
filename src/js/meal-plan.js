@@ -5,7 +5,7 @@ import '../css/laptop.css'
 import '../css/desktop.css'
 import {
   MealPlanPage
-} from './modules/meal-plan-page.js'
+} from './modules/meal-plan.js'
 import {
   loadSiteShell
 } from './site-shell.js'
