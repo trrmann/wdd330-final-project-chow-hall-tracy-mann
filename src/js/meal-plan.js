@@ -1,11 +1,11 @@
-import '../../src/css/core.css'
-import '../../src/css/mobile.css'
-import '../../src/css/tablet.css'
-import '../../src/css/laptop.css'
-import '../../src/css/desktop.css'
+import '../css/core.css'
+import '../css/mobile.css'
+import '../css/tablet.css'
+import '../css/laptop.css'
+import '../css/desktop.css'
 import {
   loadSiteShell
-} from '../../src/js/site-shell.js'
+} from './site-shell.js'
 
 await loadSiteShell('meals')
 document.querySelector('#app').innerHTML = `
