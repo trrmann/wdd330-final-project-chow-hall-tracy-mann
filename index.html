@@ -52,14 +52,13 @@
           <p class="panel-kicker">To pick up</p>
           <h2 id="shopping-title">Shopping List</h2>
         </div>
-        <span class="item-count">3 items</span>
+        <span class="item-count"><span class="item-count-number"></span> items</span>
       </div>
-      <ul class="shopping-items">
-        <li><label><input type="checkbox" /> Chicken</label></li>
-        <li><label><input type="checkbox" /> Rice</label></li>
-        <li><label><input type="checkbox" /> Milk</label></li>
-      </ul>
+      <ul class="shopping-items"></ul>
     </section>
+  </template>
+  <template id="shopping-list-item-template">
+    <li><label><input type="checkbox" /> <span class="shopping-item-name"></span></label></li>
   </template>
   <template id="inventory-status-dashboard-template">
     <section class="dashboard-panel dashboard-panel-inventory" id="inventory-status" aria-labelledby="inventory-title">
@@ -71,10 +70,10 @@
         <a class="panel-link" href="/Inventory/">Review list</a>
       </div>
       <div class="inventory-reading">
-        <span class="inventory-reading-value">68%</span>
+        <span class="inventory-reading-value"></span>
         <span>in stock</span>
       </div>
-      <progress class="inventory-progress" value="68" max="100" aria-label="Pantry inventory, 68 percent in stock">68%</progress>
+      <progress class="inventory-progress" value="" max="100" aria-label=""></progress>
     </section>
   </template>
   <template id="inventory-low-stock-dashboard-template">
@@ -85,11 +84,11 @@
           <h2 id="low-stock-title">Low Stock</h2>
         </div>
       </div>
-      <ul class="low-stock-items">
-        <li>Lard</li>
-        <li>Ground Beef</li>
-      </ul>
+      <ul class="low-stock-items"></ul>
     </section>
+  </template>
+  <template id="low-stock-item-template">
+    <li><span class="low-stock-item-name"></span></li>
   </template>
   <template id="recipe-suggestions-dashboard-template">
     <section class="dashboard-panel dashboard-panel-recipes" id="recipe-search" aria-labelledby="recipe-title">
