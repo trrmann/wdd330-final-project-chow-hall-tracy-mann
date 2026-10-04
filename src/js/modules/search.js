@@ -1,3 +1,5 @@
+const recipes = ['Southern Fried Chicken', 'Salisbury Steak'];
+
 export class SearchPage {
   render() {
     return `
@@ -13,5 +15,21 @@ export class SearchPage {
 
   mount(root) {
     root.innerHTML = this.render();
+  }
+
+  RecipeSuggestionsDash() {
+    return `
+          <section class="dashboard-panel dashboard-panel-recipes" id="recipe-search" aria-labelledby="recipe-title">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">A few ideas</p>
+                <h2 id="recipe-title">Recipe Suggestions</h2>
+              </div>
+            </div>
+            <ul class="recipe-suggestions" data-recipe-list>
+              ${recipes.map((recipe) => `<li><a href="/MealPlan/">${recipe}</a></li>`).join('')}
+            </ul>
+          </section>
+    `;
   }
 }
