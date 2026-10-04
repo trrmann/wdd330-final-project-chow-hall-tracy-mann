@@ -11,34 +11,32 @@ import {
   SearchPage
 } from './search.js'
 export class HomePage {
-  render() {
-    const weekDash = new MealPlanPage().WeekDash();
-    const inventoryStatusDash = new InventoryPage().InventoryStatusDash();
-    const inventoryLowStockDash = new InventoryPage().InventoryLowStockDash();
-    const shoppingListDash = new ShoppingPage().ShoppingListDash();
-    const recipeSuggestionsDash = new SearchPage().RecipeSuggestionsDash();
-    return `
-      <div class="home-page">
-        <section class="home-intro" aria-labelledby="home-title">
-          <div>
-            <p class="home-kicker">Meal planning for gatherings</p>
-            <h1 id="home-title">Chow Hall</h1>
-            <p>Plan a meal, keep track of your pantry, and know what to pick up.</p>
-          </div>
-          <a class="primary-action" href="/MealPlan/">Plan a meal</a>
-        </section>
-        <div class="home-dashboard">
-            ${weekDash}
-            ${inventoryStatusDash}
-            ${shoppingListDash}
-            ${inventoryLowStockDash}
-            ${recipeSuggestionsDash}
-        </div>
-      </div>
-    `;
+  static homePageMainId = 'app';
+  static homePageTemplateId = 'home-page-template';
+  static homePageDashBoardClass = '.home-dashboard';
+  #homePageContainer;
+  #homePageTemplate;
+  #homePageDashboardContainer;
+  #mealPlanPage;
+  #inventoryPage;
+  #shoppingPage;
+  #searchPage;
+  constructor() {
+    this.#homePageContainer = document.getElementById(HomePage.homePageMainId);
+    this.#homePageTemplate = document.getElementById(HomePage.homePageTemplateId);
+    this.#mealPlanPage = new MealPlanPage();
+    this.#inventoryPage = new InventoryPage();
+    this.#shoppingPage = new ShoppingPage();
+    this.#searchPage = new SearchPage();
   }
-
-  mount(root) {
-    root.innerHTML = this.render();
+  render() {
+    const homePageContent = this.#homePageTemplate.content.cloneNode(true);
+    this.#homePageDashboardContainer = homePageContent.querySelector(HomePage.homePageDashBoardClass);
+    this.#mealPlanPage.mountDashboard(this.#homePageDashboardContainer);
+    this.#inventoryPage.mountDashboards(this.#homePageDashboardContainer);
+    this.#shoppingPage.mountDashboard(this.#homePageDashboardContainer);
+    this.#searchPage.mountDashboard(this.#homePageDashboardContainer);
+    this.#homePageContainer.innerHTML = '';
+    this.#homePageContainer.appendChild(homePageContent);
   }
 }

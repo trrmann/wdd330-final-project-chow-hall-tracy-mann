@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('meals')
-new MealPlanPage().mount(document.querySelector('#app'))
+await loadSiteShell('meals');
+new MealPlanPage().render();

@@ -1,35 +1,38 @@
 const recipes = ['Southern Fried Chicken', 'Salisbury Steak'];
 
 export class SearchPage {
+  static searchPageMainId = 'app';
+  static searchPageTemplateId = 'search-page-template'
+  static recipeSuggestionsDashBoardTemplateId = 'recipe-suggestions-dashboard-template';
+  static recipeSuggestionTemplateId = 'recipe-suggestion-template';
+  static recipeSuggestionsClass = '.recipe-suggestions';
+  static recipeSuggestionClass = '.recipe-suggestion';
+
+  #searchPageContainer;
+  #searchPageTemplate;
+  #recipeSuggestionsDashBoardTemplate;
+  #recipeSuggestionTemplate;
+  constructor() {
+    this.#searchPageContainer = document.getElementById(SearchPage.searchPageMainId);
+    this.#searchPageTemplate = document.getElementById(SearchPage.searchPageTemplateId);
+  }
   render() {
-    return `
-      <div class="search-page">
-        <section class="search-intro" aria-labelledby="search-title">
-          <p class="home-kicker">Your gathering</p>
-          <h1 id="search-title">Search</h1>
-          <p>Find recipes and ingredients for your meals.</p>
-        </section>
-      </div>
-    `;
+    this.#searchPageContainer.innerHTML = '';
+    this.#searchPageContainer.appendChild(this.#searchPageTemplate.content.cloneNode(true));
   }
-
-  mount(root) {
-    root.innerHTML = this.render();
+  mountDashboard(dashboardContainer) {
+    this.renderRecipeSuggestionsDashboard(dashboardContainer);
   }
-
-  RecipeSuggestionsDash() {
-    return `
-          <section class="dashboard-panel dashboard-panel-recipes" id="recipe-search" aria-labelledby="recipe-title">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">A few ideas</p>
-                <h2 id="recipe-title">Recipe Suggestions</h2>
-              </div>
-            </div>
-            <ul class="recipe-suggestions" data-recipe-list>
-              ${recipes.map((recipe) => `<li><a href="/MealPlan/">${recipe}</a></li>`).join('')}
-            </ul>
-          </section>
-    `;
+  renderRecipeSuggestionsDashboard(dashboardContainer) {
+    this.#recipeSuggestionsDashBoardTemplate = document.getElementById(SearchPage.recipeSuggestionsDashBoardTemplateId);
+    this.#recipeSuggestionTemplate = document.getElementById(SearchPage.recipeSuggestionTemplateId);
+    const recipeSuggestionsDashBoardClone = this.#recipeSuggestionsDashBoardTemplate.content.cloneNode(true);
+    const targetContainer = recipeSuggestionsDashBoardClone.querySelector(SearchPage.recipeSuggestionsClass);
+    recipes.forEach((recipe) => {
+      const clone = this.#recipeSuggestionTemplate.content.cloneNode(true);
+      clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe;
+      targetContainer.appendChild(clone);
+    });
+    dashboardContainer.appendChild(recipeSuggestionsDashBoardClone);
   }
 }

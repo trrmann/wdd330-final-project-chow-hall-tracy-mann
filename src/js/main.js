@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('home')
-new HomePage().mount(document.querySelector('#app'))
+await loadSiteShell('home');
+new HomePage().render();

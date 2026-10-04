@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('inventory')
-new InventoryPage().mount(document.querySelector('#app'))
+await loadSiteShell('inventory');
+new InventoryPage().render();

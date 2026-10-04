@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('search')
-new SearchPage().mount(document.querySelector('#app'))
+await loadSiteShell('search');
+new SearchPage().render();

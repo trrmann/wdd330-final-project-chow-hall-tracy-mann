@@ -29,40 +29,42 @@ const weekDays = [{
 ];
 
 export class MealPlanPage {
+  static mealPlanPageMainId = 'app';
+  static mealPlanPageTemplateId = 'meal-plan-page-template'
+  static mealPlanDashBoardTemplateId = 'weekly-meal-plan-template';
+  static mealPlanDayTemplateId = 'meal-plan-day-template';
+  static weekStripClass = '.week-strip';
+  static weekStripLabelClass = '.week-strip-label';
+  static weekStripStatusClass = '.week-strip-status';
+  static weekStripStatusClassPrefix = 'week-strip-status-';
+  #mealPlanPageContainer;
+  #mealPlanPageTemplate;
+  #mealPlanDashBoardTemplate;
+  #mealPlanDayTemplate;
+  constructor() {
+    this.#mealPlanPageContainer = document.getElementById(MealPlanPage.mealPlanPageMainId);
+    this.#mealPlanPageTemplate = document.getElementById(MealPlanPage.mealPlanPageTemplateId);
+  }
   render() {
-    return `
-      <div class="meal-plan-page">
-        <section class="meal-plan-intro" aria-labelledby="meal-plan-title">
-          <p class="home-kicker">Your gathering</p>
-          <h1 id="meal-plan-title">Meal Plan</h1>
-          <p>Choose meals for your week and build a shopping list from the ingredients you need.</p>
-        </section>
-      </div>
-    `;
+    this.#mealPlanPageContainer.innerHTML = '';
+    this.#mealPlanPageContainer.appendChild(this.#mealPlanPageTemplate.content.cloneNode(true));
   }
-
-  mount(root) {
-    root.innerHTML = this.render();
+  mountDashboard(dashboardContainer) {
+    this.renderWeekDashBoard(dashboardContainer);
   }
-  WeekDash() {
-    return `
-          <section class="dashboard-panel dashboard-panel-week" id="weekly-meal-plan" aria-labelledby="week-title">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">This week</p>
-                <h2 id="week-title">Weekly Meal Plan</h2>
-              </div>
-              <a class="panel-link" href="/MealPlan/">Open meal plan</a>
-            </div>
-            <ol class="week-strip">
-              ${weekDays.map((day) => `
-                <li class="week-strip-day">
-                  <span class="week-strip-label">${day.label}</span>
-                  <span class="week-strip-status week-strip-status-${day.status}" role="img" aria-label="${day.status}"></span>
-                </li>
-              `).join('')}
-            </ol>
-          </section>
-    `;
+  renderWeekDashBoard(dashboardContainer) {
+    this.#mealPlanDashBoardTemplate = document.getElementById(MealPlanPage.mealPlanDashBoardTemplateId);
+    this.#mealPlanDayTemplate = document.getElementById(MealPlanPage.mealPlanDayTemplateId);
+    const weekDashBoardClone = this.#mealPlanDashBoardTemplate.content.cloneNode(true);
+    const targetContainer = weekDashBoardClone.querySelector(MealPlanPage.weekStripClass);
+    weekDays.forEach((day) => {
+      const clone = this.#mealPlanDayTemplate.content.cloneNode(true);
+      clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day.label;
+      const statusSpan = clone.querySelector(MealPlanPage.weekStripStatusClass);
+      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${day.status}`);
+      statusSpan.setAttribute('aria-label', day.status);
+      targetContainer.appendChild(clone);
+    });
+    dashboardContainer.appendChild(weekDashBoardClone);
   }
 }

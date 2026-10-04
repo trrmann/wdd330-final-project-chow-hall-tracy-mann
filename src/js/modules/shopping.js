@@ -1,33 +1,24 @@
 export class ShoppingPage {
+  static shoppingPageMainId = 'app';
+  static shoppingPageTemplateId = 'shopping-page-template';
+  static shoppingListDashBoardTemplateId = 'shopping-list-dashboard-template';
+  #shoppingPageContainer
+  #shoppingPageTemplate;
+  #shoppingListDashBoardTemplate;
+  constructor() {
+    this.#shoppingPageContainer = document.getElementById(ShoppingPage.shoppingPageMainId);
+    this.#shoppingPageTemplate = document.getElementById(ShoppingPage.shoppingPageTemplateId);
+  }
   render() {
-    return `
-      <div class="shopping-page">
-        <section class="shopping-intro" aria-labelledby="shopping-title">
-          <p class="home-kicker">Your gathering</p>
-          <h1 id="shopping-title">Shopping</h1>
-          <p>Build a shopping list from the ingredients you need.</p>
-        </section>
-      </div>
-    `;
+    this.#shoppingPageContainer.innerHTML = '';
+    this.#shoppingPageContainer.appendChild(this.#shoppingPageTemplate.content.cloneNode(true));
   }
-
-  mount(root) {
-    root.innerHTML = this.render();
+  mountDashboard(dashboardContainer) {
+    this.renderShoppingListDashBoard(dashboardContainer);
   }
-  ShoppingListDash() {
-    return `<section class="dashboard-panel dashboard-panel-shopping" id="shopping-list" aria-labelledby="shopping-title">
-            <div class="panel-heading">
-              <div>
-                <p class="panel-kicker">To pick up</p>
-                <h2 id="shopping-title">Shopping List</h2>
-              </div>
-              <span class="item-count">3 items</span>
-            </div>
-            <ul class="shopping-items">
-              <li><label><input type="checkbox" /> Chicken</label></li>
-              <li><label><input type="checkbox" /> Rice</label></li>
-              <li><label><input type="checkbox" /> Milk</label></li>
-            </ul>
-          </section>`;
+  renderShoppingListDashBoard(dashboardContainer) {
+    this.#shoppingListDashBoardTemplate = document.getElementById(ShoppingPage.shoppingListDashBoardTemplateId);
+    const shoppingDashBoardClone = this.#shoppingListDashBoardTemplate.content.cloneNode(true);
+    dashboardContainer.appendChild(shoppingDashBoardClone);
   }
 }

@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('shopping')
-new ShoppingPage().mount(document.querySelector('#app'))
+await loadSiteShell('shopping');
+new ShoppingPage().render();
