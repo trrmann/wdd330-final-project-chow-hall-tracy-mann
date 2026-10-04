@@ -1,0 +1,52 @@
+@media (min-width: 1024px) {
+  :root {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 56px;
+    margin: 32px 0;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  #app {
+    width: 1126px;
+  }
+
+  #center {
+    gap: 25px;
+    padding: 0;
+  }
+
+  #next-steps {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  #docs {
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+  }
+
+  #next-steps ul {
+    flex-wrap: nowrap;
+    margin-top: 32px;
+
+    li {
+      flex: 1 1 0;
+    }
+
+    a {
+      width: auto;
+      justify-content: flex-start;
+      box-sizing: border-box;
+    }
+  }
+
+  #spacer {
+    height: 88px;
+  }
+}

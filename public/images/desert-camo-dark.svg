@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <rect width="1600" height="1000" fill="#232323" />
+  <defs>
+    <symbol id="patch-0" viewBox="0 0 100 70"><path d="M90.7 35.0L87.2 51.1L58.8 44.4L52.4 66.1L31.5 59.4L8.9 53.5L-3.0 36.1L15.5 20.3L31.6 8.4L50.2 2.8L70.9 10.0L89.7 19.6Z" /></symbol>
+    <symbol id="patch-1" viewBox="0 0 100 70"><path d="M67.9 34.6L87.3 50.1L64.7 56.4L48.4 48.5L16.1 58.6L0.4 42.4L7.8 26.6L22.7 14.3L45.2 8.9L56.7 24.8L70.7 26.0Z" /></symbol>
+    <symbol id="patch-2" viewBox="0 0 100 70"><path d="M75.0 36.3L83.4 48.6L72.0 61.1L57.7 68.2L37.4 62.2L33.0 46.8L1.7 43.9L15.0 30.3L21.6 15.9L33.9 7.6L54.5 18.9L63.5 21.4L65.7 30.1Z" /></symbol>
+    <symbol id="patch-3" viewBox="0 0 100 70"><path d="M100.6 34.3L88.3 52.2L73.6 65.2L44.2 70.0L26.5 55.2L13.6 43.4L35.0 31.2L35.7 22.7L40.9 2.0L55.5 25.1L81.6 22.6Z" /></symbol>
+    <symbol id="patch-4" viewBox="0 0 100 70"><path d="M66.0 35.6L87.1 44.3L74.2 54.2L62.5 58.2L49.0 45.8L44.1 46.1L15.2 56.4L12.6 47.9L4.4 35.2L15.5 24.3L39.1 27.0L37.2 9.4L45.8 -1.4L65.3 2.5L76.9 17.5L89.3 23.6Z" /></symbol>
+    <symbol id="patch-5" viewBox="0 0 100 70"><path d="M99.5 37.5L94.5 51.5L72.8 54.9L53.0 65.7L36.7 62.0L33.9 45.0L35.7 37.5L5.6 26.2L13.5 13.1L37.0 12.4L52.8 4.9L63.6 21.0L65.6 28.4Z" /></symbol>
+    <symbol id="patch-6" viewBox="0 0 100 70"><path d="M100.3 33.7L89.9 50.4L62.3 45.8L51.9 60.6L42.4 51.8L22.0 49.7L17.3 39.6L3.6 24.4L16.2 14.8L43.5 21.1L52.0 18.4L74.3 14.2L91.2 22.8Z" /></symbol>
+    <symbol id="patch-7" viewBox="0 0 100 70"><path d="M88.1 33.2L87.9 56.9L59.4 59.9L35.6 64.0L33.1 43.6L-1.5 36.2L12.3 14.3L38.8 12.0L62.6 2.4L77.7 19.2Z" /></symbol>
+    <symbol id="patch-8" viewBox="0 0 100 70"><path d="M87.1 33.0L91.1 49.9L76.7 59.1L53.8 52.2L43.5 48.8L22.2 52.0L26.1 39.2L3.3 25.0L17.1 15.8L33.5 1.9L52.5 6.9L72.5 14.4L80.8 23.4Z" /></symbol>
+    <symbol id="patch-9" viewBox="0 0 100 70"><path d="M92.6 34.4L86.0 46.0L81.2 54.8L62.6 61.6L49.0 68.7L34.6 58.5L18.4 58.7L0.6 48.7L28.3 35.4L28.8 28.0L21.6 13.8L35.1 4.5L50.7 8.3L70.0 1.6L80.0 12.2L63.3 30.6Z" /></symbol>
+    <symbol id="patch-10" viewBox="0 0 100 70"><path d="M99.9 36.4L71.0 44.2L63.8 70.4L46.1 44.9L5.5 54.8L6.2 33.5L21.6 20.0L43.3 22.2L59.0 11.1L77.5 20.0Z" /></symbol>
+    <symbol id="patch-11" viewBox="0 0 100 70"><path d="M100.3 33.4L69.4 40.9L81.7 62.9L62.8 68.9L47.5 60.4L36.3 49.0L29.9 44.5L9.3 41.3L29.1 32.1L5.2 16.0L30.5 8.7L41.7 -0.4L64.6 6.1L78.9 14.5L95.9 22.0Z" /></symbol>
+    <symbol id="patch-12" viewBox="0 0 100 70"><path d="M95.3 34.0L83.0 44.7L84.6 61.2L63.6 68.0L42.2 70.7L28.9 65.5L7.5 54.2L34.3 36.9L5.9 29.3L12.4 19.0L24.8 7.0L42.7 -1.0L65.5 8.6L82.7 10.3L90.6 23.7Z" /></symbol>
+    <symbol id="patch-13" viewBox="0 0 100 70"><path d="M87.1 36.7L81.6 43.5L87.5 59.8L61.7 65.9L42.7 71.5L32.7 59.1L11.2 51.6L30.5 37.8L1.8 26.4L22.4 18.7L25.9 8.8L48.9 23.9L55.7 20.6L80.8 11.3L86.4 22.6Z" /></symbol>
+    <symbol id="patch-14" viewBox="0 0 100 70"><path d="M71.8 35.9L93.1 52.6L56.3 44.4L42.6 64.6L28.0 53.3L35.9 38.6L30.2 31.2L22.8 15.5L46.9 7.7L58.5 22.5L90.9 16.0Z" /></symbol>
+    <symbol id="patch-15" viewBox="0 0 100 70"><path d="M71.3 34.7L69.4 40.8L88.0 61.1L61.6 61.1L47.7 58.2L29.1 62.6L12.3 52.7L2.1 40.9L4.1 28.0L12.7 17.5L29.5 5.5L42.9 7.2L67.4 3.6L76.2 14.2L86.1 22.6Z" /></symbol>
+  </defs>
+  <use href="#patch-11" x="31.7" y="146.7" width="241.9" height="85.4" fill="#3E472E" transform="rotate(9 152.7 189.4)" />
+  <use href="#patch-1" x="118.9" y="77.6" width="295.4" height="101.3" fill="#4A372B" transform="rotate(-3 266.6 128.3)" />
+  <use href="#patch-10" x="-5.2" y="17.7" width="309.9" height="195.1" fill="#344132" transform="rotate(14 149.8 115.2)" />
+  <use href="#patch-5" x="166.0" y="27.3" width="213.1" height="131.1" fill="#4A372B" transform="rotate(13 272.5 92.9)" />
+  <use href="#patch-1" x="68.6" y="71.0" width="237.4" height="147.2" fill="#4A372B" transform="rotate(8 187.3 144.6)" />
+  <use href="#patch-0" x="105.1" y="123.3" width="182.3" height="99.8" fill="#474438" transform="rotate(7 196.2 173.2)" />
+  <use href="#patch-9" x="82.7" y="38.5" width="194.2" height="157.1" fill="#3E472E" transform="rotate(13 179.8 117.0)" />
+  <use href="#patch-9" x="181.5" y="110.7" width="168.2" height="106.4" fill="#474438" transform="rotate(-26 265.6 163.9)" />
+  <use href="#patch-15" x="288.9" y="74.9" width="240.9" height="176.0" fill="#3E472E" transform="rotate(7 409.3 162.9)" />
+  <use href="#patch-6" x="384.1" y="79.6" width="209.7" height="144.3" fill="#344132" transform="rotate(-6 489.0 151.7)" />
+  <use href="#patch-15" x="265.0" y="134.7" width="304.4" height="181.8" fill="#3E472E" transform="rotate(-16 417.2 225.6)" />
+  <use href="#patch-8" x="294.3" y="74.2" width="158.2" height="135.3" fill="#4A382A" transform="rotate(24 373.4 141.9)" />
+  <use href="#patch-5" x="282.2" y="150.3" width="205.2" height="124.2" fill="#344132" transform="rotate(-23 384.9 212.4)" />
+  <use href="#patch-7" x="412.0" y="38.7" width="155.3" height="194.6" fill="#474438" transform="rotate(-29 489.7 136.0)" />
+  <use href="#patch-7" x="617.2" y="-79.1" width="246.7" height="189.6" fill="#3E472E" transform="rotate(-5 740.5 15.6)" />
+  <use href="#patch-14" x="675.7" y="23.1" width="164.4" height="173.9" fill="#4A372B" transform="rotate(-11 757.9 110.0)" />
+  <use href="#patch-15" x="542.9" y="-28.7" width="296.1" height="152.6" fill="#3E472E" transform="rotate(-5 691.0 47.6)" />
+  <use href="#patch-5" x="595.8" y="-33.5" width="292.9" height="172.5" fill="#4A382A" transform="rotate(32 742.2 52.7)" />
+  <use href="#patch-2" x="619.7" y="-21.6" width="253.9" height="176.8" fill="#3E472E" transform="rotate(24 746.7 66.8)" />
+  <use href="#patch-4" x="624.5" y="-23.8" width="222.2" height="151.3" fill="#4A372B" transform="rotate(7 735.6 51.8)" />
+  <use href="#patch-5" x="978.9" y="75.2" width="181.3" height="127.0" fill="#474438" transform="rotate(32 1069.6 138.7)" />
+  <use href="#patch-10" x="1031.7" y="82.9" width="205.4" height="137.5" fill="#474438" transform="rotate(29 1134.4 151.6)" />
+  <use href="#patch-2" x="969.2" y="37.8" width="221.9" height="129.4" fill="#474438" transform="rotate(3 1080.2 102.5)" />
+  <use href="#patch-0" x="1012.3" y="23.2" width="174.4" height="165.3" fill="#4A382A" transform="rotate(24 1099.4 105.9)" />
+  <use href="#patch-1" x="982.5" y="55.4" width="221.6" height="174.4" fill="#344132" transform="rotate(-10 1093.3 142.6)" />
+  <use href="#patch-11" x="986.6" y="-3.2" width="214.6" height="145.7" fill="#344132" transform="rotate(-28 1093.8 69.7)" />
+  <use href="#patch-1" x="1051.2" y="75.8" width="296.3" height="120.2" fill="#344132" transform="rotate(-16 1199.3 135.9)" />
+  <use href="#patch-15" x="1274.6" y="42.8" width="155.4" height="133.9" fill="#344132" transform="rotate(26 1352.3 109.8)" />
+  <use href="#patch-1" x="1208.6" y="128.2" width="318.1" height="117.5" fill="#3E472E" transform="rotate(-25 1367.7 187.0)" />
+  <use href="#patch-2" x="1407.2" y="84.4" width="182.2" height="95.0" fill="#344132" transform="rotate(-22 1498.3 131.9)" />
+  <use href="#patch-0" x="1404.5" y="82.1" width="199.9" height="183.7" fill="#474438" transform="rotate(-4 1504.5 174.0)" />
+  <use href="#patch-0" x="1386.7" y="52.9" width="152.9" height="156.1" fill="#4A382A" transform="rotate(-21 1463.1 130.9)" />
+  <use href="#patch-6" x="40.8" y="249.6" width="319.7" height="157.7" fill="#474438" transform="rotate(2 200.6 328.5)" />
+  <use href="#patch-11" x="84.1" y="273.3" width="193.5" height="179.4" fill="#474438" transform="rotate(-17 180.8 363.0)" />
+  <use href="#patch-6" x="124.6" y="251.8" width="256.4" height="95.2" fill="#344132" transform="rotate(-4 252.8 299.5)" />
+  <use href="#patch-14" x="115.8" y="306.0" width="227.0" height="125.9" fill="#4A372B" transform="rotate(-22 229.3 368.9)" />
+  <use href="#patch-9" x="21.1" y="289.8" width="287.3" height="156.2" fill="#3E472E" transform="rotate(2 164.7 367.9)" />
+  <use href="#patch-6" x="121.2" y="237.7" width="190.5" height="189.5" fill="#4A382A" transform="rotate(-16 216.5 332.4)" />
+  <use href="#patch-9" x="157.4" y="295.4" width="179.5" height="159.8" fill="#4A382A" transform="rotate(-13 247.2 375.3)" />
+  <use href="#patch-10" x="41.8" y="191.6" width="280.2" height="168.3" fill="#4A372B" transform="rotate(18 181.9 275.7)" />
+  <use href="#patch-12" x="249.2" y="254.3" width="282.6" height="115.5" fill="#474438" transform="rotate(-13 390.5 312.0)" />
+  <use href="#patch-5" x="324.6" y="333.1" width="240.8" height="152.6" fill="#464133" transform="rotate(10 445.0 409.4)" />
+  <use href="#patch-2" x="235.3" y="217.7" width="249.4" height="157.8" fill="#474438" transform="rotate(23 360.0 296.6)" />
+  <use href="#patch-7" x="295.1" y="275.6" width="265.8" height="136.3" fill="#344132" transform="rotate(22 428.0 343.7)" />
+  <use href="#patch-6" x="183.0" y="339.9" width="305.0" height="127.2" fill="#344132" transform="rotate(4 335.4 403.5)" />
+  <use href="#patch-0" x="318.5" y="255.6" width="305.8" height="91.7" fill="#3E472E" transform="rotate(-21 471.4 301.5)" />
+  <use href="#patch-8" x="592.3" y="258.9" width="317.0" height="176.7" fill="#4A372B" transform="rotate(-32 750.8 347.3)" />
+  <use href="#patch-0" x="741.6" y="327.5" width="265.5" height="147.5" fill="#4A382A" transform="rotate(30 874.4 401.3)" />
+  <use href="#patch-15" x="653.5" y="305.3" width="207.4" height="86.7" fill="#3E472E" transform="rotate(33 757.2 348.6)" />
+  <use href="#patch-4" x="746.9" y="359.4" width="259.5" height="171.4" fill="#464133" transform="rotate(27 876.6 445.1)" />
+  <use href="#patch-11" x="729.2" y="280.2" width="205.4" height="124.0" fill="#474438" transform="rotate(24 831.9 342.2)" />
+  <use href="#patch-6" x="1030.6" y="292.8" width="164.3" height="171.6" fill="#344132" transform="rotate(-29 1112.8 378.6)" />
+  <use href="#patch-5" x="1024.1" y="200.9" width="215.3" height="145.0" fill="#4A372B" transform="rotate(-4 1131.7 273.4)" />
+  <use href="#patch-3" x="941.8" y="246.5" width="266.1" height="137.9" fill="#4A382A" transform="rotate(-13 1074.8 315.4)" />
+  <use href="#patch-3" x="931.7" y="329.7" width="273.8" height="96.3" fill="#4A372B" transform="rotate(3 1068.6 377.9)" />
+  <use href="#patch-12" x="914.8" y="264.2" width="244.6" height="89.0" fill="#4A382A" transform="rotate(25 1037.1 308.6)" />
+  <use href="#patch-10" x="914.6" y="200.2" width="177.0" height="192.1" fill="#4A372B" transform="rotate(-17 1003.2 296.3)" />
+  <use href="#patch-7" x="1328.5" y="259.2" width="271.6" height="153.7" fill="#344132" transform="rotate(-5 1464.3 336.1)" />
+  <use href="#patch-7" x="1383.0" y="325.6" width="276.4" height="129.2" fill="#3E472E" transform="rotate(-13 1521.2 390.2)" />
+  <use href="#patch-0" x="1305.3" y="323.6" width="253.4" height="198.5" fill="#464133" transform="rotate(17 1432.0 422.9)" />
+  <use href="#patch-14" x="1313.8" y="245.8" width="170.3" height="190.2" fill="#474438" transform="rotate(0 1398.9 340.9)" />
+  <use href="#patch-15" x="1265.5" y="331.0" width="318.3" height="116.1" fill="#464133" transform="rotate(-33 1424.7 389.0)" />
+  <use href="#patch-15" x="1379.1" y="289.0" width="245.1" height="170.9" fill="#4A382A" transform="rotate(-33 1501.7 374.5)" />
+  <use href="#patch-8" x="1232.6" y="277.5" width="313.0" height="173.1" fill="#3E472E" transform="rotate(-6 1389.1 364.1)" />
+  <use href="#patch-1" x="1417.4" y="317.7" width="173.7" height="131.1" fill="#3E472E" transform="rotate(0 1504.3 383.2)" />
+  <use href="#patch-1" x="72.9" y="664.2" width="234.0" height="91.0" fill="#4A372B" transform="rotate(10 189.9 709.8)" />
+  <use href="#patch-5" x="-12.8" y="511.4" width="230.7" height="168.4" fill="#474438" transform="rotate(20 102.5 595.6)" />
+  <use href="#patch-7" x="72.9" y="618.0" width="166.8" height="172.4" fill="#4A372B" transform="rotate(-30 156.3 704.2)" />
+  <use href="#patch-12" x="23.9" y="541.9" width="233.7" height="146.3" fill="#344132" transform="rotate(-27 140.7 615.1)" />
+  <use href="#patch-10" x="-0.9" y="555.2" width="272.1" height="107.6" fill="#464133" transform="rotate(12 135.1 609.0)" />
+  <use href="#patch-15" x="552.0" y="561.6" width="164.0" height="177.5" fill="#4A372B" transform="rotate(2 634.0 650.3)" />
+  <use href="#patch-11" x="316.4" y="475.7" width="309.9" height="190.2" fill="#344132" transform="rotate(26 471.4 570.9)" />
+  <use href="#patch-6" x="461.4" y="558.7" width="180.9" height="98.5" fill="#344132" transform="rotate(13 551.8 607.9)" />
+  <use href="#patch-13" x="416.8" y="555.4" width="250.8" height="195.1" fill="#4A382A" transform="rotate(-26 542.2 652.9)" />
+  <use href="#patch-8" x="547.4" y="518.4" width="178.5" height="106.2" fill="#474438" transform="rotate(-33 636.7 571.4)" />
+  <use href="#patch-1" x="405.5" y="534.4" width="230.2" height="92.1" fill="#464133" transform="rotate(-3 520.5 580.4)" />
+  <use href="#patch-3" x="514.8" y="491.6" width="218.7" height="184.9" fill="#4A382A" transform="rotate(-5 624.1 584.1)" />
+  <use href="#patch-2" x="361.1" y="505.4" width="308.4" height="197.4" fill="#4A382A" transform="rotate(29 515.3 604.2)" />
+  <use href="#patch-15" x="597.2" y="471.5" width="312.7" height="109.7" fill="#464133" transform="rotate(15 753.6 526.4)" />
+  <use href="#patch-4" x="644.5" y="493.1" width="150.4" height="93.6" fill="#4A382A" transform="rotate(27 719.8 539.9)" />
+  <use href="#patch-5" x="682.6" y="537.1" width="186.1" height="93.4" fill="#4A372B" transform="rotate(32 775.6 583.8)" />
+  <use href="#patch-8" x="687.2" y="485.7" width="272.4" height="104.9" fill="#464133" transform="rotate(2 823.4 538.1)" />
+  <use href="#patch-14" x="661.6" y="463.1" width="281.0" height="136.6" fill="#344132" transform="rotate(-19 802.1 531.4)" />
+  <use href="#patch-10" x="596.9" y="567.6" width="298.5" height="96.6" fill="#344132" transform="rotate(-18 746.1 615.9)" />
+  <use href="#patch-14" x="634.2" y="484.2" width="242.0" height="115.6" fill="#4A372B" transform="rotate(25 755.2 542.0)" />
+  <use href="#patch-7" x="696.0" y="439.3" width="286.6" height="154.9" fill="#3E472E" transform="rotate(-11 839.3 516.7)" />
+  <use href="#patch-15" x="836.8" y="556.5" width="319.9" height="149.1" fill="#3E472E" transform="rotate(-21 996.7 631.1)" />
+  <use href="#patch-1" x="880.6" y="555.9" width="234.5" height="172.4" fill="#4A372B" transform="rotate(31 997.8 642.1)" />
+  <use href="#patch-2" x="950.4" y="550.9" width="179.5" height="135.6" fill="#4A382A" transform="rotate(-33 1040.1 618.7)" />
+  <use href="#patch-10" x="952.5" y="499.4" width="215.8" height="185.0" fill="#464133" transform="rotate(-12 1060.4 591.9)" />
+  <use href="#patch-14" x="889.9" y="601.6" width="160.4" height="109.0" fill="#344132" transform="rotate(11 970.1 656.1)" />
+  <use href="#patch-9" x="1320.1" y="536.5" width="293.5" height="108.7" fill="#4A372B" transform="rotate(-30 1466.8 590.9)" />
+  <use href="#patch-12" x="1375.2" y="567.4" width="260.8" height="97.0" fill="#474438" transform="rotate(-25 1505.6 615.9)" />
+  <use href="#patch-8" x="1325.4" y="549.0" width="318.0" height="99.8" fill="#474438" transform="rotate(21 1484.4 598.9)" />
+  <use href="#patch-4" x="1399.7" y="486.8" width="296.8" height="115.9" fill="#344132" transform="rotate(-35 1548.1 544.8)" />
+  <use href="#patch-11" x="1310.8" y="531.6" width="260.7" height="87.6" fill="#4A382A" transform="rotate(-28 1441.2 575.4)" />
+  <use href="#patch-1" x="1327.2" y="478.6" width="311.0" height="182.4" fill="#3E472E" transform="rotate(33 1482.7 569.8)" />
+  <use href="#patch-6" x="1324.2" y="507.3" width="263.5" height="168.2" fill="#4A382A" transform="rotate(21 1455.9 591.3)" />
+  <use href="#patch-5" x="1474.2" y="599.8" width="155.6" height="112.4" fill="#474438" transform="rotate(-18 1552.0 656.0)" />
+  <use href="#patch-8" x="27.1" y="857.5" width="266.4" height="94.8" fill="#344132" transform="rotate(27 160.3 904.8)" />
+  <use href="#patch-13" x="-29.5" y="830.5" width="251.2" height="100.4" fill="#4A382A" transform="rotate(10 96.1 880.7)" />
+  <use href="#patch-7" x="70.0" y="782.8" width="157.3" height="194.0" fill="#344132" transform="rotate(27 148.7 879.8)" />
+  <use href="#patch-1" x="0.6" y="830.5" width="247.6" height="151.6" fill="#474438" transform="rotate(-24 124.4 906.3)" />
+  <use href="#patch-12" x="123.2" y="825.9" width="221.0" height="159.0" fill="#344132" transform="rotate(-25 233.7 905.4)" />
+  <use href="#patch-9" x="130.6" y="782.8" width="203.2" height="102.7" fill="#3E472E" transform="rotate(18 232.2 834.1)" />
+  <use href="#patch-6" x="384.3" y="857.7" width="306.5" height="99.5" fill="#4A372B" transform="rotate(11 537.5 907.4)" />
+  <use href="#patch-5" x="392.2" y="870.5" width="189.7" height="157.8" fill="#3E472E" transform="rotate(-10 487.0 949.4)" />
+  <use href="#patch-0" x="411.6" y="848.1" width="293.0" height="86.6" fill="#344132" transform="rotate(5 558.1 891.4)" />
+  <use href="#patch-10" x="460.9" y="858.5" width="251.0" height="100.0" fill="#4A382A" transform="rotate(3 586.4 908.5)" />
+  <use href="#patch-9" x="480.8" y="875.5" width="218.4" height="178.1" fill="#4A372B" transform="rotate(17 590.0 964.5)" />
+  <use href="#patch-9" x="433.6" y="872.9" width="282.7" height="176.3" fill="#464133" transform="rotate(-3 575.0 961.0)" />
+  <use href="#patch-14" x="680.3" y="740.1" width="310.6" height="194.4" fill="#474438" transform="rotate(-23 835.6 837.3)" />
+  <use href="#patch-2" x="713.5" y="800.6" width="257.8" height="119.2" fill="#474438" transform="rotate(-20 842.4 860.2)" />
+  <use href="#patch-2" x="711.6" y="738.3" width="312.9" height="178.2" fill="#4A382A" transform="rotate(8 868.0 827.4)" />
+  <use href="#patch-7" x="646.3" y="849.5" width="261.6" height="132.6" fill="#344132" transform="rotate(-6 777.1 915.8)" />
+  <use href="#patch-1" x="667.5" y="870.6" width="311.9" height="131.6" fill="#4A372B" transform="rotate(-19 823.5 936.4)" />
+  <use href="#patch-2" x="681.0" y="850.5" width="159.7" height="152.4" fill="#3E472E" transform="rotate(21 760.9 926.7)" />
+  <use href="#patch-11" x="724.6" y="853.2" width="271.8" height="104.1" fill="#344132" transform="rotate(-27 860.5 905.3)" />
+  <use href="#patch-4" x="769.4" y="842.6" width="241.4" height="122.4" fill="#4A372B" transform="rotate(34 890.1 903.8)" />
+  <use href="#patch-5" x="941.2" y="857.2" width="203.3" height="102.1" fill="#464133" transform="rotate(15 1042.8 908.3)" />
+  <use href="#patch-4" x="970.7" y="827.5" width="195.4" height="86.0" fill="#464133" transform="rotate(34 1068.4 870.5)" />
+  <use href="#patch-3" x="883.3" y="790.3" width="232.5" height="125.7" fill="#464133" transform="rotate(34 999.5 853.2)" />
+  <use href="#patch-13" x="977.7" y="772.6" width="250.2" height="156.5" fill="#474438" transform="rotate(-11 1102.8 850.8)" />
+  <use href="#patch-10" x="998.1" y="913.1" width="227.5" height="88.5" fill="#3E472E" transform="rotate(20 1111.9 957.3)" />
+  <use href="#patch-0" x="1022.1" y="868.4" width="175.5" height="121.3" fill="#3E472E" transform="rotate(35 1109.8 929.0)" />
+  <use href="#patch-0" x="955.7" y="856.6" width="271.5" height="179.4" fill="#344132" transform="rotate(22 1091.5 946.3)" />
+  <use href="#patch-5" x="993.6" y="763.2" width="168.3" height="174.8" fill="#4A382A" transform="rotate(-27 1077.7 850.6)" />
+  <use href="#patch-7" x="1246.2" y="841.3" width="272.9" height="96.9" fill="#4A382A" transform="rotate(29 1382.6 889.7)" />
+  <use href="#patch-8" x="1170.2" y="921.2" width="203.3" height="127.8" fill="#4A382A" transform="rotate(29 1271.8 985.1)" />
+  <use href="#patch-11" x="1182.8" y="816.9" width="238.1" height="148.2" fill="#474438" transform="rotate(-2 1301.8 891.1)" />
+  <use href="#patch-15" x="1208.9" y="902.0" width="171.2" height="163.7" fill="#344132" transform="rotate(-25 1294.5 983.9)" />
+  <use href="#patch-6" x="1171.2" y="835.6" width="225.9" height="129.3" fill="#3E472E" transform="rotate(-22 1284.2 900.3)" />
+</svg>

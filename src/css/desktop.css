@@ -1,0 +1,13 @@
+@media (min-width: 1280px) {
+  #app {
+    width: 1320px;
+  }
+
+  #center {
+    gap: 32px;
+  }
+
+  #next-steps>div {
+    padding: 40px;
+  }
+}

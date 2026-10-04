@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="steel" x1="14" y1="45" x2="188" y2="152" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#737875" />
+      <stop offset="0.12" stop-color="#f3f4f0" />
+      <stop offset="0.28" stop-color="#9da19e" />
+      <stop offset="0.43" stop-color="#fafbf8" />
+      <stop offset="0.62" stop-color="#858a87" />
+      <stop offset="0.8" stop-color="#f4f5f1" />
+      <stop offset="1" stop-color="#777c79" />
+    </linearGradient>
+    <linearGradient id="rim" x1="22" y1="38" x2="177" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#454a48" />
+      <stop offset="0.13" stop-color="#f8f9f6" />
+      <stop offset="0.32" stop-color="#a8adaa" />
+      <stop offset="0.52" stop-color="#fdfdfa" />
+      <stop offset="0.74" stop-color="#858a87" />
+      <stop offset="0.9" stop-color="#f8f9f6" />
+      <stop offset="1" stop-color="#555a58" />
+    </linearGradient>
+    <linearGradient id="well" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#646966" />
+      <stop offset="0.2" stop-color="#e4e6e2" />
+      <stop offset="0.53" stop-color="#a3a7a4" />
+      <stop offset="0.8" stop-color="#f5f6f3" />
+      <stop offset="1" stop-color="#737875" />
+    </linearGradient>
+    <linearGradient id="large-well" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#666b68" />
+      <stop offset="0.18" stop-color="#eceeeb" />
+      <stop offset="0.5" stop-color="#a2a6a3" />
+      <stop offset="0.82" stop-color="#f7f8f5" />
+      <stop offset="1" stop-color="#747976" />
+    </linearGradient>
+    <filter id="shadow" x="4" y="27" width="192" height="153" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="4" />
+    </filter>
+  </defs>
+  <rect x="15" y="37" width="170" height="126" rx="25" fill="#262b29" opacity="0.28" filter="url(#shadow)" />
+  <rect x="12" y="32" width="176" height="132" rx="25" fill="url(#steel)" stroke="#696e6b" stroke-width="2" />
+  <rect x="17" y="37" width="166" height="122" rx="21" fill="url(#rim)" stroke="#f8f9f6" stroke-width="1.5" />
+  <rect x="22" y="42" width="156" height="112" rx="17" fill="#727774" stroke="#666b68" stroke-width="1.5" />
+  <g stroke-linejoin="round">
+    <rect x="25" y="45" width="46" height="45" rx="12" fill="url(#well)" stroke="#555a58" stroke-width="2" />
+    <rect x="29" y="49" width="38" height="37" rx="9" fill="#aeb2af" stroke="#f0f1ee" stroke-width="1.5" />
+    <rect x="32" y="52" width="32" height="31" rx="7" fill="url(#well)" />
+    <rect x="77" y="45" width="46" height="45" rx="12" fill="url(#well)" stroke="#555a58" stroke-width="2" />
+    <rect x="81" y="49" width="38" height="37" rx="9" fill="#aeb2af" stroke="#f0f1ee" stroke-width="1.5" />
+    <rect x="84" y="52" width="32" height="31" rx="7" fill="url(#well)" />
+    <rect x="129" y="45" width="46" height="45" rx="12" fill="url(#well)" stroke="#555a58" stroke-width="2" />
+    <rect x="133" y="49" width="38" height="37" rx="9" fill="#aeb2af" stroke="#f0f1ee" stroke-width="1.5" />
+    <rect x="136" y="52" width="32" height="31" rx="7" fill="url(#well)" />
+    <rect x="25" y="96" width="73" height="56" rx="14" fill="url(#large-well)" stroke="#555a58" stroke-width="2" />
+    <rect x="29" y="100" width="65" height="48" rx="11" fill="#aeb2af" stroke="#f0f1ee" stroke-width="1.5" />
+    <rect x="32" y="103" width="59" height="42" rx="9" fill="url(#large-well)" />
+    <rect x="103" y="96" width="72" height="56" rx="14" fill="url(#large-well)" stroke="#555a58" stroke-width="2" />
+    <rect x="107" y="100" width="64" height="48" rx="11" fill="#aeb2af" stroke="#f0f1ee" stroke-width="1.5" />
+    <rect x="110" y="103" width="58" height="42" rx="9" fill="url(#large-well)" />
+  </g>
+</svg>
