@@ -3,9 +3,15 @@ import '../../src/css/mobile.css'
 import '../../src/css/tablet.css'
 import '../../src/css/laptop.css'
 import '../../src/css/desktop.css'
+import {
+  loadSiteShell
+} from '../../src/js/site-shell.js'
 
+await loadSiteShell('meals')
 document.querySelector('#app').innerHTML = `
-<main id="center">
-  <h1>Meal Plan</h1>
-</main>
+  <section class="page-intro" aria-labelledby="meal-plan-title">
+    <p class="home-kicker">Your gathering</p>
+    <h1 id="meal-plan-title">Meal Plan</h1>
+    <p>Choose meals for your week and build a shopping list from the ingredients you need.</p>
+  </section>
 `

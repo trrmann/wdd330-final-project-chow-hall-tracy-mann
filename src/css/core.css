@@ -107,10 +107,9 @@
 
 body {
   margin: 0;
-}
-
-.card {
-  background-color: var(--bg);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
 }
 
 h1,
@@ -128,6 +127,318 @@ h2 {
 
 p {
   margin: 0;
+}
+
+.site-header {
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  border-bottom: 2px solid var(--expedition-brown);
+}
+
+.site-header a,
+.site-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.site-brand-mark {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.site-brand-name {
+  color: var(--off-white);
+  font-family: var(--heading);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.menu-toggle {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 4px;
+  border: 1px solid rgba(248, 247, 242, 0.45);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--off-white);
+  cursor: pointer;
+}
+
+.menu-toggle:hover,
+.menu-toggle:focus-visible {
+  background-color: rgba(35, 35, 35, 0.25);
+}
+
+.menu-toggle img {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+
+.site-nav {
+  background-color: var(--charcoal);
+}
+
+.site-nav-link {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(248, 247, 242, 0.22);
+  color: var(--off-white);
+  font-family: var(--heading);
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: background-color 160ms ease;
+}
+
+.site-nav-link:hover,
+.site-nav-link[aria-current='page'] {
+  background-color: var(--expedition-brown);
+  color: var(--off-white);
+}
+
+.site-footer {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  text-align: center;
+}
+
+.site-footer p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.home-kicker,
+.panel-kicker {
+  margin: 0 0 4px;
+  color: var(--expedition-brown);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-intro p:not(.home-kicker) {
+  max-width: 58ch;
+}
+
+.primary-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 4px;
+  background: var(--tactical-olive);
+  color: var(--off-white);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.primary-action:hover {
+  background: var(--ranger-green);
+}
+
+.dashboard-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background: var(--bg);
+  box-shadow: 0 2px 8px rgba(35, 35, 35, 0.08);
+}
+
+.panel-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.panel-heading h2 {
+  margin: 0;
+}
+
+.panel-link {
+  color: var(--tactical-olive);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.week-strip,
+.shopping-items,
+.low-stock-items,
+.recipe-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.week-strip-day {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.week-strip-label {
+  display: grid;
+  width: 100%;
+  min-height: 32px;
+  place-items: center;
+  border: 1px solid var(--charcoal);
+  background: var(--dust-storm);
+  color: var(--command-black);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.week-strip-status {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--charcoal);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.week-strip-status-planned {
+  border-color: var(--ranger-green);
+  background: var(--ranger-green);
+}
+
+.week-strip-status-review {
+  border-color: var(--supply-gray);
+  background: var(--supply-gray);
+}
+
+.week-strip-status-suggestion {
+  border-color: var(--copper-canteen);
+  background: var(--copper-canteen);
+}
+
+.inventory-reading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+
+.inventory-reading-value {
+  color: var(--tactical-olive);
+  font-family: var(--heading);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.inventory-progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  accent-color: var(--tactical-olive);
+}
+
+.shopping-items {
+  display: grid;
+  gap: 10px;
+}
+
+.shopping-items label {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.shopping-items input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--tactical-olive);
+}
+
+.low-stock-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.low-stock-items li {
+  padding: 6px 10px;
+  border: 1px solid var(--copper-canteen);
+  border-radius: 3px;
+  background: rgba(166, 106, 63, 0.1);
+}
+
+.recipe-suggestions {
+  display: grid;
+  gap: 8px;
+}
+
+.recipe-suggestions a {
+  display: block;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.recipe-suggestions a:hover {
+  color: var(--primary-emphasis);
+  text-decoration: underline;
+}
+
+.page-intro {
+  padding: 28px 0;
+}
+
+.page-intro p:last-child {
+  max-width: 58ch;
+}
+
+.card {
+  background-color: var(--bg);
+}
+
+.menu-toggle:focus-visible,
+.site-nav-link:focus-visible,
+.site-brand:focus-visible,
+.primary-action:focus-visible,
+.panel-link:focus-visible {
+  outline: 3px solid var(--khaki-field);
+  outline-offset: 3px;
 }
 
 code,

@@ -4,49 +4,82 @@
   }
 
   h1 {
-    font-size: 56px;
-    margin: 32px 0;
+    font-size: 48px;
+    margin: 4px 0 8px;
   }
 
   h2 {
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .site-header-inner {
+    display: flex;
+    min-height: 64px;
+    max-width: 1320px;
+    align-items: stretch;
+    gap: 24px;
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+
+  .site-brand {
+    min-width: 220px;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .site-nav,
+  .site-nav.is-open {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    margin: 0 0 0 auto;
+  }
+
+  .site-nav-link {
+    min-height: 64px;
+    padding: 0 18px;
+    border-right: 1px solid rgba(248, 247, 242, 0.18);
+    border-bottom: 0;
   }
 
   #app {
     width: 1126px;
+    max-width: 100%;
+    padding: 0 32px 48px;
   }
 
-  #center {
-    gap: 25px;
-    padding: 0;
+  .home-intro {
+    padding: 44px 0 32px;
   }
 
-  #next-steps {
-    flex-direction: row;
-    text-align: left;
+  .home-dashboard {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
   }
 
-  #docs {
-    border-right: 1px solid var(--border);
-    border-bottom: 0;
+  .dashboard-panel-week,
+  .dashboard-panel-shopping {
+    grid-column: span 8;
   }
 
-  #next-steps ul {
-    flex-wrap: nowrap;
-    margin-top: 32px;
-
-    li {
-      flex: 1 1 0;
-    }
-
-    a {
-      width: auto;
-      justify-content: flex-start;
-      box-sizing: border-box;
-    }
+  .dashboard-panel-inventory,
+  .dashboard-panel-low-stock {
+    grid-column: span 4;
   }
 
-  #spacer {
-    height: 88px;
+  .dashboard-panel-recipes {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-panel {
+    padding: 24px;
+  }
+
+  .week-strip {
+    gap: 12px;
   }
 }

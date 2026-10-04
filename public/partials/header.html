@@ -1,7 +1,21 @@
-<div class="logo">
-  <img src="/images/chow-hall-tray.svg" alt="five-compartment cafeteria tray" />
-  <a href="/index.html"> Chow<span class="highlight">Hall</span></a>
-</div>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-brand" href="/" data-home-link aria-label="Chow Hall home">
+      <img class="site-brand-mark" src="/images/chow-hall-tray.svg" width="52" height="52" alt="" />
+      <span class="site-brand-name">Chow Hall</span>
+    </a>
+    <button class="menu-toggle" type="button" data-menu-toggle aria-controls="site-navigation" aria-expanded="false" aria-label="Open navigation">
+      <img src="/images/mdi--tray-full.svg" width="36" height="36" alt="" data-menu-open-icon />
+      <img src="/images/mdi--tray-close.svg" width="36" height="36" alt="" data-menu-close-icon hidden />
+    </button>
+    <nav class="site-nav" id="site-navigation" aria-label="Main navigation">
+      <a class="site-nav-link" href="/MealPlan/" data-nav-page="meals">Meals</a>
+      <a class="site-nav-link" href="/#inventory-status">Inventory</a>
+      <a class="site-nav-link" href="/#shopping-list">Shopping</a>
+      <a class="site-nav-link" href="/#recipe-search">Search</a>
+    </nav>
+  </div>
+</header>
 <!-- Old Cart icon
 <div class="cart">
   <a href="/cart/index.html">

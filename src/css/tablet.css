@@ -1,18 +1,43 @@
 @media (min-width: 600px) {
-  #center {
+  .site-header-inner {
+    min-height: 68px;
+    padding: 10px 24px;
+  }
+
+  .site-brand-mark {
+    width: 52px;
+    height: 52px;
+  }
+
+  #app {
+    padding: 0 24px 40px;
+  }
+
+  .home-intro {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 24px;
-    padding: 48px 36px 36px;
+    padding: 36px 0 28px;
   }
 
-  #next-steps>div {
-    padding: 32px;
+  .home-dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding-top: 20px;
   }
 
-  #next-steps ul {
+  .dashboard-panel {
+    padding: 22px;
+  }
+
+  .dashboard-panel-week,
+  .dashboard-panel-shopping,
+  .dashboard-panel-recipes {
+    grid-column: 1 / -1;
+  }
+
+  .week-strip {
     gap: 10px;
-
-    li {
-      flex: 1 1 calc(50% - 10px);
-    }
   }
 }
