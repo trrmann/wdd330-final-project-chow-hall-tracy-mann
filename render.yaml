@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: chow-hall-tracy-mann
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit
