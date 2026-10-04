@@ -5,9 +5,23 @@ import {
   tmpdir
 } from 'node:os';
 import {
-  join
+  join,
+  resolve
 } from 'node:path';
+import {
+  fileURLToPath
+} from 'node:url';
+
+const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   cacheDir: join(tmpdir(), 'wdd330-final-project-chow-hall-tracy-mann', '.vite'),
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(projectRoot, 'index.html'),
+        mealPlan: resolve(projectRoot, 'MealPlan/index.html'),
+      },
+    },
+  },
 });
