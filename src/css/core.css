@@ -314,6 +314,10 @@ p {
   white-space: nowrap;
 }
 
+a.panel-kicker-anchor {
+  text-decoration: none;
+}
+
 .week-strip,
 .shopping-items,
 .low-stock-items,

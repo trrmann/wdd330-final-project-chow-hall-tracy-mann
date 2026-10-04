@@ -8,12 +8,14 @@
     margin: 0 auto;
     padding: 0 24px;
     box-sizing: border-box;
-    }
+  }
+
   .site-header-brand {
     display: flex;
     align-items: center;
     width: auto;
   }
+
   #app {
     width: 1320px;
     padding-right: 40px;

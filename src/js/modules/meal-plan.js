@@ -39,6 +39,8 @@ export class MealPlanPage {
   static mealPlanDashBoardClass = '.dashboard-panel-week';
   static mealPlanDayTemplateId = 'meal-plan-day-template';
   static mealPlanDashBoardPanelLinkClass = '.panel-link';
+  static mealPlanDashBoardPanelKickerClass = '.panel-kicker';
+  static mealPlanDashBoardPanelKickerAnchorClass = '.panel-kicker-anchor'
   static weekStripClass = '.week-strip';
   static weekStripLabelClass = '.week-strip-label';
   static weekStripStatusClass = '.week-strip-status';
@@ -64,6 +66,25 @@ export class MealPlanPage {
     this.#mealPlanDashBoardTemplate = document.getElementById(MealPlanPage.mealPlanDashBoardTemplateId);
     this.#mealPlanDayTemplate = document.getElementById(MealPlanPage.mealPlanDayTemplateId);
     const weekDashBoardClone = this.#mealPlanDashBoardTemplate.content.cloneNode(true);
+    const weekKicker = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerClass);
+    const weekKickerAnchor = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerAnchorClass);
+    switch (weekParameter) {
+      case 'current':
+        weekKicker.textContent = `This Week`;
+        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'next');
+        weekKickerAnchor.title = 'Click to change to next week!';
+        break;
+      case 'next':
+        weekKicker.textContent = `Next Week`;
+        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'current');
+        weekKickerAnchor.title = 'Click to change to the current week!';
+        break;
+      default:
+        weekKicker.textContent = `Other Week`;
+        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'current');
+        weekKickerAnchor.title = 'Click to change to the current week!';
+        break;
+    }
     const weekPanelLink = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelLinkClass);
     weekPanelLink.href = persistQueryParameter(weekPanelLink.href, 'week', weekParameter);
     const targetContainer = weekDashBoardClone.querySelector(MealPlanPage.weekStripClass);
