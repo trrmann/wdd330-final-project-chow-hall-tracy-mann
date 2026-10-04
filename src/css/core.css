@@ -141,6 +141,31 @@ p {
   text-decoration: none;
 }
 
+.site-header a.menu-toggle {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 4px;
+  border: 1px solid rgba(248, 247, 242, 0.45);
+  border-radius: 4px;
+  background: transparent;
+  background-color: var(--off-white);
+  color: var(--command-black);
+  cursor: pointer;
+}
+
+.site-header a.menu-toggle:hover,
+.site-header a.menu-toggle:focus-visible {
+  background-color: rgba(35, 35, 35, 0.25);
+}
+
+.site-header a.menu-toggle img {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+
 .site-brand {
   display: inline-flex;
   align-items: center;
@@ -162,30 +187,6 @@ p {
   font-weight: 600;
   line-height: 1;
   text-transform: uppercase;
-}
-
-.menu-toggle {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  padding: 4px;
-  border: 1px solid rgba(248, 247, 242, 0.45);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--off-white);
-  cursor: pointer;
-}
-
-.menu-toggle:hover,
-.menu-toggle:focus-visible {
-  background-color: rgba(35, 35, 35, 0.25);
-}
-
-.menu-toggle img {
-  display: block;
-  width: 36px;
-  height: 36px;
 }
 
 .site-nav {
