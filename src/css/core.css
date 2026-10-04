@@ -187,6 +187,7 @@ p {
   font-weight: 600;
   line-height: 1;
   text-transform: uppercase;
+  margin-right: 1rem;
 }
 
 .site-nav {
@@ -205,6 +206,24 @@ p {
   font-weight: 500;
   text-transform: uppercase;
   transition: background-color 160ms ease;
+}
+
+.site-nav-link.special-menu-item {
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  transition: background-color 160ms ease, border-color 160ms ease;
+  box-sizing: border-box;
+  margin: 0;
+  min-height: 48px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgba(248, 247, 242, 0.22);
+  border-color: var(--expedition-brown);
+}
+
+.site-nav-link.special-menu-item:hover {
+  background-color: var(--expedition-brown);
+  color: var(--off-white);
 }
 
 .site-nav-link:hover,

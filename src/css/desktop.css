@@ -1,8 +1,19 @@
 @media (min-width: 1280px) {
   .site-header-inner {
-    padding: 0 32px;
+    display: flex;
+    min-height: 64px;
+    max-width: 1320px;
+    align-items: stretch;
+    gap: 24px;
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+    }
+  .site-header-brand {
+    display: flex;
+    align-items: center;
+    width: auto;
   }
-
   #app {
     width: 1320px;
     padding-right: 40px;

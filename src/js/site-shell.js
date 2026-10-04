@@ -6,11 +6,31 @@ import {
 
 const menuListClass = '.site-nav';
 const menuItemTemplateId = 'menu-item-template';
-const menuItems = [
-  { href: '/MealPlan/', dataNavPage: "meals", display: 'Meals' , class: 'site-nav-link' },
-  { href: '/Inventory/', dataNavPage: "inventory", display: 'Inventory' , class: 'site-nav-link' },
-  { href: '/Shopping/', dataNavPage: "shopping", display: 'Shopping' , class: 'site-nav-link' },
-  { href: '/Search/', dataNavPage: "search", display: 'Search' , class: 'site-nav-link special-menu-item' }];
+const menuItems = [{
+    href: '/MealPlan/',
+    dataNavPage: "meals",
+    display: 'Meals',
+    class: 'site-nav-link'
+  },
+  {
+    href: '/Inventory/',
+    dataNavPage: "inventory",
+    display: 'Inventory',
+    class: 'site-nav-link'
+  },
+  {
+    href: '/Shopping/',
+    dataNavPage: "shopping",
+    display: 'Shopping',
+    class: 'site-nav-link'
+  },
+  {
+    href: '/Search/',
+    dataNavPage: "search",
+    display: 'Search',
+    class: 'site-nav-link special-menu-item'
+  }
+];
 
 export async function loadSiteShell(activePage) {
   await Promise.all([
@@ -50,8 +70,15 @@ export async function loadSiteShell(activePage) {
     menuToggle.setAttribute('aria-expanded', String(isOpen));
     menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
     navigation.classList.toggle('is-open', isOpen);
-    openIcon.hidden = isOpen;
-    closeIcon.hidden = !isOpen;
+
+    // FIX: Force clean addition/removal of the native 'hidden' HTML attribute 
+    if (isOpen) {
+      openIcon.setAttribute('hidden', '');
+      closeIcon.removeAttribute('hidden');
+    } else {
+      openIcon.removeAttribute('hidden');
+      closeIcon.setAttribute('hidden', '');
+    }
   }
 
   menuToggle.addEventListener('click', () => {

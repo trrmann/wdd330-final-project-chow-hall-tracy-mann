@@ -18,15 +18,52 @@ h2 {
 
 .site-header-inner {
   display: flex;
-  min-height: 64px;
   flex-wrap: wrap;
+  min-height: 64px;
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
 }
 
-.menu-toggle {
+.site-header-brand {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+}
+
+.site-brand-name {
+  font-size: clamp(18px, 6vw, 25px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.site-brand svg {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  display: block;
+}
+
+.site-header a.menu-toggle svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.site-header a.menu-toggle {
   margin-left: auto;
+  flex-shrink: 0;
+}
+
+.site-header a.menu-toggle img[hidden],
+.site-header a.menu-toggle svg[hidden],
+[hidden] {
+  display: none;
 }
 
 .site-nav {
@@ -61,7 +98,7 @@ h2 {
   padding: 24px 13px 19px;
   margin: 16px 16px auto;
   border-bottom: 1px solid var(--border);
-  background-color:  color-mix(in srgb, var(--dust-storm) 85%, transparent);
+  background-color: color-mix(in srgb, var(--dust-storm) 85%, transparent);
   border-radius: 32px;
 }
 
@@ -74,7 +111,7 @@ h2 {
 
 .dashboard-panel {
   padding: 16px;
-  background-color:  color-mix(in srgb, var(--dust-storm) 97%, transparent);
+  background-color: color-mix(in srgb, var(--dust-storm) 97%, transparent);
   border-radius: 32px;
 }
 

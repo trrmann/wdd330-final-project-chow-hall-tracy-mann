@@ -1,4 +1,6 @@
-import { persistQueryParameter } from '../utils.js';
+import {
+  persistQueryParameter
+} from '../utils.js';
 
 const recipeLists = {
   current: ['Southern Fried Chicken', 'Salisbury Steak'],
