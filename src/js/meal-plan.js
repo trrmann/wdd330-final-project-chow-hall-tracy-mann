@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('meals');
-new MealPlanPage().render();
+const parms = await loadSiteShell('meals');
+new MealPlanPage(parms).render();

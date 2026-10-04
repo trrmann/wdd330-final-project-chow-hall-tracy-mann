@@ -1,11 +1,20 @@
-const inventoryReadingValue = 68;
-const lowStockItems = ['Lard', 'Ground Beef'];
+import { persistQueryParameter } from '../utils.js';
+
+const inventoryReadingValues = {
+  current: 68,
+  next: 75
+};
+const lowStockItemLists = {
+  current: ['Lard', 'Ground Beef'],
+  next: ['Lard', 'Ground Beef', 'Chicken']
+};
 
 export class InventoryPage {
   static inventoryPageMainId = 'app';
   static inventoryPageTemplateId = 'inventory-page-template';
   static inventoryStatusDashBoardTemplateId = 'inventory-status-dashboard-template';
   static inventoryDashBoardClass = '.dashboard-panel-inventory';
+  static inventoryDashBoardPanelLinkClass = '.panel-link';
   static inventoryReadingValueClass = '.inventory-reading-value';
   static inventoryProgressBarClass = '.inventory-progress';
   static inventoryLowStockDashBoardTemplateId = 'inventory-low-stock-dashboard-template';
@@ -17,23 +26,28 @@ export class InventoryPage {
   #inventoryPageTemplate;
   #inventoryStatusDashBoardTemplate;
   #inventoryLowStockDashBoardTemplate;
-  constructor() {
+  #weekParameter;
+  constructor(parms) {
     this.#inventoryPageContainer = document.getElementById(InventoryPage.inventoryPageMainId);
     this.#inventoryPageTemplate = document.getElementById(InventoryPage.inventoryPageTemplateId);
+    this.#weekParameter = parms.week;
   }
   render() {
     this.#inventoryPageContainer.innerHTML = '';
     this.#inventoryPageContainer.appendChild(this.#inventoryPageTemplate.content.cloneNode(true));
   }
-  mountDashboards(dashboardContainer) {
-    this.renderInventoryStatusDashBoard(dashboardContainer);
-    this.renderInventoryLowStockDashBoard(dashboardContainer);
+  mountDashboards(dashboardContainer, weekParameter = this.#weekParameter) {
+    this.renderInventoryStatusDashBoard(dashboardContainer, weekParameter);
+    this.renderInventoryLowStockDashBoard(dashboardContainer, weekParameter);
   }
-  renderInventoryStatusDashBoard(dashboardContainer) {
+  renderInventoryStatusDashBoard(dashboardContainer, weekParameter = this.#weekParameter) {
     this.#inventoryStatusDashBoardTemplate = document.getElementById(InventoryPage.inventoryStatusDashBoardTemplateId);
     const inventoryStatusDashBoardClone = this.#inventoryStatusDashBoardTemplate.content.cloneNode(true);
+    const inventoryStatusPanelLink = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryDashBoardPanelLinkClass);
+    inventoryStatusPanelLink.href = persistQueryParameter(inventoryStatusPanelLink.href, 'week', weekParameter);
     const inventoryReadingValueContainer = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryReadingValueClass);
     const inventoryProgressBarContainer = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryProgressBarClass);
+    const inventoryReadingValue = inventoryReadingValues[weekParameter];
     inventoryReadingValueContainer.textContent = `${inventoryReadingValue}%`;
     inventoryProgressBarContainer.value = inventoryReadingValue;
     inventoryProgressBarContainer.setAttribute('aria-label', `Pantry inventory, ${inventoryReadingValue} percent in stock`);
@@ -47,12 +61,13 @@ export class InventoryPage {
       dashboardContainer.appendChild(inventoryStatusDashBoardClone);
     }
   }
-  renderInventoryLowStockDashBoard(dashboardContainer) {
+  renderInventoryLowStockDashBoard(dashboardContainer, weekParameter = this.#weekParameter) {
     this.#inventoryLowStockDashBoardTemplate = document.getElementById(InventoryPage.inventoryLowStockDashBoardTemplateId);
     const inventoryLowStockDashBoardClone = this.#inventoryLowStockDashBoardTemplate.content.cloneNode(true);
     const targetContainer = inventoryLowStockDashBoardClone.querySelector(InventoryPage.lowStockItemsClass);
     const lowStockItemTemplate = document.getElementById(InventoryPage.lowStockItemTemplateId);
     targetContainer.innerHTML = '';
+    const lowStockItems = lowStockItemLists[weekParameter] || [];
     lowStockItems.forEach((item) => {
       const clone = lowStockItemTemplate.content.cloneNode(true);
       clone.querySelector(InventoryPage.lowStockItemNameClass).textContent = item;

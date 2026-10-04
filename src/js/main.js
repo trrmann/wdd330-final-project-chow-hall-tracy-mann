@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('home');
-new HomePage().render();
+const parms = await loadSiteShell('home');
+new HomePage(parms).render();

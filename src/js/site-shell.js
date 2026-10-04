@@ -1,13 +1,16 @@
-async function loadPartial(selector, url) {
-  const mountPoint = document.querySelector(selector);
-  const response = await fetch(url);
+import {
+  loadPartial,
+  getQueryParam,
+  persistQueryParameter
+} from './utils.js';
 
-  if (!mountPoint || !response.ok) {
-    throw new Error(`Unable to load site partial: ${url}`);
-  }
-
-  mountPoint.outerHTML = await response.text();
-}
+const menuListClass = '.site-nav';
+const menuItemTemplateId = 'menu-item-template';
+const menuItems = [
+  { href: '/MealPlan/', dataNavPage: "meals", display: 'Meals' , class: 'site-nav-link' },
+  { href: '/Inventory/', dataNavPage: "inventory", display: 'Inventory' , class: 'site-nav-link' },
+  { href: '/Shopping/', dataNavPage: "shopping", display: 'Shopping' , class: 'site-nav-link' },
+  { href: '/Search/', dataNavPage: "search", display: 'Search' , class: 'site-nav-link special-menu-item' }];
 
 export async function loadSiteShell(activePage) {
   await Promise.all([
@@ -16,10 +19,25 @@ export async function loadSiteShell(activePage) {
   ]);
 
   const header = document.querySelector('.site-header');
+  const brandAnchor = header.querySelector('a.site-brand');
   const navigation = header.querySelector('#site-navigation');
   const menuToggle = header.querySelector('[data-menu-toggle]');
   const openIcon = menuToggle.querySelector('[data-menu-open-icon]');
   const closeIcon = menuToggle.querySelector('[data-menu-close-icon]');
+  const parms = {};
+  parms.week = getQueryParam('week', 'current');
+  brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', parms.week);
+  const menuList = document.querySelector(menuListClass);
+  const menuItemTemplate = document.getElementById(menuItemTemplateId);
+  menuItems.forEach(item => {
+    const clone = menuItemTemplate.content.cloneNode(true);
+    const anchor = clone.querySelector('a');
+    anchor.href = persistQueryParameter(item.href, 'week', parms.week);
+    anchor.dataset.navPage = item.dataNavPage;
+    anchor.textContent = item.display;
+    anchor.className = item.class;
+    menuList.appendChild(clone);
+  });
 
   if (activePage === 'home') {
     header.querySelector('[data-home-link]').setAttribute('aria-current', 'page');
@@ -49,4 +67,5 @@ export async function loadSiteShell(activePage) {
   });
 
   window.matchMedia('(min-width: 1024px)').addEventListener('change', () => setMenuOpen(false));
+  return parms;
 }

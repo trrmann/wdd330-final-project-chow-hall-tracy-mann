@@ -10,5 +10,5 @@ import {
   loadSiteShell
 } from './site-shell.js'
 
-await loadSiteShell('shopping');
-new ShoppingPage().render();
+const parms = await loadSiteShell('shopping');
+new ShoppingPage(parms).render();
