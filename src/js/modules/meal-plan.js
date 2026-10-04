@@ -32,6 +32,7 @@ export class MealPlanPage {
   static mealPlanPageMainId = 'app';
   static mealPlanPageTemplateId = 'meal-plan-page-template'
   static mealPlanDashBoardTemplateId = 'weekly-meal-plan-template';
+  static mealPlanDashBoardClass = '.dashboard-panel-week';
   static mealPlanDayTemplateId = 'meal-plan-day-template';
   static weekStripClass = '.week-strip';
   static weekStripLabelClass = '.week-strip-label';
@@ -65,6 +66,13 @@ export class MealPlanPage {
       statusSpan.setAttribute('aria-label', day.status);
       targetContainer.appendChild(clone);
     });
-    dashboardContainer.appendChild(weekDashBoardClone);
+    const existingDashboard = dashboardContainer.querySelector(MealPlanPage.mealPlanDashBoardClass);
+    if (existingDashboard) {
+      // If it exists, replace ONLY this dashboard node in place, leaving others alone
+      dashboardContainer.replaceChild(weekDashBoardClone, existingDashboard);
+    } else {
+      // If it's not there yet, append it normally
+      dashboardContainer.appendChild(weekDashBoardClone);
+    }
   }
 }

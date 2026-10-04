@@ -2,6 +2,7 @@ export class ShoppingPage {
   static shoppingPageMainId = 'app';
   static shoppingPageTemplateId = 'shopping-page-template';
   static shoppingListDashBoardTemplateId = 'shopping-list-dashboard-template';
+  static shoppingDashBoardClass = '.dashboard-panel-shopping';
   #shoppingPageContainer
   #shoppingPageTemplate;
   #shoppingListDashBoardTemplate;
@@ -19,6 +20,13 @@ export class ShoppingPage {
   renderShoppingListDashBoard(dashboardContainer) {
     this.#shoppingListDashBoardTemplate = document.getElementById(ShoppingPage.shoppingListDashBoardTemplateId);
     const shoppingDashBoardClone = this.#shoppingListDashBoardTemplate.content.cloneNode(true);
-    dashboardContainer.appendChild(shoppingDashBoardClone);
+    const existingDashboard = dashboardContainer.querySelector(ShoppingPage.shoppingDashBoardClass);
+    if (existingDashboard) {
+      // If it exists, replace ONLY this dashboard node in place, leaving others alone
+      dashboardContainer.replaceChild(shoppingDashBoardClone, existingDashboard);
+    } else {
+      // If it's not there yet, append it normally
+      dashboardContainer.appendChild(shoppingDashBoardClone);
+    }
   }
 }

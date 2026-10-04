@@ -4,6 +4,7 @@ export class SearchPage {
   static searchPageMainId = 'app';
   static searchPageTemplateId = 'search-page-template'
   static recipeSuggestionsDashBoardTemplateId = 'recipe-suggestions-dashboard-template';
+  static recipeSuggestionsDashBoardClass = '.dashboard-panel-recipes';
   static recipeSuggestionTemplateId = 'recipe-suggestion-template';
   static recipeSuggestionsClass = '.recipe-suggestions';
   static recipeSuggestionClass = '.recipe-suggestion';
@@ -33,6 +34,13 @@ export class SearchPage {
       clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe;
       targetContainer.appendChild(clone);
     });
-    dashboardContainer.appendChild(recipeSuggestionsDashBoardClone);
+    const existingDashboard = dashboardContainer.querySelector(SearchPage.recipeSuggestionsDashBoardClass);
+    if (existingDashboard) {
+      // If it exists, replace ONLY this dashboard node in place, leaving others alone
+      dashboardContainer.replaceChild(recipeSuggestionsDashBoardClone, existingDashboard);
+    } else {
+      // If it's not there yet, append it normally
+      dashboardContainer.appendChild(recipeSuggestionsDashBoardClone);
+    }
   }
 }
