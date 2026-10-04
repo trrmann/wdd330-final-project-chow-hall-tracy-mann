@@ -4,14 +4,11 @@ import '../css/tablet.css'
 import '../css/laptop.css'
 import '../css/desktop.css'
 import {
+  MealPlanPage
+} from './modules/meal-plan-page.js'
+import {
   loadSiteShell
 } from './site-shell.js'
 
 await loadSiteShell('meals')
-document.querySelector('#app').innerHTML = `
-  <section class="page-intro" aria-labelledby="meal-plan-title">
-    <p class="home-kicker">Your gathering</p>
-    <h1 id="meal-plan-title">Meal Plan</h1>
-    <p>Choose meals for your week and build a shopping list from the ingredients you need.</p>
-  </section>
-`
+new MealPlanPage().mount(document.querySelector('#app'))
