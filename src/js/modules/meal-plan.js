@@ -701,9 +701,10 @@ export class MealPlanPage {
     return this.#selectedDay;
   }
   render() {
+    this.#mealPlanPageContainer.innerHTML = '';
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
-    const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
     this.#renderWeekNavigationData(pageContentClone);
+    const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
     weekDays.forEach((day) => {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
@@ -718,11 +719,10 @@ export class MealPlanPage {
       }
       tabsContainer.appendChild(tabClone);
     });
-    this.initFolderEvents(pageContentClone);
-    this.#initWeekNavigationEvents(pageContentClone);
-    this.updatePanelContent(pageContentClone, this.#weekParameter, this.#selectedDay);
-    this.#mealPlanPageContainer.innerHTML = '';
     this.#mealPlanPageContainer.appendChild(pageContentClone);
+    this.initFolderEvents(pageContentClone);
+    this.#initWeekNavigationEvents();
+    this.updatePanelContent(pageContentClone, this.#weekParameter, this.#selectedDay);
   }
   initFolderEvents(renderedFragment) {
     const tabsContainer = renderedFragment.querySelector(MealPlanPage.folderTabsContainerClass);
@@ -770,9 +770,9 @@ export class MealPlanPage {
     });
     rangeContainer.textContent = `${formatter.format(monday)} – ${formatter.format(sunday)}`;
   }
-  #initWeekNavigationEvents(container) {
-    const navPanelContainer = container.querySelector(MealPlanPage.weekNavPanelClass);
-    const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
+  #initWeekNavigationEvents() {
+    const navPanelContainer = this.#mealPlanPageContainer.querySelector(MealPlanPage.weekNavPanelClass);
+    const resetButtonContainer = this.#mealPlanPageContainer.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     navPanelContainer.addEventListener('click', (event) => {
       const buttonElement = event.target.closest(MealPlanPage.weekNavButtonClass);
       if (!buttonElement) return;
