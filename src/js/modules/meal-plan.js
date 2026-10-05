@@ -665,7 +665,7 @@ export class MealPlanPage {
   static weekNavLabelClass = '.week-nav-label';
   static weekNavRangeClass = '.week-nav-range';
   static weekNavPanelClass = '.week-nav-panel';
-  static weekNavButtonClass = '.week-nav-btn';
+  static weekNavButtonClass = '.week-nav-button';
   static weekNavCurrentResetButtonClass = '.week-current-reset-button';
   static folderTabsContainerClass = '.folder-tabs';
   static folderTabTemplateId = 'folder-tab-template';
@@ -719,13 +719,14 @@ export class MealPlanPage {
       }
       tabsContainer.appendChild(tabClone);
     });
-    this.#mealPlanPageContainer.appendChild(pageContentClone);
-    this.initFolderEvents(pageContentClone);
-    this.#initWeekNavigationEvents();
     this.updatePanelContent(pageContentClone, this.#weekParameter, this.#selectedDay);
+    this.#mealPlanPageContainer.appendChild(pageContentClone);
+    this.initFolderEvents(this.#mealPlanPageContainer);
+    this.#initWeekNavigationEvents(this.#mealPlanPageContainer);
   }
   initFolderEvents(renderedFragment) {
     const tabsContainer = renderedFragment.querySelector(MealPlanPage.folderTabsContainerClass);
+    if (!tabsContainer) return;
 
     tabsContainer.addEventListener('click', (event) => {
       const clickedTab = event.target.closest(MealPlanPage.folderTabClass);
@@ -770,9 +771,10 @@ export class MealPlanPage {
     });
     rangeContainer.textContent = `${formatter.format(monday)} – ${formatter.format(sunday)}`;
   }
-  #initWeekNavigationEvents() {
-    const navPanelContainer = this.#mealPlanPageContainer.querySelector(MealPlanPage.weekNavPanelClass);
-    const resetButtonContainer = this.#mealPlanPageContainer.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
+  #initWeekNavigationEvents(renderedFragment) {
+    const navPanelContainer = renderedFragment.querySelector(MealPlanPage.weekNavPanelClass);
+    const resetButtonContainer = renderedFragment.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
+    if (!navPanelContainer) return;
     navPanelContainer.addEventListener('click', (event) => {
       const buttonElement = event.target.closest(MealPlanPage.weekNavButtonClass);
       if (!buttonElement) return;
@@ -780,12 +782,14 @@ export class MealPlanPage {
       this.#weekOffset += directionalStep;
       const weekParamValue = this.#weekOffset === -1 ? 'last' : this.#weekOffset === 0 ? 'current' : this.#weekOffset === 1 ? 'next' : String(this.#weekOffset);
       this.#updateUrlParameter('week', weekParamValue);
+      this.#weekParameter = weekParamValue;
       this.render();
-    });
+      });
     if (resetButtonContainer) {
       resetButtonContainer.addEventListener('click', () => {
         if (this.#weekOffset === 0) return;
         this.#weekOffset = 0;
+        this.#weekParameter = 'current';
         this.#updateUrlParameter('week', 'current');
         this.render();
       });
