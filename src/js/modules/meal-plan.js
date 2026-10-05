@@ -784,7 +784,7 @@ export class MealPlanPage {
       this.#updateUrlParameter('week', weekParamValue);
       this.#weekParameter = weekParamValue;
       this.render();
-      });
+    });
     if (resetButtonContainer) {
       resetButtonContainer.addEventListener('click', () => {
         if (this.#weekOffset === 0) return;

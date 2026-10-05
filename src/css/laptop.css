@@ -108,6 +108,30 @@
     gap: 12px;
   }
 
+  section.home-intro.meal-plan-intro {
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    width: 100%;
+    margin: 16px 0 auto;
+    box-sizing: border-box;
+
+  }
+
+  section.home-intro.meal-plan-intro .page-intro {
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    width: 100%;
+    margin: 0;
+    justify-content: space-between;
+  }
+
+  section.home-intro.meal-plan-intro .week-nav-panel {
+    width: 100%;
+    margin-top: 16px;
+    justify-content: space-between;
+  }
+
   .folder-tabs {
     flex-direction: row;
     padding: 0 8px;

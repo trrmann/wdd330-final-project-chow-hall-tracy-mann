@@ -40,4 +40,9 @@
   .week-strip {
     gap: 10px;
   }
+
+  section.home-intro.meal-plan-intro .week-nav-panel {
+    max-width: unset;
+  }
+
 }
