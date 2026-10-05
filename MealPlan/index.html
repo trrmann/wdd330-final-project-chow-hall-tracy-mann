@@ -21,7 +21,23 @@
         <h1 id="meal-plan-title">Meal Plan</h1>
         <p>Plan your meals and keep track of your ingredients.</p>
       </section>
+      <section class="folder-container">
+        <ul class="folder-tabs" role="tablist"></ul>
+        <div class="folder-panel" role="tabpanel">
+          <h3>Meal Plan</h3>
+          <ul class="daily-meals-list"></ul>
+        </div>
+      </section>
     </div>
+  </template>
+  <template id="folder-tab-template">
+    <li class="folder-tab" role="tab" aria-selected="false" data-day=""></li>
+  </template>
+  <template id="daily-meal-slot-template">
+    <li class="daily-meal-slot">
+      <strong class="meal-slot-label"></strong>
+      <p>Your scheduled menu items and meal breakdown details go here.</p>
+    </li>
   </template>
   <div id="site-footer"></div>
 </body>

@@ -107,4 +107,38 @@
   .week-strip {
     gap: 12px;
   }
+
+  .folder-tabs {
+    flex-direction: row;
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .folder-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    position: relative;
+    bottom: -1px;
+    z-index: 1;
+  }
+
+  .folder-tab.is-active {
+    background-color: var(--off-white);
+    color: var(--tactical-olive);
+    border-color: var(--field-stone);
+    border-bottom-color: var(--off-white);
+    border-top: 3px solid var(--tactical-olive);
+    z-index: 2;
+  }
+
+  .folder-panel {
+    border-top-left-radius: 0;
+    margin-top: 0;
+    padding: 24px;
+  }
+
 }

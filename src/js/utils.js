@@ -2,6 +2,9 @@ export function hasQueryParams(url) {
   const parsedURL = new URL(url, window.location.origin);
   return (parsedURL.searchParams.size > 0);
 }
+export function logCurrentState(message) {
+  console.log(message);
+}
 /*
 const url = new URL(relativePath, window.location.origin);
 
