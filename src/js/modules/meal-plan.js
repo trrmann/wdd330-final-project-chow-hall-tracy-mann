@@ -728,6 +728,7 @@ export class MealPlanPage {
   static weekNavButtonClass = '.week-nav-button';
   static weekNavCurrentResetButtonClass = '.week-current-reset-button';
   static folderTabsContainerClass = '.folder-tabs';
+  static folderTabAttentionIndicatorClass = '.tab-attention-indicator';
   static folderTabTemplateId = 'folder-tab-template';
   static folderTabClass = '.folder-tab';
   static folderPanelClass = '.folder-panel';
@@ -767,10 +768,18 @@ export class MealPlanPage {
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     this.#renderWeekNavigationData(pageContentClone);
     const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
+    const activeWeekData = weekDayStatuses[this.#weekParameter] || {};
     weekDays.forEach((day) => {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
+      const activeDayData = activeWeekData[day] || {};
+      const activeStatus = activeDayData.status || 'undefined';
       console.log("Looking for:", MealPlanPage.folderTabClass, "Found element:", tabElement);
+      if (activeStatus === 'planned') {
+        tabElement.classList.remove(MealPlanPage.folderTabAttentionIndicatorClass);
+      } else {
+        tabElement.classList.add(MealPlanPage.folderTabAttentionIndicatorClass);
+      }
       tabElement.textContent = day;
       tabElement.dataset.day = day;
       if (day === this.#selectedDay) {

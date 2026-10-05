@@ -501,6 +501,19 @@ a.panel-kicker-anchor {
   transition: background-color 160ms ease, color 160ms ease;
 }
 
+.tab-attention-indicator {
+  color: var(--copper-canteen);
+  font-weight: 700;
+}
+
+.tab-attention-indicator::before {
+  content: "* ";
+}
+
+.tab-attention-indicator::after {
+  content: " *";
+}
+
 .folder-tab:hover {
   background-color: var(--khaki-field);
   color: var(--command-black);
