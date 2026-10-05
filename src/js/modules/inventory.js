@@ -49,7 +49,7 @@ export class InventoryPage {
     inventoryStatusPanelLink.href = persistQueryParameter(inventoryStatusPanelLink.href, 'week', weekParameter);
     const inventoryReadingValueContainer = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryReadingValueClass);
     const inventoryProgressBarContainer = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryProgressBarClass);
-    const inventoryReadingValue = inventoryReadingValues[weekParameter];
+    const inventoryReadingValue = inventoryReadingValues[weekParameter] || 0;
     inventoryReadingValueContainer.textContent = `${inventoryReadingValue}%`;
     inventoryProgressBarContainer.value = inventoryReadingValue;
     inventoryProgressBarContainer.setAttribute('aria-label', `Pantry inventory, ${inventoryReadingValue} percent in stock`);

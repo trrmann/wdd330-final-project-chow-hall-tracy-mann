@@ -38,7 +38,8 @@ export class SearchPage {
     this.#recipeSuggestionTemplate = document.getElementById(SearchPage.recipeSuggestionTemplateId);
     const recipeSuggestionsDashBoardClone = this.#recipeSuggestionsDashBoardTemplate.content.cloneNode(true);
     const targetContainer = recipeSuggestionsDashBoardClone.querySelector(SearchPage.recipeSuggestionsClass);
-    recipeLists[weekParameter].forEach((recipe) => {
+    const recipeList = recipeLists[weekParameter] || [];
+    recipeList.forEach((recipe) => {
       const clone = this.#recipeSuggestionTemplate.content.cloneNode(true);
       clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe;
       clone.querySelector(SearchPage.recipeSuggestionClass).href = persistQueryParameter(clone.querySelector(SearchPage.recipeSuggestionClass).href, 'week', weekParameter);

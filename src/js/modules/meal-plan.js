@@ -1,7 +1,67 @@
 import {
   persistQueryParameter
 } from '../utils.js';
-
+const weekNamedOffsets = {
+  min: {
+    param: "min",
+    name: "Minimum",
+    offset: -3,
+    resetHidden: false,
+    isOffset: true,
+    allowNextWeek: true,
+    allowPreviousWeek: false,
+    onDashboard: false
+  },
+  last: {
+    param: "last",
+    name: "Last",
+    offset: -1,
+    resetHidden: false,
+    isOffset: true,
+    allowNextWeek: true,
+    allowPreviousWeek: true,
+    onDashboard: true,
+    nextDashboardKey: "current",
+    dashboardDisplay: "Last Week",
+    dashboardTitle: "Click to change to the current week!"
+  },
+  current: {
+    param: "current",
+    name: "Current",
+    offset: 0,
+    resetHidden: true,
+    isOffset: false,
+    allowNextWeek: true,
+    allowPreviousWeek: true,
+    onDashboard: true,
+    nextDashboardKey: "next",
+    dashboardDisplay: "This Week",
+    dashboardTitle: "Click to change to next week!"
+  },
+  next: {
+    param: "next",
+    name: "Next",
+    offset: 1,
+    resetHidden: false,
+    isOffset: true,
+    allowNextWeek: true,
+    allowPreviousWeek: true,
+    onDashboard: true,
+    nextDashboardKey: "last",
+    dashboardDisplay: "Next Week",
+    dashboardTitle: "Click to change to last week!"
+  },
+  max: {
+    param: "max",
+    name: "Maximum",
+    offset: 3,
+    resetHidden: false,
+    isOffset: true,
+    allowNextWeek: false,
+    allowPreviousWeek: true,
+    onDashboard: false,
+  }
+}
 const weekDays = [
   'Mon',
   'Tue',
@@ -676,6 +736,8 @@ export class MealPlanPage {
   static dailyMealSlotTemplateId = 'daily-meal-slot-template';
   static dailyMealSlotClass = '.daily-meal-slot';
   static dailyMealSlotLabelClass = '.meal-slot-label';
+  static weekNavIsHiddenClass = 'is-hidden';
+  static weekNavHasOffsetClass = 'has-offset';
   #mealPlanPageContainer;
   #mealPlanPageTemplate;
   #mealPlanDashBoardTemplate;
@@ -741,22 +803,27 @@ export class MealPlanPage {
     const labelContainer = container.querySelector(MealPlanPage.weekNavLabelClass);
     const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     const rangeContainer = container.querySelector(MealPlanPage.weekNavRangeClass);
-    if (this.#weekOffset === 0) {
-      labelContainer.textContent = "Current Week";
-      resetButtonContainer.classList.add('is-hidden');
-      resetButtonContainer.classList.remove('has-offset');
-    } else if (this.#weekOffset === -1) {
-      labelContainer.textContent = "Last Week";
-      resetButtonContainer.classList.remove('is-hidden');
-      resetButtonContainer.classList.add('has-offset');
-    } else if (this.#weekOffset === 1) {
-      labelContainer.textContent = "Next Week";
-      resetButtonContainer.classList.remove('is-hidden');
-      resetButtonContainer.classList.add('has-offset');
-    } else {
+    let isNameOffset = false;
+    Object.keys(weekNamedOffsets).forEach((namedOffset) => {
+      if (this.#weekOffset === weekNamedOffsets[namedOffset].offset) {
+        labelContainer.textContent = `${weekNamedOffsets[namedOffset].name} Week`;
+        if (weekNamedOffsets[namedOffset].resetHidden) {
+          resetButtonContainer.classList.add(MealPlanPage.weekNavIsHiddenClass);
+        } else {
+          resetButtonContainer.classList.remove(MealPlanPage.weekNavIsHiddenClass);
+        }
+        if (weekNamedOffsets[namedOffset].isOffset) {
+          resetButtonContainer.classList.add(MealPlanPage.weekNavHasOffsetClass);
+        } else {
+          resetButtonContainer.classList.remove(MealPlanPage.weekNavHasOffsetClass);
+        }
+        isNameOffset = true;
+      }
+    });
+    if (!isNameOffset) {
       labelContainer.textContent = this.#weekOffset > 0 ? `Week +${this.#weekOffset}` : `Week ${this.#weekOffset}`;
-      resetButtonContainer.classList.remove('is-hidden');
-      resetButtonContainer.classList.add('has-offset');
+      resetButtonContainer.classList.remove(MealPlanPage.weekNavIsHiddenClass);
+      resetButtonContainer.classList.add(MealPlanPage.weekNavHasOffsetClass);
     }
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + (this.#weekOffset * 7));
@@ -775,12 +842,31 @@ export class MealPlanPage {
     const navPanelContainer = renderedFragment.querySelector(MealPlanPage.weekNavPanelClass);
     const resetButtonContainer = renderedFragment.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     if (!navPanelContainer) return;
+    const foundItem = Object.values(weekNamedOffsets).find(item => item.offset === this.#weekOffset);
+    const resultKey = foundItem ? foundItem.param : weekNamedOffsets['current'].param;
+    const isPreviousWeekAllowed = weekNamedOffsets[resultKey].allowPreviousWeek;
+    const isNextWeekAllowed = weekNamedOffsets[resultKey].allowNextWeek;
+    const prevButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="-1"]`);
+    const nextButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="1"]`);
+    if (prevButton) {
+      prevButton.style.display = isPreviousWeekAllowed ? 'block' : 'none';
+    }
+    if (nextButton) {
+      nextButton.style.display = isNextWeekAllowed ? 'block' : 'none';
+    }
     navPanelContainer.addEventListener('click', (event) => {
       const buttonElement = event.target.closest(MealPlanPage.weekNavButtonClass);
       if (!buttonElement) return;
       const directionalStep = parseInt(buttonElement.dataset.navDir, 10);
+      if (directionalStep < 0 && !isPreviousWeekAllowed) return;
+      if (directionalStep > 0 && !isNextWeekAllowed) return;
       this.#weekOffset += directionalStep;
-      const weekParamValue = this.#weekOffset === -1 ? 'last' : this.#weekOffset === 0 ? 'current' : this.#weekOffset === 1 ? 'next' : String(this.#weekOffset);
+      let weekParamValue = String(this.#weekOffset);
+      Object.keys(weekNamedOffsets).forEach((namedOffset) => {
+        if (this.#weekOffset === weekNamedOffsets[namedOffset].offset) {
+          weekParamValue = weekNamedOffsets[namedOffset].param;
+        }
+      });
       this.#updateUrlParameter('week', weekParamValue);
       this.#weekParameter = weekParamValue;
       this.render();
@@ -789,21 +875,19 @@ export class MealPlanPage {
       resetButtonContainer.addEventListener('click', () => {
         if (this.#weekOffset === 0) return;
         this.#weekOffset = 0;
-        this.#weekParameter = 'current';
-        this.#updateUrlParameter('week', 'current');
+        this.#weekParameter = weekNamedOffsets['current'].param;
+        this.#updateUrlParameter('week', weekNamedOffsets['current'].param);
         this.render();
       });
     }
   }
   #parseInitialWeekOffset() {
-    if (!this.#weekParameter || this.#weekParameter === 'last' || this.#weekParameter === 'current' || this.#weekParameter === 'next') {
-      if (!this.#weekParameter || this.#weekParameter === 'current') {
-        this.#weekOffset = 0;
-      } else if (this.#weekParameter === 'last') {
-        this.#weekOffset = -1;
-      } else {
-        this.#weekOffset = 1;
-      }
+    if (!this.#weekParameter) {
+      this.#weekParameter = weekNamedOffsets['current'].param;
+    }
+    const isNamedOffset = Object.values(weekNamedOffsets).some(item => item.param === this.#weekParameter);
+    if (isNamedOffset) {
+      this.#weekOffset = weekNamedOffsets[this.#weekParameter].offset;
     } else {
       const parsed = parseInt(this.#weekParameter, 10);
       this.#weekOffset = isNaN(parsed) ? 0 : parsed;
@@ -866,22 +950,21 @@ export class MealPlanPage {
     const weekDashBoardClone = this.#mealPlanDashBoardTemplate.content.cloneNode(true);
     const weekKicker = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerClass);
     const weekKickerAnchor = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerAnchorClass);
-    switch (weekParameter) {
-      case 'current':
-        weekKicker.textContent = `This Week`;
-        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'next');
-        weekKickerAnchor.title = 'Click to change to next week!';
-        break;
-      case 'next':
-        weekKicker.textContent = `Next Week`;
-        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'current');
-        weekKickerAnchor.title = 'Click to change to the current week!';
-        break;
-      default:
-        weekKicker.textContent = `Other Week`;
-        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', 'current');
-        weekKickerAnchor.title = 'Click to change to the current week!';
-        break;
+    let isWeekParameterNamedDashboardOffset = false;
+    Object.keys(weekNamedOffsets).forEach((namedOffset) => {
+      const offset = weekNamedOffsets[namedOffset];
+      if (weekParameter === offset['param']) {
+        weekKicker.textContent = weekNamedOffsets[namedOffset].dashboardDisplay;
+        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', weekNamedOffsets[namedOffset].nextDashboardKey);
+        weekKickerAnchor.title = weekNamedOffsets[namedOffset].dashboardTitle;
+
+        isWeekParameterNamedDashboardOffset = true;
+      }
+    });
+    if (!isWeekParameterNamedDashboardOffset) {
+      weekKicker.textContent = `Other Week`;
+      weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', weekNamedOffsets['current'].param);
+      weekKickerAnchor.title = 'Click to change to the current week!';
     }
     const weekPanelLink = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelLinkClass);
     weekPanelLink.href = persistQueryParameter(weekPanelLink.href, 'week', weekParameter);
@@ -890,8 +973,12 @@ export class MealPlanPage {
       const clone = this.#mealPlanDayTemplate.content.cloneNode(true);
       clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day;
       const statusSpan = clone.querySelector(MealPlanPage.weekStripStatusClass);
-      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${ weekDayStatuses[weekParameter][day].status}`);
-      statusSpan.setAttribute('aria-label', weekDayStatuses[weekParameter][day].status);
+      const statusWeek = weekDayStatuses[weekParameter] || {};
+      const statusDay = statusWeek[day] || {};
+      const status = statusDay.status || "N/A"
+
+      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${ status }`);
+      statusSpan.setAttribute('aria-label', status);
       targetContainer.appendChild(clone);
     });
     const existingDashboard = dashboardContainer.querySelector(MealPlanPage.mealPlanDashBoardClass);

@@ -33,13 +33,14 @@ export class ShoppingPage {
     const targetContainer = shoppingDashBoardClone.querySelector(ShoppingPage.shoppingItemsClass);
     const shoppingListItemTemplate = document.getElementById(ShoppingPage.shoppingListItemTemplateId);
     targetContainer.innerHTML = '';
-    shoppingLists[weekParameter].forEach((item) => {
+    const shoppingList = shoppingLists[weekParameter] || [];
+    shoppingList.forEach((item) => {
       const clone = shoppingListItemTemplate.content.cloneNode(true);
       clone.querySelector(ShoppingPage.shoppingItemNameClass).textContent = item;
       targetContainer.appendChild(clone);
     });
     const itemCountContainer = shoppingDashBoardClone.querySelector(ShoppingPage.itemCountNumberClass);
-    itemCountContainer.textContent = shoppingLists[weekParameter].length;
+    itemCountContainer.textContent = shoppingList.length;
     const existingDashboard = dashboardContainer.querySelector(ShoppingPage.shoppingDashBoardClass);
     if (existingDashboard) {
       // If it exists, replace ONLY this dashboard node in place, leaving others alone
