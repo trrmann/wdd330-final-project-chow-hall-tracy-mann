@@ -8,7 +8,7 @@ const inventoryReadingValues = {
 };
 const lowStockItemLists = {
   current: ['Lard', 'Ground Beef'],
-  next: ['Lard', 'Ground Beef', 'Chicken']
+  next: ['Lard', 'Ground Beef', 'Chicken', 'Fatback']
 };
 
 export class InventoryPage {

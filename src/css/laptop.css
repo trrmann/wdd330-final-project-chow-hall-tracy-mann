@@ -127,10 +127,10 @@
   }
 
   .folder-tab.is-active {
-    background-color: var(--off-white);
+    background-color: color-mix(in srgb, var(--dust-storm) 97%, transparent);
     color: var(--tactical-olive);
     border-color: var(--field-stone);
-    border-bottom-color: var(--off-white);
+    border-bottom-color: var(--dust-storm);
     border-top: 3px solid var(--tactical-olive);
     z-index: 2;
   }

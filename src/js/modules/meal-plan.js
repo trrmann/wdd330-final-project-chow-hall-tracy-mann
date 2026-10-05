@@ -11,6 +11,37 @@ const weekDays = [
   'Sat',
   'Sun'
 ];
+const weekDaysLong = {
+  Mon: 'Monday',
+  Tue: 'Tuesday',
+  Wed: 'Wednesday',
+  Thu: 'Thursday',
+  Fri: 'Friday',
+  Sat: 'Saturday',
+  Sun: 'Sunday'
+};
+const defaultMeals = {
+  breakfast: {
+    display: "Breakfast",
+    required: true
+  },
+  brunch: {
+    display: "Brunch",
+    required: false
+  },
+  lunch: {
+    display: "Lunch",
+    required: true
+  },
+  dinner: {
+    display: "Dinner",
+    required: true
+  },
+  midnightMeal: {
+    display: "Midnight Meal",
+    required: false
+  }
+};
 const weekDayStatuses = {
   current: {
     Mon: {
@@ -719,7 +750,7 @@ export class MealPlanPage {
     const activeStatus = activeDayData.status || 'undefined';
     const activeMeals = activeDayData.meals || {};
     const activeMealsArray = Object.keys(activeMeals);
-    heading.textContent = `${day}'s Meal Plan:  (${activeStatus})`;
+    heading.textContent = `${weekDaysLong[day]}'s Meal Plan:  (${activeStatus})`;
     activeMealsArray.forEach((meal) => {
       const mealPlan = activeMeals[meal];
       const mealServings = mealPlan.servings;
@@ -732,7 +763,11 @@ export class MealPlanPage {
       const dailyMealSlot = mealSlotClone.querySelector(MealPlanPage.dailyMealSlotClass);
       const dailyMealSlotLabel = dailyMealSlot.querySelector(MealPlanPage.dailyMealSlotLabelClass);
       const description = dailyMealSlot.querySelector('p');
-      description.textContent = `${meal} is ${mealDetails}.`;
+      if (Object.hasOwn(defaultMeals, meal)) {
+        description.textContent = `${defaultMeals[meal].display} is ${mealDetails}.`;
+      } else {
+        description.textContent = `${meal} is ${mealDetails}.`;
+      }
       dailyMealSlotLabel.innerText = "";
       this.#dailyMealsListContainer.appendChild(mealSlotClone);
     });
