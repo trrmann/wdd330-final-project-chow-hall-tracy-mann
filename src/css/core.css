@@ -517,7 +517,8 @@ a.panel-kicker-anchor {
   display: inline;
 }
 
-.folder-tab:hover, .folder-tab.tab-attention-indicator:not(.is-active):hover {
+.folder-tab:hover,
+.folder-tab.tab-attention-indicator:not(.is-active):hover {
   background-color: var(--dust-storm);
   color: var(--command-black);
 }

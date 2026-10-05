@@ -96,3 +96,15 @@ export async function loadSiteShell(activePage) {
   window.matchMedia('(min-width: 1024px)').addEventListener('change', () => setMenuOpen(false));
   return parms;
 }
+export function updateHeaderWeekParameters(newWeekValue) {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  const brandAnchor = header.querySelector('a.site-brand');
+  if (brandAnchor) {
+    brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', newWeekValue);
+  }
+  const menuLinks = header.querySelectorAll('.site-nav-link');
+  menuLinks.forEach((anchor) => {
+    anchor.href = persistQueryParameter(anchor.href, 'week', newWeekValue);
+  });
+}

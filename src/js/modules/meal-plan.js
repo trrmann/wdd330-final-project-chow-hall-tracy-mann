@@ -1,6 +1,9 @@
 import {
   persistQueryParameter
 } from '../utils.js';
+import {
+  updateHeaderWeekParameters
+} from '../site-shell.js';
 const weekNamedOffsets = {
   min: {
     param: "min",
@@ -878,6 +881,7 @@ export class MealPlanPage {
       });
       this.#updateUrlParameter('week', weekParamValue);
       this.#weekParameter = weekParamValue;
+      updateHeaderWeekParameters(weekParamValue);
       this.render();
     });
     if (resetButtonContainer) {
