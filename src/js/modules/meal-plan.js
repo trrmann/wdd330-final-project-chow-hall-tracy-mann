@@ -13,7 +13,10 @@ const weekNamedOffsets = {
     isOffset: true,
     allowNextWeek: true,
     allowPreviousWeek: false,
-    onDashboard: false
+    onDashboard: false,
+    nextDashboardKey: "current",
+    dashboardDisplay: "Other Week",
+    dashboardTitle: "Click to change to the current week!"
   },
   last: {
     param: "last",
@@ -63,6 +66,9 @@ const weekNamedOffsets = {
     allowNextWeek: false,
     allowPreviousWeek: true,
     onDashboard: false,
+    nextDashboardKey: "current",
+    dashboardDisplay: "Other Week",
+    dashboardTitle: "Click to change to the current week!"
   }
 }
 const weekDays = [
@@ -970,7 +976,6 @@ export class MealPlanPage {
         weekKicker.textContent = weekNamedOffsets[namedOffset].dashboardDisplay;
         weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', weekNamedOffsets[namedOffset].nextDashboardKey);
         weekKickerAnchor.title = weekNamedOffsets[namedOffset].dashboardTitle;
-
         isWeekParameterNamedDashboardOffset = true;
       }
     });
