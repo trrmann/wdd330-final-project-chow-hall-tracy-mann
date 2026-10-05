@@ -98,7 +98,7 @@ h2 {
   padding: 24px 13px 19px;
   margin: 16px 16px auto;
   border-bottom: 1px solid var(--border);
-  background-color: color-mix(in srgb, var(--dust-storm) 85%, transparent);
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
   border-radius: 32px;
 }
 
@@ -111,7 +111,7 @@ h2 {
 
 .dashboard-panel {
   padding: 16px;
-  background-color: color-mix(in srgb, var(--dust-storm) 97%, transparent);
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
   border-radius: 32px;
 }
 

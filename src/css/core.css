@@ -72,7 +72,7 @@
   letter-spacing: 0;
   color-scheme: light dark;
   color: var(--text);
-  background-color: var(--dust-storm);
+  background-color: var(--khaki-field);
   background-image: var(--camo-pattern);
   background-repeat: no-repeat;
   background-position: center center;
@@ -356,7 +356,7 @@ a.panel-kicker-anchor {
   min-height: 32px;
   place-items: center;
   border: 1px solid var(--charcoal);
-  background: var(--dust-storm);
+  background: var(--khaki-field);
   color: var(--command-black);
   font-size: 12px;
   font-weight: 700;
@@ -389,7 +389,7 @@ a.panel-kicker-anchor {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--desert-sand);
+  background-color: var(--dust-storm);
   border: 2px solid var(--field-stone);
   border-radius: 8px;
   padding: 12px;
@@ -517,20 +517,20 @@ a.panel-kicker-anchor {
   display: inline;
 }
 
-.folder-tab:hover {
-  background-color: var(--khaki-field);
+.folder-tab:hover, .folder-tab.tab-attention-indicator:not(.is-active):hover {
+  background-color: var(--dust-storm);
   color: var(--command-black);
 }
 
 .folder-tab.is-active {
   background-color: color-mix(in srgb, var(--tactical-olive) 97%, transparent);
-  color: var(--dust-storm);
+  color: var(--khaki-field);
   font-weight: 700;
   border-color: var(--tactical-olive);
 }
 
 .folder-panel {
-  background-color: color-mix(in srgb, var(--dust-storm) 97%, transparent);
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
   border: 1px solid var(--field-stone);
   border-radius: 6px;
   padding: 20px;
@@ -626,7 +626,7 @@ div.page-intro {
 .site-brand:focus-visible,
 .primary-action:focus-visible,
 .panel-link:focus-visible {
-  outline: 3px solid var(--khaki-field);
+  outline: 3px solid var(--dust-storm);
   outline-offset: 3px;
 }
 

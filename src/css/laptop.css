@@ -151,10 +151,10 @@
   }
 
   .folder-tab.is-active {
-    background-color: color-mix(in srgb, var(--dust-storm) 97%, transparent);
+    background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
     color: var(--tactical-olive);
     border-color: var(--field-stone);
-    border-bottom-color: var(--dust-storm);
+    border-bottom-color: var(--khaki-field);
     border-top: 3px solid var(--tactical-olive);
     z-index: 2;
   }
