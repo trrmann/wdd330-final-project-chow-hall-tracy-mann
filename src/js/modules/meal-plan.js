@@ -849,10 +849,10 @@ export class MealPlanPage {
     const prevButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="-1"]`);
     const nextButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="1"]`);
     if (prevButton) {
-      prevButton.style.display = isPreviousWeekAllowed ? 'block' : 'none';
+      prevButton.style.visibility = isPreviousWeekAllowed ? 'visible' : 'hidden';
     }
     if (nextButton) {
-      nextButton.style.display = isNextWeekAllowed ? 'block' : 'none';
+      nextButton.style.visibility = isNextWeekAllowed ? 'visible' : 'hidden';
     }
     navPanelContainer.addEventListener('click', (event) => {
       const buttonElement = event.target.closest(MealPlanPage.weekNavButtonClass);
