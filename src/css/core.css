@@ -425,6 +425,10 @@ a.panel-kicker-anchor {
   cursor: default;
 }
 
+.week-current-reset-button.is-hidden {
+  display: none;
+}
+
 .week-current-reset-button.has-offset {
   color: var(--tactical-olive);
   text-decoration: underline;

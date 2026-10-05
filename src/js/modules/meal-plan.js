@@ -738,19 +738,24 @@ export class MealPlanPage {
   }
   #renderWeekNavigationData(container) {
     const labelContainer = container.querySelector(MealPlanPage.weekNavLabelClass);
+    const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     const rangeContainer = container.querySelector(MealPlanPage.weekNavRangeClass);
     if (this.#weekOffset === 0) {
       labelContainer.textContent = "Current Week";
-      labelContainer.classList.remove('has-offset');
+      resetButtonContainer.classList.add('is-hidden');
+      resetButtonContainer.classList.remove('has-offset');
     } else if (this.#weekOffset === -1) {
       labelContainer.textContent = "Last Week";
-      labelContainer.classList.add('has-offset');
+      resetButtonContainer.classList.remove('is-hidden');
+      resetButtonContainer.classList.add('has-offset');
     } else if (this.#weekOffset === 1) {
       labelContainer.textContent = "Next Week";
-      labelContainer.classList.add('has-offset');
+      resetButtonContainer.classList.remove('is-hidden');
+      resetButtonContainer.classList.add('has-offset');
     } else {
       labelContainer.textContent = this.#weekOffset > 0 ? `Week +${this.#weekOffset}` : `Week ${this.#weekOffset}`;
-      labelContainer.classList.add('has-offset');
+      resetButtonContainer.classList.remove('is-hidden');
+      resetButtonContainer.classList.add('has-offset');
     }
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + (this.#weekOffset * 7));
@@ -777,12 +782,14 @@ export class MealPlanPage {
       this.#updateUrlParameter('week', weekParamValue);
       this.render();
     });
-    resetButtonContainer.addEventListener('click', () => {
-      if (this.#weekOffset === 0) return;
-      this.#weekOffset = 0;
-      this.#updateUrlParameter('week', 'current');
-      this.render();
-    });
+    if (resetButtonContainer) {
+      resetButtonContainer.addEventListener('click', () => {
+        if (this.#weekOffset === 0) return;
+        this.#weekOffset = 0;
+        this.#updateUrlParameter('week', 'current');
+        this.render();
+      });
+    }
   }
   #parseInitialWeekOffset() {
     if (!this.#weekParameter || this.#weekParameter === 'last' || this.#weekParameter === 'current' || this.#weekParameter === 'next') {
