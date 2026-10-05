@@ -17,9 +17,20 @@
   <template id="meal-plan-page-template">
     <div class="meal-plan-page">
       <section class="home-intro meal-plan-intro" aria-labelledby="meal-plan-title">
-        <p class="home-kicker">Your gathering</p>
-        <h1 id="meal-plan-title">Meal Plan</h1>
-        <p>Plan your meals and keep track of your ingredients.</p>
+        <div class="page-intro">
+          <p class="home-kicker">Your gathering</p>
+          <h1 id="meal-plan-title">Meal Plan</h1>
+          <p>Plan your meals and keep track of your ingredients.</p>
+        </div>
+        <div class="week-nav-panel">
+          <a class="week-nav-button" data-nav-dir="-1" aria-label="Previous Week">&larr; Back</a>
+          <div class="week-nav-display">
+            <span class="week-nav-label">Current Week</span>
+            <span class="week-nav-range">Loading dates...</span>
+            <a class="week-current-reset-button" aria-label="Reset to Current Week">Current Week</a>
+          </div>
+          <a class="week-nav-btn" data-nav-dir="1" aria-label="Next Week">Next &rarr;</a>
+        </div>
       </section>
       <section class="folder-container">
         <ul class="folder-tabs" role="tablist"></ul>

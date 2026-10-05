@@ -661,6 +661,12 @@ export class MealPlanPage {
   static weekStripLabelClass = '.week-strip-label';
   static weekStripStatusClass = '.week-strip-status';
   static weekStripStatusClassPrefix = 'week-strip-status-';
+  static mealPlanPageIntroClass = '.page-intro';
+  static weekNavLabelClass = '.week-nav-label';
+  static weekNavRangeClass = '.week-nav-range';
+  static weekNavPanelClass = '.week-nav-panel';
+  static weekNavButtonClass = '.week-nav-btn';
+  static weekNavCurrentResetButtonClass = '.week-current-reset-button';
   static folderTabsContainerClass = '.folder-tabs';
   static folderTabTemplateId = 'folder-tab-template';
   static folderTabClass = '.folder-tab';
@@ -675,10 +681,12 @@ export class MealPlanPage {
   #mealPlanDashBoardTemplate;
   #mealPlanDayTemplate;
   #weekParameter;
+  #weekOffset;
   #selectedDay;
   #folderTabTemplate;
   #dailyMealsListContainer;
   #dailyMealSlotTemplate;
+
   constructor(parms) {
     this.#mealPlanPageContainer = document.getElementById(MealPlanPage.mealPlanPageMainId);
     this.#mealPlanPageTemplate = document.getElementById(MealPlanPage.mealPlanPageTemplateId);
@@ -686,6 +694,8 @@ export class MealPlanPage {
     this.#dailyMealSlotTemplate = document.getElementById(MealPlanPage.dailyMealSlotTemplateId);
     this.#weekParameter = parms.week;
     this.#selectedDay = new URLSearchParams(window.location.search).get('day') || 'Mon';
+    this.#weekOffset = 0;
+    this.#parseInitialWeekOffset();
   }
   get selectedDay() {
     return this.#selectedDay;
@@ -693,6 +703,7 @@ export class MealPlanPage {
   render() {
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
+    this.#renderWeekNavigationData(pageContentClone);
     weekDays.forEach((day) => {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
@@ -708,6 +719,7 @@ export class MealPlanPage {
       tabsContainer.appendChild(tabClone);
     });
     this.initFolderEvents(pageContentClone);
+    this.#initWeekNavigationEvents(pageContentClone);
     this.updatePanelContent(pageContentClone, this.#weekParameter, this.#selectedDay);
     this.#mealPlanPageContainer.innerHTML = '';
     this.#mealPlanPageContainer.appendChild(pageContentClone);
@@ -723,6 +735,68 @@ export class MealPlanPage {
       this.#switchActiveTab(tabsContainer, clickedTab);
       this.updatePanelContent(this.#mealPlanPageContainer, this.#weekParameter, this.#selectedDay);
     });
+  }
+  #renderWeekNavigationData(container) {
+    const labelContainer = container.querySelector(MealPlanPage.weekNavLabelClass);
+    const rangeContainer = container.querySelector(MealPlanPage.weekNavRangeClass);
+    if (this.#weekOffset === 0) {
+      labelContainer.textContent = "Current Week";
+      labelContainer.classList.remove('has-offset');
+    } else if (this.#weekOffset === -1) {
+      labelContainer.textContent = "Last Week";
+      labelContainer.classList.add('has-offset');
+    } else if (this.#weekOffset === 1) {
+      labelContainer.textContent = "Next Week";
+      labelContainer.classList.add('has-offset');
+    } else {
+      labelContainer.textContent = this.#weekOffset > 0 ? `Week +${this.#weekOffset}` : `Week ${this.#weekOffset}`;
+      labelContainer.classList.add('has-offset');
+    }
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + (this.#weekOffset * 7));
+    const dayOfWeek = targetDate.getDay();
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Handle Sunday wrap
+    const monday = new Date(targetDate.setDate(targetDate.getDate() + distanceToMonday));
+    const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    rangeContainer.textContent = `${formatter.format(monday)} – ${formatter.format(sunday)}`;
+  }
+  #initWeekNavigationEvents(container) {
+    const navPanelContainer = container.querySelector(MealPlanPage.weekNavPanelClass);
+    const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
+    navPanelContainer.addEventListener('click', (event) => {
+      const buttonElement = event.target.closest(MealPlanPage.weekNavButtonClass);
+      if (!buttonElement) return;
+      const directionalStep = parseInt(buttonElement.dataset.navDir, 10);
+      this.#weekOffset += directionalStep;
+      const weekParamValue = this.#weekOffset === -1 ? 'last' : this.#weekOffset === 0 ? 'current' : this.#weekOffset === 1 ? 'next' : String(this.#weekOffset);
+      this.#updateUrlParameter('week', weekParamValue);
+      this.render();
+    });
+    resetButtonContainer.addEventListener('click', () => {
+      if (this.#weekOffset === 0) return;
+      this.#weekOffset = 0;
+      this.#updateUrlParameter('week', 'current');
+      this.render();
+    });
+  }
+  #parseInitialWeekOffset() {
+    if (!this.#weekParameter || this.#weekParameter === 'last' || this.#weekParameter === 'current' || this.#weekParameter === 'next') {
+      if (!this.#weekParameter || this.#weekParameter === 'current') {
+        this.#weekOffset = 0;
+      } else if (this.#weekParameter === 'last') {
+        this.#weekOffset = -1;
+      } else {
+        this.#weekOffset = 1;
+      }
+    } else {
+      const parsed = parseInt(this.#weekParameter, 10);
+      this.#weekOffset = isNaN(parsed) ? 0 : parsed;
+    }
   }
   #updateUrlParameter(key, value) {
     const url = new URL(window.location.href);
