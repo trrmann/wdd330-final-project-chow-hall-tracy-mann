@@ -501,17 +501,20 @@ a.panel-kicker-anchor {
   transition: background-color 160ms ease, color 160ms ease;
 }
 
-.tab-attention-indicator {
-  color: var(--copper-canteen);
+.folder-tab.tab-attention-indicator:not(.is-active) {
+  background-color: var(--copper-canteen);
+  color: var(--off-white);
   font-weight: 700;
 }
 
-.tab-attention-indicator::before {
+.folder-tab.tab-attention-indicator:not(.is-active)::before {
   content: "* ";
+  display: inline;
 }
 
-.tab-attention-indicator::after {
+.folder-tab.tab-attention-indicator:not(.is-active)::after {
   content: " *";
+  display: inline;
 }
 
 .folder-tab:hover {

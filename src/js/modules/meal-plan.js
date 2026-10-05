@@ -728,7 +728,7 @@ export class MealPlanPage {
   static weekNavButtonClass = '.week-nav-button';
   static weekNavCurrentResetButtonClass = '.week-current-reset-button';
   static folderTabsContainerClass = '.folder-tabs';
-  static folderTabAttentionIndicatorClass = '.tab-attention-indicator';
+  static folderTabAttentionIndicatorClass = 'tab-attention-indicator';
   static folderTabTemplateId = 'folder-tab-template';
   static folderTabClass = '.folder-tab';
   static folderPanelClass = '.folder-panel';
