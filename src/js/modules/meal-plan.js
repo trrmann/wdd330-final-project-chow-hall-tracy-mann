@@ -4,6 +4,9 @@ import {
 import {
   updateHeaderWeekParameters
 } from '../site-shell.js';
+import {
+  APIs
+} from './apis.js'
 const weekNamedOffsets = {
   min: {
     param: "min",
@@ -758,6 +761,7 @@ export class MealPlanPage {
   #folderTabTemplate;
   #dailyMealsListContainer;
   #dailyMealSlotTemplate;
+  #apis;
 
   constructor(parms) {
     this.#mealPlanPageContainer = document.getElementById(MealPlanPage.mealPlanPageMainId);
@@ -768,11 +772,24 @@ export class MealPlanPage {
     this.#selectedDay = new URLSearchParams(window.location.search).get('day') || 'Mon';
     this.#weekOffset = 0;
     this.#parseInitialWeekOffset();
+    this.#apis = new APIs();
   }
   get selectedDay() {
     return this.#selectedDay;
   }
-  render() {
+  async render() {
+    const random = await this.#apis.RandomMeal();
+    console.log(random);
+    const categories = await this.#apis.MealCategories();
+    console.log(categories);
+    // CORS Error
+    const word = await this.#apis.lookupDictionaryEntryByString('food');
+    console.log(word);
+    // CORS Error
+    const symbols = await this.#apis.currencySymbols();
+    console.log(symbols);
+    const current100DollorsInPeruvianPEN = await this.#apis.convertCurrency('USD', 'PEN', 100.00);
+    console.log(current100DollorsInPeruvianPEN);
     this.#mealPlanPageContainer.innerHTML = '';
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     this.#renderWeekNavigationData(pageContentClone);

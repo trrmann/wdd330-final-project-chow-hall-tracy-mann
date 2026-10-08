@@ -5,6 +5,26 @@ export function hasQueryParams(url) {
 export function logCurrentState(message) {
   console.log(message);
 }
+export async function fetchRequest(request, header = null) {
+  try {
+    let response = null;
+    if (header === null) {
+      response = await fetch(request);
+
+    } else {
+      response = await fetch(request, header);
+    }
+    if (!response.ok) throw new Error('Network response failure');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log(`Failed request:  ${request}`);
+    console.error("Fetch Error:", error);
+    return {};
+  }
+}
+
+
 /*
 const url = new URL(relativePath, window.location.origin);
 
