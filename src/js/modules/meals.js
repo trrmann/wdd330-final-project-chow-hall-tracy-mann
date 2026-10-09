@@ -97,6 +97,7 @@ export class Meal {
   };
   #ID;
   #Name;
+  #servingsRequired;
   #recipes;
   #servingsByRecipeID;
   #syncRecipeServings() {
@@ -118,6 +119,7 @@ export class Meal {
     return {
       id: this.#ID,
       name: this.#Name,
+      servingsRequired: this.#servingsRequired,
       recipes: this.#recipes.toJSON(),
       servingsByRecipeID: this.#servingsByRecipeID
     };
@@ -126,6 +128,8 @@ export class Meal {
     if (json && json.id !== undefined && json.name !== undefined) {
       this.#ID = json.id;
       this.#Name = json.name;
+      this.#servingsRequired = json.servingsRequired ?? 1;
+      this.#validateServings(this.#servingsRequired);
       this.#recipes = json.recipes instanceof Recipes
         ? json.recipes
         : Recipes.fromJSON(json.recipes || {});
@@ -136,11 +140,14 @@ export class Meal {
   constructor({
     id = null,
     name = '',
+    servingsRequired = 1,
     recipes = new Recipes(),
     servingsByRecipeID = {}
   } = {}) {
     this.#ID = id;
     this.#Name = name;
+    this.#validateServings(servingsRequired);
+    this.#servingsRequired = servingsRequired;
     this.#recipes = recipes instanceof Recipes ? recipes : Recipes.fromJSON(recipes);
     this.#servingsByRecipeID = { ...servingsByRecipeID };
     this.#syncRecipeServings();
@@ -153,6 +160,13 @@ export class Meal {
   };
   get Name() {
     return this.#Name;
+  };
+  get servingsRequired() {
+    return this.#servingsRequired;
+  };
+  set servingsRequired(servings) {
+    this.#validateServings(servings);
+    this.#servingsRequired = servings;
   };
   get recipes() {
     return this.#recipes;
