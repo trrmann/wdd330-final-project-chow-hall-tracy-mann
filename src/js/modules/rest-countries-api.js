@@ -10,6 +10,12 @@ import {
   APIRequestQueue,
   apiRequestQueue
 } from './api-request-queue.js'
+import {
+  convertMockCurrency,
+  createMockCountryForName,
+  getMockCurrencySymbols,
+  searchMockCountries
+} from './rest-countries-mock-data.js'
 
 /*
 const response = await fetch(
@@ -112,6 +118,7 @@ export class RestCountries {
   static currenciesConvertAmountQuery = "&amount=";
   static currenciesSymbolsFunction = "symbols";
   #localCache;
+  #useMockData;
   //#apiLiveDemoPublicAPIKey;
   #apiLiveFreeAPIKey;
   #header(apiKey) {
@@ -134,20 +141,38 @@ export class RestCountries {
   constructor(isSessionCache = true) {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
+    this.#useMockData = import.meta.env.VITE_REST_COUNTRIES_USE_MOCK_DATA === 'true';
     this.#localCache = new Cache({
       isSessionCache: isSessionCache,
       namespace: 'rest-countries'
     });
   }
+  get isUsingMockData() {
+    return this.#useMockData;
+  }
   async #cachedRequest(cacheKey, request, cache = true, apiKey = this.#apiLiveFreeAPIKey) {
+    const scopedCacheKey = `${this.#useMockData ? 'mock' : 'live'}:${cacheKey}`;
+    if (typeof request === 'function') {
+      let response;
+      if (this.#localCache.hasCache(scopedCacheKey)) {
+        response = this.#localCache.getCache(scopedCacheKey);
+      } else {
+        response = await request();
+        this.#localCache.setCache(scopedCacheKey, response);
+      }
+      if (!cache) {
+        this.#deleteCache(scopedCacheKey);
+      }
+      return response;
+    }
     const response = await apiRequestQueue.run({
       api: 'rest-countries',
       cache: this.#localCache,
-      cacheKey,
+      cacheKey: scopedCacheKey,
       request: () => this.#fetch(request, apiKey)
     });
     if (!cache) {
-      this.#deleteCache(cacheKey);
+      this.#deleteCache(scopedCacheKey);
     }
     return response;
   }
@@ -156,6 +181,14 @@ export class RestCountries {
   }
   async search25CountriesWithNoOffsetByStringQuery(string, cache = true) {
     const searchTerm = String(string).trim();
+    if (this.#useMockData) {
+      const cacheKey = `Country-${searchTerm.toLocaleLowerCase()}`;
+      return this.#cachedRequest(
+        cacheKey,
+        () => searchMockCountries(searchTerm, 25),
+        cache
+      );
+    }
     const cacheKey = `Country-${searchTerm.toLocaleLowerCase()}`;
     const request = `${RestCountries.baseURL}${RestCountries.countriesAPIPath}${RestCountries.countriesQueryFunction}${encodeURIComponent(searchTerm)}&${RestCountries.countriesQueryLimitOption}25`;
     return this.#cachedRequest(cacheKey, request, cache);
@@ -178,14 +211,32 @@ export class RestCountries {
       const bestMatches = rankedMatches.filter(match => match.rank === rankedMatches[0].rank);
       return bestMatches.length === 1 ? bestMatches[0].country : undefined;
     }
-    return countries.length === 1 ? countries[0] : undefined;
+    if (countries.length === 1) {
+      return countries[0];
+    }
+    return this.#useMockData ? createMockCountryForName(countryName) : undefined;
   }
   async convertCurrency(from, to, amount, cache = true) {
+    if (this.#useMockData) {
+      const cacheKey = `Convert-${from}-${to}-${amount}`;
+      return this.#cachedRequest(
+        cacheKey,
+        () => convertMockCurrency(from, to, amount),
+        cache
+      );
+    }
     const cacheKey = `Convert-${from}-${to}-${amount}`;
     const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesConvertFunction}${RestCountries.currenciesConvertFromQuery}${from}${RestCountries.currenciesConvertToQuery}${to}${RestCountries.currenciesConvertAmountQuery}${amount}`;
     return this.#cachedRequest(cacheKey, request, cache);
   }
   async currencySymbols(cache = true) {
+    if (this.#useMockData) {
+      return this.#cachedRequest(
+        'Symbols',
+        getMockCurrencySymbols,
+        cache
+      );
+    }
     const cacheKey = `Symbols`;
     const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesSymbolsFunction}`;
     return this.#cachedRequest(cacheKey, request, cache);

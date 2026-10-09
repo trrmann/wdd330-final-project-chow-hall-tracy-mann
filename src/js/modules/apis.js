@@ -20,6 +20,10 @@ export class APIs {
   #theMealDB;
   #restCountries;
   #dictionaryAPI;
+  #restCountriesCacheKey(cacheKey) {
+    const mode = this.#restCountries.isUsingMockData ? 'mock' : 'live';
+    return `RestCountries-${mode}-${cacheKey}`;
+  }
   constructor(isSessionCache = true) {
     this.#localCache = new Cache({
       isSessionCache: isSessionCache,
@@ -28,6 +32,9 @@ export class APIs {
     this.#theMealDB = new TheMealDBAPI();
     this.#restCountries = new RestCountries();
     this.#dictionaryAPI = new DictionaryAPI();
+  }
+  get isUsingMockRestCountriesData() {
+    return this.#restCountries.isUsingMockData;
   }
   hasCache(key) {
     return this.#localCache.hasCache(key);
@@ -286,7 +293,7 @@ export class APIs {
     }
   }
   async search25CountriesWithNoOffsetByStringQuery(string, cache = true) {
-    const cacheKey = `Countries-String-${string}`;
+    const cacheKey = this.#restCountriesCacheKey(`Countries-String-${string}`);
     if (!this.hasCache(cacheKey)) {
       this.setCache(cacheKey, await this.#restCountries.search25CountriesWithNoOffsetByStringQuery(string, cache));
     }
@@ -299,7 +306,7 @@ export class APIs {
     }
   }
   async lookupCountryByName(name, cache = true) {
-    const cacheKey = `Country-Name-${String(name).trim().toLocaleLowerCase()}`;
+    const cacheKey = this.#restCountriesCacheKey(`Country-Name-${String(name).trim().toLocaleLowerCase()}`);
     if (!this.hasCache(cacheKey)) {
       const country = await this.#restCountries.lookupCountryByName(name, cache);
       if (country !== undefined && country !== null) {
@@ -363,7 +370,7 @@ export class APIs {
     };
   }
   async convertCurrency(from, to, amount, cache = true) {
-    const cacheKey = `Currency-Convert-${from}-${to}-${amount}`;
+    const cacheKey = this.#restCountriesCacheKey(`Currency-Convert-${from}-${to}-${amount}`);
     if (!this.hasCache(cacheKey)) {
       this.setCache(cacheKey, await this.#restCountries.convertCurrency(from, to, amount, cache));
     }
@@ -376,7 +383,7 @@ export class APIs {
     }
   }
   async currencySymbols(cache = true) {
-    const cacheKey = `CurrencySymbols`;
+    const cacheKey = this.#restCountriesCacheKey('CurrencySymbols');
     if (!this.hasCache(cacheKey)) {
       this.setCache(cacheKey, await this.#restCountries.currencySymbols(cache));
     }

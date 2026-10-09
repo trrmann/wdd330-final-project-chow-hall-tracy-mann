@@ -89,7 +89,11 @@
     </section>
   </template>
   <template id="recipe-suggestion-template">
-    <li><a href="/MealPlan/" class="recipe-suggestion">{placeholder}</a></li>
+    <li class="recipe-suggestion-item">
+      <a href="/MealPlan/" class="recipe-suggestion">{placeholder}</a>
+      <button type="button" class="recipe-suggestion-deploy" disabled title="Recipe deployment is coming soon">Deploy (coming soon)</button>
+      <button type="button" class="recipe-suggestion-dismiss">Dismiss</button>
+    </li>
   </template>
   <div id="site-footer"></div>
 </body>

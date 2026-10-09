@@ -37,7 +37,7 @@ export class HomePage {
     this.#shoppingPage = new ShoppingPage(parms);
     this.#searchPage = new SearchPage(parms);
   }
-  render() {
+  async render() {
     const homePageContent = this.#homePageTemplate.content.cloneNode(true);
     this.#homePagePrimaryActionContainer = homePageContent.querySelector(HomePage.primaryActionClass);
     this.#homePagePrimaryActionContainer.href = persistQueryParameter(this.#homePagePrimaryActionContainer.href, 'week', this.#weekParameter);
@@ -45,8 +45,8 @@ export class HomePage {
     this.#mealPlanPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
     this.#inventoryPage.mountDashboards(this.#homePageDashboardContainer, this.#weekParameter);
     this.#shoppingPage.mountDashboard(this.#homePageDashboardContainer);
-    this.#searchPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
     this.#homePageContainer.innerHTML = '';
     this.#homePageContainer.appendChild(homePageContent);
+    await this.#searchPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
   }
 }

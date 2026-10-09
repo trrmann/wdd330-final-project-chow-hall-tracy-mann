@@ -11,4 +11,4 @@ import {
 } from './site-shell.js'
 
 const parms = await loadSiteShell('home');
-new HomePage(parms).render();
+await new HomePage(parms).render();

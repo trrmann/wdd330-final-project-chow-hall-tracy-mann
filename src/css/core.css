@@ -575,8 +575,15 @@ a.panel-kicker-anchor {
   gap: 8px;
 }
 
+.recipe-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .recipe-suggestions a {
   display: block;
+  flex: 1;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
   color: var(--text-h);
@@ -586,6 +593,64 @@ a.panel-kicker-anchor {
 .recipe-suggestions a:hover {
   color: var(--primary-emphasis);
   text-decoration: underline;
+}
+
+.recipe-suggestions button {
+  padding: 6px 10px;
+}
+
+.recipe-suggestion-deploy {
+  border-color: var(--tactical-olive);
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  font-family: var(--heading);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.recipe-suggestion-deploy:hover {
+  background-color: var(--ranger-green);
+}
+
+.recipe-suggestion-deploy:focus-visible {
+  outline: 3px solid var(--expedition-brown);
+  outline-offset: 2px;
+}
+
+.recipe-suggestion-dismiss {
+  border-color: var(--charcoal);
+  background-color: var(--charcoal);
+  color: var(--off-white);
+  font-family: var(--heading);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.recipe-suggestion-dismiss:hover {
+  background-color: var(--command-black);
+}
+
+.recipe-suggestion-dismiss:focus-visible {
+  outline: 3px solid var(--expedition-brown);
+  outline-offset: 2px;
+}
+
+.recipe-suggestions-empty {
+  color: var(--charcoal);
+}
+
+.recipe-suggestion-error {
+  color: var(--expedition-brown);
 }
 
 div.page-intro {

@@ -14,6 +14,9 @@ export class SearchPage {
   static recipeSuggestionTemplateId = 'recipe-suggestion-template';
   static recipeSuggestionsClass = '.recipe-suggestions';
   static recipeSuggestionClass = '.recipe-suggestion';
+  static recipeSuggestionDismissClass = '.recipe-suggestion-dismiss';
+  static recipeSuggestionEmptyClass = '.recipe-suggestions-empty';
+  static recipeSuggestionErrorClass = '.recipe-suggestion-error';
 
   #searchPageContainer;
   #searchPageTemplate;
@@ -29,28 +32,67 @@ export class SearchPage {
     this.#searchPageContainer.innerHTML = '';
     this.#searchPageContainer.appendChild(this.#searchPageTemplate.content.cloneNode(true));
   }
-  mountDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
-    this.renderRecipeSuggestionsDashboard(dashboardContainer, weekParameter);
+  async mountDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
+    await this.renderRecipeSuggestionsDashboard(dashboardContainer, weekParameter);
   }
-  renderRecipeSuggestionsDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
+  async renderRecipeSuggestionsDashboard(
+    dashboardContainer,
+    weekParameter = this.#weekParameter,
+    errorMessage = ''
+  ) {
     this.#recipeSuggestionsDashBoardTemplate = document.getElementById(SearchPage.recipeSuggestionsDashBoardTemplateId);
     this.#recipeSuggestionTemplate = document.getElementById(SearchPage.recipeSuggestionTemplateId);
     const recipeSuggestionsDashBoardClone = this.#recipeSuggestionsDashBoardTemplate.content.cloneNode(true);
     const targetContainer = recipeSuggestionsDashBoardClone.querySelector(SearchPage.recipeSuggestionsClass);
-    const recipes = Object.values(siteData.recipes.toJSON().collection)
-      .sort((left, right) => left.Name.localeCompare(right.Name));
-    recipes.forEach((recipe) => {
+    let suggestedRecipes = [];
+    try {
+      suggestedRecipes = await siteData.getSuggestedRecipesForWeek(weekParameter);
+    } catch (error) {
+      errorMessage = error.message;
+    }
+    suggestedRecipes.forEach((suggestion) => {
       const clone = this.#recipeSuggestionTemplate.content.cloneNode(true);
-      clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe.Name;
-      clone.querySelector(SearchPage.recipeSuggestionClass).href = persistQueryParameter(clone.querySelector(SearchPage.recipeSuggestionClass).href, 'week', weekParameter);
+      const recipeLink = clone.querySelector(SearchPage.recipeSuggestionClass);
+      recipeLink.textContent = suggestion.recipe.Name;
+      recipeLink.href = persistQueryParameter(recipeLink.href, 'week', weekParameter);
+      clone.querySelector(SearchPage.recipeSuggestionDismissClass).dataset.recipeId = suggestion.recipe.ID;
       targetContainer.appendChild(clone);
+    });
+    if (errorMessage) {
+      const errorNotice = document.createElement('li');
+      errorNotice.className = SearchPage.recipeSuggestionErrorClass.slice(1);
+      errorNotice.setAttribute('role', 'alert');
+      errorNotice.textContent = `Could not update recipe suggestions: ${errorMessage}`;
+      targetContainer.appendChild(errorNotice);
+    }
+    if (!suggestedRecipes.length && !errorMessage) {
+      const emptyMessage = document.createElement('li');
+      emptyMessage.className = SearchPage.recipeSuggestionEmptyClass.slice(1);
+      emptyMessage.textContent = 'No recipe suggestions are available for this week.';
+      targetContainer.appendChild(emptyMessage);
+    }
+    targetContainer.addEventListener('click', async event => {
+      const dismissButton = event.target.closest(SearchPage.recipeSuggestionDismissClass);
+      if (!dismissButton) {
+        return;
+      }
+      event.preventDefault();
+      dismissButton.disabled = true;
+      try {
+        await siteData.dismissSuggestedRecipe(weekParameter, dismissButton.dataset.recipeId);
+        await this.renderRecipeSuggestionsDashboard(dashboardContainer, weekParameter);
+      } catch (error) {
+        await this.renderRecipeSuggestionsDashboard(
+          dashboardContainer,
+          weekParameter,
+          error.message
+        );
+      }
     });
     const existingDashboard = dashboardContainer.querySelector(SearchPage.recipeSuggestionsDashBoardClass);
     if (existingDashboard) {
-      // If it exists, replace ONLY this dashboard node in place, leaving others alone
       dashboardContainer.replaceChild(recipeSuggestionsDashBoardClone, existingDashboard);
     } else {
-      // If it's not there yet, append it normally
       dashboardContainer.appendChild(recipeSuggestionsDashBoardClone);
     }
   }

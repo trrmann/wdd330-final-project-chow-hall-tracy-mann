@@ -94,6 +94,13 @@ export class Countries {
     }
     return country;
   };
+  removeMockCountries() {
+    Object.values(this.#collection).forEach(country => {
+      if (country.toJSON().isMockData === true) {
+        this.removeCountryByID(country.ID);
+      }
+    });
+  };
   clearAll() {
     this.#collection = {};
     this.#index = {};

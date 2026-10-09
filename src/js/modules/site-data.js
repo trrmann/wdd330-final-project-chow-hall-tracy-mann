@@ -24,7 +24,9 @@ import {
   QuantifiedIngredients
 } from './ingredients.js'
 import {
-  createApiConfiguration
+  createApiConfiguration,
+  getWeekForParameter,
+  getWeekOffset
 } from '../utils.js'
 
 const legacyDefaultRecipeIDs = new Set([
@@ -35,6 +37,11 @@ const legacyDefaultRecipeIDs = new Set([
 ]);
 
 export class SiteData {
+  static recipeSuggestionConfiguration = {
+    commonCount: 4,
+    maximumAttemptsPerSuggestion: 3
+  };
+  static recipeSuggestionsStorageKey = 'recipeSuggestions';
   static weekDays = [
     ['Mon', 'Monday'],
     ['Tue', 'Tuesday'],
@@ -219,6 +226,7 @@ export class SiteData {
   #apiConfiguration;
   #currencyConversionTest;
   #initialization;
+  #weekRecipeSuggestions;
   #wordResolutionTask;
   #wordResolutionRequested;
   constructor() {
@@ -243,6 +251,7 @@ export class SiteData {
     this.#words = new Words();
     this.#inventory = new QuantifiedIngredients();
     this.#shoppingList = new QuantifiedIngredients();
+    this.#weekRecipeSuggestions = {};
     this.#wordResolutionTask = null;
     this.#wordResolutionRequested = false;
   };
@@ -278,6 +287,7 @@ export class SiteData {
       weeks: this.#weeks.toJSON(),
       inventory: this.#inventory.toJSON(),
       shoppingList: this.#shoppingList.toJSON(),
+      weekRecipeSuggestions: this.#weekRecipeSuggestions,
       weekNamedOffsets: SiteData.weekNamedOffsets,
       weekConfiguration: this.#weekConfiguration,
       apiConfiguration: this.#apiConfiguration,
@@ -294,6 +304,9 @@ export class SiteData {
     if (this.#storage.hasKey('countries', false)) {
       this.#countries = Countries.fromJSON(this.#storage.objectRead('countries', false));
     }
+    if (!this.#apis.isUsingMockRestCountriesData) {
+      this.#countries.removeMockCountries();
+    }
     const storedWeeks = this.#storage.hasKey('weeks', false) ?
       this.#storage.objectRead('weeks', false) : {};
     if (storedWeeks.collection) {
@@ -305,14 +318,15 @@ export class SiteData {
     if (this.#storage.hasKey('words', false)) {
       this.#words = Words.fromJSON(this.#storage.objectRead('words', false));
     }
+    if (this.#storage.hasKey(SiteData.recipeSuggestionsStorageKey, false)) {
+      this.#weekRecipeSuggestions = this.#storage.objectRead(
+        SiteData.recipeSuggestionsStorageKey,
+        false
+      ) || {};
+    }
     this.#normalizeWeekRange();
     this.#restoreRecipes(storedWeeks);
     this.#removeLegacyDefaultRecipeReferences();
-    if (Object.keys(this.#recipes.toJSON().collection).length === 0) {
-      const randomMeal = await this.#apis.RandomMeal();
-      await this.importMealDBRecipes(randomMeal);
-    }
-    this.#scheduleRecipeWordResolution();
 
     const meals = Object.values(this.#recipes.toJSON().collection).map(recipe => ({
       strArea: recipe.Area,
@@ -322,6 +336,236 @@ export class SiteData {
     this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
     console.log('Site data initialized:', JSON.parse(JSON.stringify(this)));
     return this;
+  };
+  async getSuggestedRecipesForWeek(weekParameter) {
+    const {
+      commonCount,
+      maximumAttemptsPerSuggestion
+    } = SiteData.recipeSuggestionConfiguration;
+    if (
+      !Number.isSafeInteger(commonCount) ||
+      !Number.isSafeInteger(maximumAttemptsPerSuggestion) ||
+      commonCount < 1 ||
+      maximumAttemptsPerSuggestion < 1
+    ) {
+      throw new RangeError('Recipe suggestion limits must be valid positive integers');
+    }
+
+    const week = getWeekForParameter(weekParameter, this);
+    const weekStartDate = week.weekStartDate;
+    const weekOffset = getWeekOffset(weekStartDate);
+    const minOffset = SiteData.weekNamedOffsets.min.offset;
+    const maxOffset = SiteData.weekNamedOffsets.max.offset;
+    if (
+      weekOffset < 0 ||
+      weekOffset < minOffset ||
+      weekOffset > maxOffset ||
+      this.#isWeekFull(week)
+    ) {
+      return [];
+    }
+
+    let savedSuggestions = this.#weekRecipeSuggestions[weekStartDate];
+    if (!savedSuggestions) {
+      savedSuggestions = await this.#createWeekSuggestions(week);
+      this.#weekRecipeSuggestions[weekStartDate] = savedSuggestions;
+    }
+    await this.#ensureActiveWeekSuggestions(week, savedSuggestions);
+    this.#storage.objectWrite(
+      SiteData.recipeSuggestionsStorageKey,
+      this.#weekRecipeSuggestions,
+      false
+    );
+    const dismissedIDs = new Set(savedSuggestions.dismissedRecipeIDs || []);
+    const usedRecipeIDs = this.#getWeekRecipeIDs(week);
+    const randomRecipeIDs = new Set(this.#getRandomSuggestionIDs(savedSuggestions));
+    return savedSuggestions.recipeIDs
+      .filter(recipeID =>
+        !dismissedIDs.has(String(recipeID)) && !usedRecipeIDs.has(String(recipeID))
+      )
+      .map(recipeID => ({
+        recipe: this.#recipes.getRecipeByID(recipeID),
+        source: randomRecipeIDs.has(String(recipeID)) ? 'random' : 'common'
+      }))
+      .filter(suggestion => suggestion.recipe !== undefined);
+  };
+  async #ensureActiveWeekSuggestions(week, suggestions) {
+    const {
+      commonCount
+    } = SiteData.recipeSuggestionConfiguration;
+    const activeSuggestions = () => {
+      const dismissedIDs = new Set(suggestions.dismissedRecipeIDs || []);
+      const usedRecipeIDs = this.#getWeekRecipeIDs(week);
+      return suggestions.recipeIDs.filter(recipeID =>
+        !dismissedIDs.has(String(recipeID)) &&
+        !usedRecipeIDs.has(String(recipeID)) &&
+        this.#recipes.getRecipeByID(recipeID)
+      );
+    };
+    suggestions.recipeIDs = Array.isArray(suggestions.recipeIDs) ?
+      suggestions.recipeIDs.map(String) : [];
+    suggestions.dismissedRecipeIDs = Array.isArray(suggestions.dismissedRecipeIDs) ?
+      suggestions.dismissedRecipeIDs.map(String) : [];
+    const targetCount = commonCount + 1;
+    while (activeSuggestions().length < targetCount) {
+      const activeIDs = new Set(activeSuggestions());
+      const randomRecipeIDs = new Set(this.#getRandomSuggestionIDs(suggestions));
+      const activeCommonCount = [...activeIDs]
+        .filter(recipeID => !randomRecipeIDs.has(recipeID))
+        .length;
+      const unavailableRecipeIDs = new Set([
+        ...suggestions.recipeIDs,
+        ...this.#getWeekRecipeIDs(week)
+      ]);
+      let replacementRecipe;
+      let isRandom = activeCommonCount >= commonCount;
+      if (!isRandom) {
+        replacementRecipe = Object.values(this.#recipes.toJSON().collection)
+          .find(recipe => !unavailableRecipeIDs.has(String(recipe.ID)));
+      }
+      if (!replacementRecipe) {
+        isRandom = true;
+        replacementRecipe = await this.#fetchRandomSuggestion(unavailableRecipeIDs);
+      }
+      const replacementID = String(replacementRecipe.ID);
+      suggestions.recipeIDs.push(replacementID);
+      if (isRandom) {
+        randomRecipeIDs.add(replacementID);
+        suggestions.randomRecipeIDs = [...randomRecipeIDs];
+      }
+    }
+  };
+  #getRandomSuggestionIDs(suggestions) {
+    if (Array.isArray(suggestions.randomRecipeIDs)) {
+      return suggestions.randomRecipeIDs.map(String);
+    }
+    return suggestions.randomRecipeID ? [String(suggestions.randomRecipeID)] : [];
+  };
+  #isWeekFull(week) {
+    const days = Object.values(week.days.toJSON().collection);
+    return days.length === SiteData.weekDays.length && days.every(day => {
+      const meals = day.meals.toJSON().collection;
+      return SiteData.mealTypes.every(([mealID]) =>
+        meals[mealID]?.recipeIDs?.length > 0
+      );
+    });
+  };
+  #getWeekRecipeIDs(week) {
+    const usedRecipeIDs = new Set();
+    Object.values(week.days.toJSON().collection).forEach(day => {
+      Object.values(day.meals.toJSON().collection).forEach(meal => {
+        meal.recipeIDs.forEach(recipeID => usedRecipeIDs.add(String(recipeID)));
+      });
+    });
+    return usedRecipeIDs;
+  };
+  async #createWeekSuggestions(week) {
+    const {
+      commonCount,
+    } = SiteData.recipeSuggestionConfiguration;
+    const usedRecipeIDs = this.#getWeekRecipeIDs(week);
+    const availableCommonRecipes = Object.values(this.#recipes.toJSON().collection)
+      .filter(recipe => !usedRecipeIDs.has(String(recipe.ID)));
+    for (let index = availableCommonRecipes.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [availableCommonRecipes[index], availableCommonRecipes[swapIndex]] = [availableCommonRecipes[swapIndex], availableCommonRecipes[index]];
+    }
+    const suggestedIDs = availableCommonRecipes
+      .slice(0, commonCount)
+      .map(recipe => String(recipe.ID));
+    const randomRecipeIDs = [];
+    const excludedRecipeIDs = new Set([
+      ...suggestedIDs,
+      ...usedRecipeIDs
+    ]);
+    const totalSuggestionCount = commonCount + 1;
+    while (suggestedIDs.length < totalSuggestionCount) {
+      const randomRecipe = await this.#fetchRandomSuggestion(excludedRecipeIDs);
+      const randomRecipeID = String(randomRecipe.ID);
+      suggestedIDs.push(randomRecipeID);
+      randomRecipeIDs.push(randomRecipeID);
+      excludedRecipeIDs.add(randomRecipeID);
+    }
+    return {
+      recipeIDs: suggestedIDs,
+      randomRecipeIDs,
+      dismissedRecipeIDs: []
+    };
+  };
+  async dismissSuggestedRecipe(weekParameter, recipeID) {
+    const week = getWeekForParameter(weekParameter, this);
+    const suggestions = this.#weekRecipeSuggestions[week.weekStartDate];
+    const dismissedRecipeID = String(recipeID);
+    const usedRecipeIDs = this.#getWeekRecipeIDs(week);
+    if (
+      !suggestions ||
+      !suggestions.recipeIDs.includes(dismissedRecipeID) ||
+      usedRecipeIDs.has(dismissedRecipeID)
+    ) {
+      return false;
+    }
+    suggestions.dismissedRecipeIDs = Array.isArray(suggestions.dismissedRecipeIDs) ?
+      suggestions.dismissedRecipeIDs : [];
+    if (suggestions.dismissedRecipeIDs.includes(dismissedRecipeID)) {
+      return false;
+    }
+    suggestions.dismissedRecipeIDs.push(dismissedRecipeID);
+    this.#storage.objectWrite(
+      SiteData.recipeSuggestionsStorageKey,
+      this.#weekRecipeSuggestions,
+      false
+    );
+
+    const randomRecipeIDs = this.#getRandomSuggestionIDs(suggestions);
+    const isRandomSuggestion = randomRecipeIDs.includes(dismissedRecipeID);
+    const excludedRecipeIDs = new Set([
+      ...suggestions.recipeIDs,
+      ...usedRecipeIDs
+    ]);
+    let replacementRecipe;
+    if (isRandomSuggestion) {
+      replacementRecipe = await this.#fetchRandomSuggestion(excludedRecipeIDs);
+    } else {
+      replacementRecipe = Object.values(this.#recipes.toJSON().collection)
+        .find(recipe => !excludedRecipeIDs.has(String(recipe.ID)));
+      if (!replacementRecipe) {
+        replacementRecipe = await this.#fetchRandomSuggestion(excludedRecipeIDs);
+        randomRecipeIDs.push(String(replacementRecipe.ID));
+      }
+    }
+
+    suggestions.recipeIDs.push(String(replacementRecipe.ID));
+    if (isRandomSuggestion) {
+      randomRecipeIDs.push(String(replacementRecipe.ID));
+    }
+    suggestions.randomRecipeIDs = randomRecipeIDs;
+    delete suggestions.randomRecipeID;
+    this.#storage.objectWrite(
+      SiteData.recipeSuggestionsStorageKey,
+      this.#weekRecipeSuggestions,
+      false
+    );
+    return true;
+  };
+  async #fetchRandomSuggestion(excludedRecipeIDs) {
+    const {
+      maximumAttemptsPerSuggestion
+    } = SiteData.recipeSuggestionConfiguration;
+    for (let attempt = 0; attempt < maximumAttemptsPerSuggestion; attempt += 1) {
+      const response = await this.#apis.RandomMeal();
+      const meal = response?.meals?.[0];
+      const recipeID = meal?.idMeal === undefined ? '' : String(meal.idMeal);
+      if (!recipeID || excludedRecipeIDs.has(recipeID)) {
+        continue;
+      }
+      this.#recipes = Recipes.importMealsDBJSON(this.#recipes, {
+        meals: [meal]
+      });
+      this.#storage.objectWrite('recipes', this.#recipes, false);
+      this.#scheduleRecipeWordResolution();
+      return this.#recipes.getRecipeByID(recipeID);
+    }
+    throw new Error('TheMealDB did not provide a distinct replacement recipe suggestion');
   };
   #normalizeWeekRange() {
     const minOffset = SiteData.weekNamedOffsets.min.offset;
