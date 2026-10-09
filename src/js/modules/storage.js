@@ -147,9 +147,9 @@ export class Storage {
   }
   objectKeyRead(key, objectKey, session = true) {
     if (session) {
-      return this.#objectKeyReadLocalStorage(key, objectKey);
-    } else {
       return this.#objectKeyReadSessionStorage(key, objectKey);
+    } else {
+      return this.#objectKeyReadLocalStorage(key, objectKey);
     }
   }
   objectKeyWrite(key, objectKey, value, session = true) {

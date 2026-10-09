@@ -25,6 +25,15 @@ export class QuantifiedIngredients {
   }
   #collection;
   #index;
+  #rebuildIndex() {
+    this.#index = Object.keys(this.#collection).reduce((index, key) => {
+      const name = this.#collection[key].Name;
+      if (name) {
+        index[name] = key;
+      }
+      return index;
+    }, {});
+  }
   #toJSON() {
     return {
       collection: this.#collection,
@@ -35,24 +44,36 @@ export class QuantifiedIngredients {
     console.log('quantifiedIngredients fromJSON')
     console.log(json);
     if (json && json.collection) {
-      this.#collection = Object.keys(json.collection).reduce((acc, key) => {
-        acc[key] = QuantifiedIngredient.fromJSON(json.collection[key]);
-        acc[json.collection[key].ingredient] = key;
-        return acc;
-      }, {});
+      this.#collection = {};
+      this.#index = {};
+      Object.keys(json.collection).forEach(key => {
+        const ingredientJSON = json.collection[key];
+        if (!ingredientJSON || typeof ingredientJSON !== 'object' || !('ingredient' in ingredientJSON)) {
+          return;
+        }
+        const ingredient = QuantifiedIngredient.fromJSON(ingredientJSON);
+        this.#collection[key] = ingredient;
+        if (ingredient.Name) {
+          this.#index[ingredient.Name] = key;
+        }
+      });
     }
   }
   #importMealsDBJSON(json) {
     console.log('quantifiedIngredients importMealsDBJSON')
     console.log(json);
-    this.#collection = Object.keys(json || {}).reduce((acc, indexKey) => {
+    const collection = { ...this.#collection };
+    Object.keys(json || {}).forEach(indexKey => {
       const dataItem = json[indexKey];
-      if (dataItem && dataItem.ingredient && dataItem.ingredient.trim() !== "") {
-        acc[indexKey] = QuantifiedIngredient.importMealsDBJSON(new QuantifiedIngredient(), dataItem);
-        //this.#index[dataItem.ingredient.trim()] = indexKey;
+      if (dataItem && typeof dataItem.ingredient === 'string' && dataItem.ingredient.trim() !== "") {
+        collection[indexKey] = QuantifiedIngredient.importMealsDBJSON(
+          collection[indexKey] || new QuantifiedIngredient(),
+          dataItem
+        );
       }
-      return acc;
-    }, {});
+    });
+    this.#collection = collection;
+    this.#rebuildIndex();
     console.log('quantifiedIngredients importMealsDBJSON end')
     console.log(this);
   }
@@ -69,6 +90,46 @@ export class QuantifiedIngredients {
   }
   getIngredientByName(name) {
     return this.#collection[this.#index[name]];
+  }
+  addIngredient(index, ingredient) {
+    if (!(ingredient instanceof QuantifiedIngredient)) {
+      throw new TypeError('ingredient must be a QuantifiedIngredient instance');
+    }
+    if (index === undefined || index === null || String(index).trim() === '') {
+      throw new TypeError('ingredient index must not be empty');
+    }
+    if (Object.prototype.hasOwnProperty.call(this.#collection, index)) {
+      throw new Error(`An ingredient already exists at index "${index}"`);
+    }
+    this.#collection[index] = ingredient;
+    this.#rebuildIndex();
+    return ingredient;
+  }
+  removeIngredientByIndex(index) {
+    const ingredient = this.#collection[index];
+    if (ingredient) {
+      delete this.#collection[index];
+      this.#rebuildIndex();
+    }
+    return ingredient;
+  }
+  updateIngredient(index, ingredient) {
+    if (!(ingredient instanceof QuantifiedIngredient)) {
+      throw new TypeError('ingredient must be a QuantifiedIngredient instance');
+    }
+    if (index === undefined || index === null || String(index).trim() === '') {
+      throw new TypeError('ingredient index must not be empty');
+    }
+    if (!Object.prototype.hasOwnProperty.call(this.#collection, index)) {
+      throw new Error(`No ingredient exists at index "${index}"`);
+    }
+    this.#collection[index] = ingredient;
+    this.#rebuildIndex();
+    return ingredient;
+  }
+  clearAll() {
+    this.#collection = {};
+    this.#index = {};
   }
 }
 export class QuantifiedIngredient {

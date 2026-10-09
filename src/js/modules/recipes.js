@@ -28,9 +28,15 @@ export class Recipes {
   };
   #collection;
   #index;
+  #rebuildIndex() {
+    this.#index = Object.keys(this.#collection).reduce((index, recipeID) => {
+      index[this.#collection[recipeID].Name] = recipeID;
+      return index;
+    }, {});
+  };
   #toJSON() {
     return {
-      collection: this.#collection.toJSON(),
+      collection: this.#collection,
       index: this.#index
     };
   };
@@ -44,18 +50,14 @@ export class Recipes {
     };
   };
   #importMealsDBJSON(json) {
-    this.#fromJSON(
-      (json.meals || []).reduce(
-        (acc, meal) => {
-          acc.collection[meal.idMeal] = Recipe.importMealsDBJSON(new Recipe(), meal);
-          acc.index[meal.strMeal] = meal.idMeal;
-          return acc;
-        }, {
-          collection: {},
-          index: {}
-        }
-      )
-    );
+    (json.meals || []).forEach(recipeData => {
+      const existingRecipe = this.#collection[recipeData.idMeal];
+      this.#collection[recipeData.idMeal] = Recipe.importMealsDBJSON(
+        existingRecipe || new Recipe(),
+        recipeData
+      );
+    });
+    this.#rebuildIndex();
   };
   constructor() {
     this.#collection = {};
@@ -64,11 +66,51 @@ export class Recipes {
   toJSON() {
     return this.#toJSON();
   };
-  getMealByID(id) {
+  getRecipeByID(id) {
     return this.#collection[id];
   };
-  getMealByName(name) {
+  getRecipeByName(name) {
     return this.#collection[this.#index[name]];
+  };
+  addRecipe(recipe) {
+    if (!(recipe instanceof Recipe)) {
+      throw new TypeError('recipe must be a Recipe instance');
+    }
+    if (recipe.ID === undefined || recipe.ID === null || String(recipe.ID).trim() === '') {
+      throw new TypeError('recipe must have an ID');
+    }
+    if (Object.prototype.hasOwnProperty.call(this.#collection, recipe.ID)) {
+      throw new Error(`A recipe with ID "${recipe.ID}" already exists`);
+    }
+    this.#collection[recipe.ID] = recipe;
+    this.#rebuildIndex();
+    return recipe;
+  };
+  removeRecipeByID(id) {
+    const recipe = this.#collection[id];
+    if (recipe) {
+      delete this.#collection[id];
+      this.#rebuildIndex();
+    }
+    return recipe;
+  };
+  updateRecipe(recipe) {
+    if (!(recipe instanceof Recipe)) {
+      throw new TypeError('recipe must be a Recipe instance');
+    }
+    if (recipe.ID === undefined || recipe.ID === null || String(recipe.ID).trim() === '') {
+      throw new TypeError('recipe must have an ID');
+    }
+    if (!Object.prototype.hasOwnProperty.call(this.#collection, recipe.ID)) {
+      throw new Error(`No recipe exists with ID "${recipe.ID}"`);
+    }
+    this.#collection[recipe.ID] = recipe;
+    this.#rebuildIndex();
+    return recipe;
+  };
+  clearAll() {
+    this.#collection = {};
+    this.#index = {};
   };
 };
 export class Recipe {
@@ -172,7 +214,9 @@ export class Recipe {
       this.#Country = json.country;
       this.#CreativeCommonsConfirmed = json.creativeCommonsConfirmed;
       this.#ImageSource = json.imageSource;
-      this.#Ingredients = QuantifiedIngredients.fromJSON(json.ingredients);
+      this.#Ingredients = json.ingredients instanceof QuantifiedIngredients
+        ? json.ingredients
+        : QuantifiedIngredients.fromJSON(json.ingredients);
       this.#Instructions = json.instructions;
       this.#Name = json.name;
       this.#MealAlternate = json.mealAlternate;
@@ -209,7 +253,7 @@ export class Recipe {
       creativeCommonsConfirmed: json.strCreativeCommonsConfirmed || null,
       imageSource: json.strImageSource || null,
       instructions: json.strInstructions,
-      ingredients: quantifiedIngredients.toJSON(),
+      ingredients: quantifiedIngredients,
       name: json.strMeal,
       mealAlternate: json.strMealAlternate || null,
       thumbnailURL: json.strMealThumb || null,

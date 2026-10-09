@@ -6,22 +6,23 @@ export function logCurrentState(message) {
   console.log(message);
 }
 export async function fetchRequest(request, header = null) {
+  let response;
   try {
-    let response = null;
     if (header === null) {
       response = await fetch(request);
-
     } else {
       response = await fetch(request, header);
     }
-    if (!response.ok) throw new Error('Network response failure');
-    const data = await response.json();
-    return data;
   } catch (error) {
-    console.log(`Failed request:  ${request}`);
-    console.error("Fetch Error:", error);
-    return {};
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Request failed for ${request}: ${message}`, {
+      cause: error
+    });
   }
+  if (!response.ok) {
+    throw new Error(`Request failed for ${request}: ${response.status} ${response.statusText}`.trim());
+  }
+  return await response.json();
 }
 
 
