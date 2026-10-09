@@ -71,8 +71,7 @@ export class SiteData {
       Countries.fromJSON(this.#storage.objectRead('countries', false)) :
       new Countries();
     const storedWeeks = this.#storage.hasKey('weeks', false) ?
-      this.#storage.objectRead('weeks', false) :
-      {};
+      this.#storage.objectRead('weeks', false) : {};
     this.#weeks = storedWeeks.collection ?
       Weeks.fromJSON(storedWeeks) :
       new Weeks();
@@ -95,9 +94,9 @@ export class SiteData {
     this.#scheduleRecipeWordResolution();
 
     const meals = Object.values(this.#recipes.toJSON().collection).map(recipe => ({
-        strArea: recipe.Area,
-        strCountry: recipe.Country
-      }));
+      strArea: recipe.Area,
+      strCountry: recipe.Country
+    }));
     await this.importMealDBMeals(meals);
     this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
     this.#storage.objectWrite('recipes', this.#recipes, false);

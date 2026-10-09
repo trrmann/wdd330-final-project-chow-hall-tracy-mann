@@ -54,7 +54,9 @@ export class QuantifiedIngredients {
     }
   }
   #importMealsDBJSON(json) {
-    const collection = { ...this.#collection };
+    const collection = {
+      ...this.#collection
+    };
     Object.keys(json || {}).forEach(indexKey => {
       const dataItem = json[indexKey];
       if (dataItem && typeof dataItem.ingredient === 'string' && dataItem.ingredient.trim() !== "") {

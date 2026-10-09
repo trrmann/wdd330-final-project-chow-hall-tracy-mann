@@ -168,9 +168,7 @@ export class Country {
   #fromJSON(json) {
     const countryData = json && json.data ? json.data : json;
     this.#setCountryData(countryData);
-    this.#areas = Array.isArray(json?.areas) ?
-      [...new Set(json.areas.filter(area => typeof area === 'string' && area.trim()).map(area => area.trim()))] :
-      [];
+    this.#areas = Array.isArray(json?.areas) ? [...new Set(json.areas.filter(area => typeof area === 'string' && area.trim()).map(area => area.trim()))] : [];
   };
   #setCountryData(data) {
     const source = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
@@ -328,7 +326,9 @@ export class Country {
     return this.#properties.capital_info ?? null;
   };
   get AdditionalData() {
-    return { ...this.#additionalData };
+    return {
+      ...this.#additionalData
+    };
   };
   get Areas() {
     return [...this.#areas];

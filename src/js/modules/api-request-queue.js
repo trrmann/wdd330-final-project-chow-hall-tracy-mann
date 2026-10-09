@@ -1,6 +1,27 @@
-import { Storage } from './storage.js'
+import {
+  Storage
+} from './storage.js'
 
-const defaultRequestLimits = [{ requests: 1, interval: 'second' }];
+const defaultProviderRateLimits = {
+  themealdb: [{
+    requests: 1,
+    interval: 'second'
+  }],
+  'rest-countries': [{
+    requests: 1,
+    interval: 'second'
+  }, {
+    requests: 1000,
+    interval: 'month'
+  }],
+  dictionary: [{
+    requests: 1,
+    interval: 'second'
+  }, {
+    requests: 1000,
+    interval: 'hour'
+  }]
+};
 const supportedRateLimitIntervals = new Set([
   'second',
   'minute',
@@ -12,10 +33,12 @@ const supportedRateLimitIntervals = new Set([
 ]);
 const viteEnvironment = import.meta.env || {};
 
-function getProviderRateLimits(environmentVariable) {
+function getProviderRateLimits(environmentVariable, defaultLimits) {
   const configuredLimits = viteEnvironment[environmentVariable];
   if (typeof configuredLimits !== 'string' || !configuredLimits.trim()) {
-    return defaultRequestLimits.map(limit => ({ ...limit }));
+    return defaultLimits.map(limit => ({
+      ...limit
+    }));
   }
 
   let limits;
@@ -28,16 +51,44 @@ function getProviderRateLimits(environmentVariable) {
   }
 
   if (!Array.isArray(limits) || !limits.length || limits.some(limit =>
-    !limit ||
-    typeof limit !== 'object' ||
-    !Number.isSafeInteger(limit.requests) ||
-    limit.requests < 1 ||
-    !supportedRateLimitIntervals.has(limit.interval)
-  )) {
+      !limit ||
+      typeof limit !== 'object' ||
+      !Number.isSafeInteger(limit.requests) ||
+      limit.requests < 1 ||
+      !supportedRateLimitIntervals.has(limit.interval)
+    )) {
     throw new TypeError(`${environmentVariable} must contain a JSON array of valid rate-limit rules`);
   }
 
-  return limits.map(({ requests, interval }) => ({ requests, interval }));
+  return limits.map(({
+    requests,
+    interval
+  }) => ({
+    requests,
+    interval
+  }));
+}
+
+function getProviderBaseURL(environmentVariable, defaultBaseURL) {
+  const configuredBaseURL = viteEnvironment[environmentVariable];
+  const baseURL = typeof configuredBaseURL === 'string' && configuredBaseURL.trim() ?
+    configuredBaseURL.trim() :
+    defaultBaseURL;
+  let parsedURL;
+
+  try {
+    parsedURL = new URL(baseURL);
+  } catch (error) {
+    throw new Error(`${environmentVariable} must be an absolute HTTP or HTTPS URL`, {
+      cause: error
+    });
+  }
+
+  if (!['http:', 'https:'].includes(parsedURL.protocol)) {
+    throw new TypeError(`${environmentVariable} must be an absolute HTTP or HTTPS URL`);
+  }
+
+  return `${baseURL.replace(/\/+$/, '')}/`;
 }
 
 export class APIRequestQueue {
@@ -50,17 +101,29 @@ export class APIRequestQueue {
   static providers = {
     themealdb: {
       priority: 'recipe',
-      requestLimit: getProviderRateLimits('VITE_MEALDB_RATE_LIMITS'),
+      requestLimit: getProviderRateLimits(
+        'VITE_MEALDB_RATE_LIMITS',
+        defaultProviderRateLimits.themealdb
+      ),
+      baseURL: getProviderBaseURL('VITE_MEALDB_BASE_URL', 'https://www.themealdb.com/'),
       usageStorageKey: 'TheMealDB-API-Request-Usage'
     },
     'rest-countries': {
       priority: 'country',
-      requestLimit: getProviderRateLimits('VITE_REST_COUNTRIES_RATE_LIMITS'),
+      requestLimit: getProviderRateLimits(
+        'VITE_REST_COUNTRIES_RATE_LIMITS',
+        defaultProviderRateLimits['rest-countries']
+      ),
+      baseURL: getProviderBaseURL('VITE_REST_COUNTRIES_BASE_URL', 'https://api.restcountries.com/'),
       usageStorageKey: 'RestCountries-API-Throttle-Usage'
     },
     dictionary: {
       priority: 'word',
-      requestLimit: getProviderRateLimits('VITE_DICTIONARY_RATE_LIMITS'),
+      requestLimit: getProviderRateLimits(
+        'VITE_DICTIONARY_RATE_LIMITS',
+        defaultProviderRateLimits.dictionary
+      ),
+      baseURL: getProviderBaseURL('VITE_DICTIONARY_BASE_URL', 'https://freedictionaryapi.com/'),
       usageStorageKey: 'Dictionary-API-Request-Usage'
     }
   }
@@ -129,8 +192,7 @@ export class APIRequestQueue {
 
   #getRateLimits(request) {
     const rateLimits = Array.isArray(request.requestLimit) ?
-      request.requestLimit :
-      [request.requestLimit];
+      request.requestLimit : [request.requestLimit];
     const supportedIntervals = [
       ...Object.keys(APIRequestQueue.intervalMilliseconds),
       'month',
@@ -159,7 +221,10 @@ export class APIRequestQueue {
   #getRequestPeriods(request, now) {
     const rateLimits = this.#getRateLimits(request);
     const usage = this.#storage.objectRead(request.usageStorageKey, false) || {};
-    return rateLimits.map(({ requests, interval }) => {
+    return rateLimits.map(({
+      requests,
+      interval
+    }) => {
       const periodStart = this.#getIntervalStart(now, interval);
       const periodEnd = this.#getIntervalEnd(periodStart, interval);
       const limitKey = `${interval}:${requests}`;
@@ -177,18 +242,34 @@ export class APIRequestQueue {
         usedRequests: (isSamePeriod || isLegacyPeriod) &&
           Number.isSafeInteger(isSamePeriod ? storedPeriod.requests : usage.requests) &&
           (isSamePeriod ? storedPeriod.requests : usage.requests) >= 0 ?
-          (isSamePeriod ? storedPeriod.requests : usage.requests) :
-          0,
+          (isSamePeriod ? storedPeriod.requests : usage.requests) : 0,
         lastRequestAt: (isSamePeriod || isLegacyPeriod) &&
           Number.isSafeInteger(isSamePeriod ? storedPeriod.lastRequestAt : usage.lastRequestAt) ?
-          (isSamePeriod ? storedPeriod.lastRequestAt : usage.lastRequestAt) :
-          null
+          (isSamePeriod ? storedPeriod.lastRequestAt : usage.lastRequestAt) : null
       };
     });
   }
 
   #getStoredUsage(request) {
     return this.#storage.objectRead(request.usageStorageKey, false) || {};
+  }
+
+  #getReportingUsage(usage) {
+    const storedRequestsByMonth = usage.requestsByMonth &&
+      typeof usage.requestsByMonth === 'object' ?
+      usage.requestsByMonth : {};
+    const requestsByMonth = Object.fromEntries(
+      Object.entries(storedRequestsByMonth).filter(([, count]) =>
+        Number.isSafeInteger(count) && count >= 0)
+    );
+    const totalRequests = Number.isSafeInteger(usage.totalRequests) &&
+      usage.totalRequests >= 0 ?
+      usage.totalRequests :
+      Object.values(requestsByMonth).reduce((total, count) => total + count, 0);
+    return {
+      totalRequests,
+      requestsByMonth
+    };
   }
 
   #getWaitMilliseconds(request, now) {
@@ -207,9 +288,10 @@ export class APIRequestQueue {
       (previousRequestTimes.length ? Math.max(...previousRequestTimes) : null);
     return Math.max(...periods.map(period => {
       if (period.usedRequests >= period.requests) {
-        return Math.max(1, period.periodEnd - now,
-          lastRequestAt === null ? 0 : lastRequestAt +
-            Math.ceil((period.periodEnd - period.periodStart) / period.requests) - now);
+        return Math.max(1, period.periodEnd - now);
+      }
+      if (period.interval !== 'second') {
+        return 0;
       }
       const spacingMilliseconds = Math.ceil(
         (period.periodEnd - period.periodStart) / period.requests
@@ -223,6 +305,8 @@ export class APIRequestQueue {
 
   #recordRequest(request, now) {
     const usage = this.#getStoredUsage(request);
+    const reportingUsage = this.#getReportingUsage(usage);
+    const month = new Date(now).toISOString().slice(0, 7);
     const limits = Object.fromEntries(this.#getRequestPeriods(request, now).map(period => [
       period.key,
       {
@@ -234,6 +318,11 @@ export class APIRequestQueue {
     this.#storage.objectWrite(request.usageStorageKey, {
       ...usage,
       lastRequestAt: now,
+      totalRequests: reportingUsage.totalRequests + 1,
+      requestsByMonth: {
+        ...reportingUsage.requestsByMonth,
+        [month]: (reportingUsage.requestsByMonth[month] || 0) + 1
+      },
       limits
     }, false);
   }
@@ -286,12 +375,12 @@ export class APIRequestQueue {
       for (const [key, nestedValue] of Object.entries(value)) {
         const normalizedKey = key.toLocaleLowerCase().replace(/[^a-z]/g, '');
         if ((normalizedKey === 'status' || normalizedKey === 'code') &&
-            Number(nestedValue) === 429) {
+          Number(nestedValue) === 429) {
           hasRateLimitStatus = true;
         }
         if (['retryafter', 'retryafterseconds', 'retry_after', 'retry_after_seconds']
           .includes(key.toLocaleLowerCase()) &&
-            (typeof nestedValue === 'string' || typeof nestedValue === 'number')) {
+          (typeof nestedValue === 'string' || typeof nestedValue === 'number')) {
           retryAfter = String(nestedValue);
         }
         if (typeof nestedValue === 'string') {
@@ -307,8 +396,8 @@ export class APIRequestQueue {
 
     inspect(response);
     if (!hasRateLimitStatus && rateLimitMessages.length === 0 &&
-        typeof response === 'string' &&
-        this.#isRateLimitError(new Error(response))) {
+      typeof response === 'string' &&
+      this.#isRateLimitError(new Error(response))) {
       rateLimitMessages.push(response);
     }
     if (!hasRateLimitStatus && rateLimitMessages.length === 0) {
@@ -441,11 +530,15 @@ export class APIRequestQueue {
     if (!provider || !Object.hasOwn(APIRequestQueue.priorities, provider.priority)) {
       return Promise.reject(new TypeError(`Unsupported API request: ${api}`));
     }
-    const { priority, requestLimit, usageStorageKey } = provider;
+    const {
+      priority,
+      requestLimit,
+      usageStorageKey
+    } = provider;
     const rateLimits = Array.isArray(requestLimit) ? requestLimit : [requestLimit];
     if (typeof api !== 'string' || !api ||
-        typeof usageStorageKey !== 'string' || !usageStorageKey ||
-        !this.#isValidRateLimits(rateLimits)) {
+      typeof usageStorageKey !== 'string' || !usageStorageKey ||
+      !this.#isValidRateLimits(rateLimits)) {
       return Promise.reject(new TypeError('API queue requests require an API name, usage storage key, and valid rate-limit rule(s)'));
     }
     if (typeof request !== 'function') {
@@ -492,6 +585,23 @@ export class APIRequestQueue {
     }
     this.#scheduleQueue();
     return pendingRequest;
+  }
+
+  getRequestUsage(api) {
+    const provider = APIRequestQueue.providers[api];
+    if (!provider) {
+      throw new TypeError(`Unsupported API request: ${api}`);
+    }
+    const usage = this.#getReportingUsage(
+      this.#storage.objectRead(provider.usageStorageKey, false) || {}
+    );
+    const month = new Date().toISOString().slice(0, 7);
+    return {
+      totalRequests: usage.totalRequests,
+      currentMonth: month,
+      currentMonthRequests: usage.requestsByMonth[month] || 0,
+      requestsByMonth: usage.requestsByMonth
+    };
   }
 }
 

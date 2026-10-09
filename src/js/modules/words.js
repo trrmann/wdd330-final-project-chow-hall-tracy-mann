@@ -8,8 +8,7 @@ function objectOrEmpty(value) {
 
 function modelArray(value, Model) {
   return Array.isArray(value) ?
-    value.map(item => item instanceof Model ? item : Model.fromJSON(item)) :
-    [];
+    value.map(item => item instanceof Model ? item : Model.fromJSON(item)) : [];
 }
 
 function stringArray(value) {

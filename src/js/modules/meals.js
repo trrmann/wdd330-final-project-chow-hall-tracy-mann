@@ -125,9 +125,8 @@ export class Meal {
       this.#Name = json.name;
       this.#servingsRequired = json.servingsRequired ?? 1;
       this.#validateServings(this.#servingsRequired);
-      this.#recipeIDs = Array.isArray(json.recipeIDs)
-        ? [...new Set(json.recipeIDs.map(String))]
-        : Object.keys(json.recipes?.collection || {});
+      this.#recipeIDs = Array.isArray(json.recipeIDs) ? [...new Set(json.recipeIDs.map(String))] :
+        Object.keys(json.recipes?.collection || {});
       if (!this.#recipeIDs.length && json.recipes?.collection) {
         this.#recipeIDs = Object.keys(json.recipes.collection);
       }
@@ -146,10 +145,11 @@ export class Meal {
     this.#Name = name;
     this.#validateServings(servingsRequired);
     this.#servingsRequired = servingsRequired;
-    this.#recipeIDs = Array.isArray(recipes)
-      ? [...new Set(recipes.map(String))]
-      : Object.keys(recipes?.collection || {});
-    this.#servingsByRecipeID = { ...servingsByRecipeID };
+    this.#recipeIDs = Array.isArray(recipes) ? [...new Set(recipes.map(String))] :
+      Object.keys(recipes?.collection || {});
+    this.#servingsByRecipeID = {
+      ...servingsByRecipeID
+    };
     Object.keys(this.#servingsByRecipeID).forEach(recipeID => {
       if (!this.#recipeIDs.includes(recipeID)) {
         this.#recipeIDs.push(recipeID);
@@ -181,7 +181,9 @@ export class Meal {
   };
   get servingsByRecipeID() {
     this.#syncRecipeServings();
-    return { ...this.#servingsByRecipeID };
+    return {
+      ...this.#servingsByRecipeID
+    };
   };
   addRecipe(recipe, servings = 1) {
     this.#validateServings(servings);

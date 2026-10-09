@@ -213,13 +213,11 @@ export class Recipe {
       this.#Country = json.country;
       this.#CreativeCommonsConfirmed = json.creativeCommonsConfirmed;
       this.#ImageSource = json.imageSource;
-      this.#Ingredients = json.ingredients instanceof QuantifiedIngredients
-        ? json.ingredients
-        : QuantifiedIngredients.fromJSON(json.ingredients);
+      this.#Ingredients = json.ingredients instanceof QuantifiedIngredients ?
+        json.ingredients :
+        QuantifiedIngredients.fromJSON(json.ingredients);
       this.#Instructions = json.instructions;
-      this.#wordIDs = Array.isArray(json.wordIDs) ?
-        [...new Set(json.wordIDs.filter(word => Number.isSafeInteger(word) && word >= 0))] :
-        [];
+      this.#wordIDs = Array.isArray(json.wordIDs) ? [...new Set(json.wordIDs.filter(word => Number.isSafeInteger(word) && word >= 0))] : [];
       this.#Name = json.name;
       this.#MealAlternate = json.mealAlternate;
       this.#ThumbnailURL = json.thumbnailURL;

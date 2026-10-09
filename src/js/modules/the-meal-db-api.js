@@ -4,7 +4,10 @@ import {
 import {
   Cache
 } from './storage.js'
-import { apiRequestQueue } from './api-request-queue.js'
+import {
+  APIRequestQueue,
+  apiRequestQueue
+} from './api-request-queue.js'
 
 /*
 https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
@@ -29,7 +32,7 @@ https://www.themealdb.com/images/ingredients/olive_oil.png/medium
 https://www.themealdb.com/images/ingredients/olive_oil.png/large
 */
 export class TheMealDBAPI {
-  static baseURL = "https://www.themealdb.com/";
+  static baseURL = APIRequestQueue.providers.themealdb.baseURL;
   static apiPath = "api/json/v1/1/";
   static searchFunction = "search.php?";
   static searchByStringQuery = "s=";

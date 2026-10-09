@@ -312,9 +312,6 @@ export class APIs {
     this.deleteCache(cacheKey);
     return response;
   }
-  getRestCountriesRequestUsage() {
-    return this.#restCountries.getRequestUsage();
-  }
   async importMealCountries(mealDBResponse, countries = new Countries()) {
     const meals = Array.isArray(mealDBResponse) ?
       mealDBResponse :

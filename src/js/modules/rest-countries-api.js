@@ -3,9 +3,11 @@ import {
 } from '../utils.js'
 import {
   Cache,
-  Storage
 } from './storage.js'
-import { apiRequestQueue } from './api-request-queue.js'
+import {
+  APIRequestQueue,
+  apiRequestQueue
+} from './api-request-queue.js'
 
 function normalizeCountryName(value) {
   return String(value)
@@ -31,9 +33,7 @@ function getCountryRecords(response) {
       }
     }
   }
-  return response.names || response.name || response.codes || response.cca3 ?
-    [response] :
-    [];
+  return response.names || response.name || response.codes || response.cca3 ? [response] : [];
 }
 
 function getStrings(value) {
@@ -131,7 +131,7 @@ const data = await response.json();
 
 */
 export class RestCountries {
-  static baseURL = "https://api.restcountries.com/";
+  static baseURL = APIRequestQueue.providers['rest-countries'].baseURL;
   static countriesAPIPath = "countries/v5";
   static countriesQueryFunction = "?q=";
   static countriesQueryLimitOption = "limit=";
@@ -173,9 +173,7 @@ export class RestCountries {
   static currenciesConvertToQuery = "&to=";
   static currenciesConvertAmountQuery = "&amount=";
   static currenciesSymbolsFunction = "symbols";
-  static requestUsageStorageKey = 'restCountriesApiRequestUsage';
   #localCache;
-  #storage;
   //#apiLiveDemoPublicAPIKey;
   #apiLiveFreeAPIKey;
   #header(apiKey) {
@@ -189,34 +187,8 @@ export class RestCountries {
     return configOptions;
   }
   async #fetch(request, apiKey) {
-    this.#recordRequest();
     const response = await fetchRequest(request, this.#header(apiKey));
     return response
-  }
-  #readRequestUsage() {
-    const storedUsage = this.#storage.objectRead(RestCountries.requestUsageStorageKey, false) || {};
-    const storedMonthlyUsage = storedUsage.requestsByMonth && typeof storedUsage.requestsByMonth === 'object' ?
-      storedUsage.requestsByMonth :
-      {};
-    const requestsByMonth = Object.fromEntries(
-      Object.entries(storedMonthlyUsage).filter(([, count]) =>
-        Number.isSafeInteger(count) && count >= 0)
-    );
-    const totalRequests = Number.isSafeInteger(storedUsage.totalRequests) && storedUsage.totalRequests >= 0 ?
-      storedUsage.totalRequests :
-      Object.values(requestsByMonth).reduce((total, count) =>
-        total + (Number.isSafeInteger(count) && count >= 0 ? count : 0), 0);
-    return {
-      totalRequests,
-      requestsByMonth
-    };
-  }
-  #recordRequest() {
-    const usage = this.#readRequestUsage();
-    const month = new Date().toISOString().slice(0, 7);
-    usage.totalRequests += 1;
-    usage.requestsByMonth[month] = (usage.requestsByMonth[month] || 0) + 1;
-    this.#storage.objectWrite(RestCountries.requestUsageStorageKey, usage, false);
   }
   #deleteCache(key) {
     this.#localCache.deleteCache(key);
@@ -224,7 +196,6 @@ export class RestCountries {
   constructor(isSessionCache = true) {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
-    this.#storage = new Storage();
     this.#localCache = new Cache({
       isSessionCache: isSessionCache
     });
@@ -240,16 +211,6 @@ export class RestCountries {
       this.#deleteCache(cacheKey);
     }
     return response;
-  }
-  getRequestUsage() {
-    const usage = this.#readRequestUsage();
-    const month = new Date().toISOString().slice(0, 7);
-    return {
-      totalRequests: usage.totalRequests,
-      currentMonth: month,
-      currentMonthRequests: usage.requestsByMonth[month] || 0,
-      requestsByMonth: { ...usage.requestsByMonth }
-    };
   }
   clearCache() {
     this.#localCache.clearCache();
