@@ -10,6 +10,10 @@ import {
 import {
   RestCountries
 } from './rest-countries-api.js'
+import {
+  Country,
+  Countries
+} from './countries.js'
 
 export class APIs {
   #localCache;
@@ -301,6 +305,77 @@ export class APIs {
       this.deleteCache(cacheKey);
       return response;
     }
+  }
+  async lookupCountryByName(name, cache = true) {
+    const cacheKey = `Country-Name-${String(name).trim().toLocaleLowerCase()}`;
+    if (!this.hasCache(cacheKey)) {
+      this.setCache(cacheKey, await this.#restCountries.lookupCountryByName(name, !cache));
+    }
+    if (cache) {
+      return this.getCache(cacheKey);
+    }
+    const response = this.getCache(cacheKey);
+    this.deleteCache(cacheKey);
+    return response;
+  }
+  async importMealCountries(mealDBResponse, countries = new Countries()) {
+    const meals = Array.isArray(mealDBResponse) ?
+      mealDBResponse :
+      mealDBResponse?.meals || [];
+    const areaByName = new Map();
+    if (meals.some(meal => !meal.strCountry && meal.strArea)) {
+      const areasResponse = await this.MealAreasList();
+      (areasResponse?.meals || []).forEach(area => {
+        const areaName = area.strArea?.trim().toLocaleLowerCase();
+        if (areaName && area.strCountry) {
+          areaByName.set(areaName, area.strCountry.trim());
+        }
+      });
+    }
+
+    const countriesAndAreas = new Map();
+    meals.forEach(meal => {
+      const area = typeof meal.strArea === 'string' ? meal.strArea.trim() : '';
+      const countryName = typeof meal.strCountry === 'string' && meal.strCountry.trim() ?
+        meal.strCountry.trim() :
+        areaByName.get(area.toLocaleLowerCase());
+      if (!countryName) {
+        return;
+      }
+      const key = countryName.toLocaleLowerCase();
+      if (!countriesAndAreas.has(key)) {
+        countriesAndAreas.set(key, {
+          name: countryName,
+          areas: new Set()
+        });
+      }
+      if (area) {
+        countriesAndAreas.get(key).areas.add(area);
+      }
+    });
+
+    const unmatchedCountries = [];
+    for (const {
+        name,
+        areas
+      }
+      of countriesAndAreas.values()) {
+      let country = countries.getCountryByName(name);
+      if (!country) {
+        const countryData = await this.lookupCountryByName(name);
+        if (!countryData) {
+          unmatchedCountries.push(name);
+          continue;
+        }
+        country = Country.fromRestCountriesJSON(countryData);
+      }
+      areas.forEach(area => country.addArea(area));
+      countries.addOrUpdateCountry(country);
+    }
+    return {
+      countries,
+      unmatchedCountries
+    };
   }
   async convertCurrency(from, to, amount, cache = true) {
     const cacheKey = `Currency-Convert-${from}-${to}-${amount}`;

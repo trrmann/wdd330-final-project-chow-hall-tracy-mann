@@ -11,9 +11,6 @@ export class Recipes {
   static importMealsDBJSON(original, json) {
     let instance;
     if (json === undefined) {
-      if (Recipes.debug) {
-        console.log('Recipes - static importMealsDBJSON - 2');
-      };
       instance = new Recipes();
       json = original;
     } else {
@@ -227,10 +224,6 @@ export class Recipe {
     };
   };
   #importMealsDBJSON(json) {
-    console.log('recipe importMealsDBJSON');
-    console.log(json);
-    console.log('start recipe importMealsDBJSON');
-    console.log(this);
     const ingredients = Array.from({
       length: 20
     }, (_, idx) => idx + 1).reduce((acc, num) => {
@@ -241,9 +234,6 @@ export class Recipe {
       return acc;
     }, {});
     const quantifiedIngredients = QuantifiedIngredients.importMealsDBJSON(new QuantifiedIngredients(), ingredients);
-    console.log('recipe importMealsDBJSON pre call fromJSON');
-    console.log(ingredients);
-    console.log(quantifiedIngredients);
     this.#fromJSON({
       dateModified: json.dateModified || null,
       id: json.idMeal,
@@ -261,11 +251,8 @@ export class Recipe {
       tags: json.strTags || null,
       youtube: json.strYoutube || null
     });
-    console.log('end recipe importMealsDBJSON');
-    console.log(this);
   };
   constructor() {
-    console.log('recipe constructor');
     this.#Ingredients = new QuantifiedIngredients();
   };
   toJSON() {

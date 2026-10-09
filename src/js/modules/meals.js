@@ -1,7 +1,3 @@
-import {
-  Recipes
-} from './recipes'
-
 export class Meals {
   static fromJSON(json) {
     const instance = new Meals();
@@ -98,11 +94,10 @@ export class Meal {
   #ID;
   #Name;
   #servingsRequired;
-  #recipes;
+  #recipeIDs;
   #servingsByRecipeID;
   #syncRecipeServings() {
-    const recipeIDs = Object.keys(this.#recipes.toJSON().collection);
-    this.#servingsByRecipeID = recipeIDs.reduce((servings, recipeID) => {
+    this.#servingsByRecipeID = this.#recipeIDs.reduce((servings, recipeID) => {
       const recipeServings = this.#servingsByRecipeID[recipeID] ?? 1;
       this.#validateServings(recipeServings);
       servings[recipeID] = recipeServings;
@@ -120,7 +115,7 @@ export class Meal {
       id: this.#ID,
       name: this.#Name,
       servingsRequired: this.#servingsRequired,
-      recipes: this.#recipes.toJSON(),
+      recipeIDs: this.#recipeIDs,
       servingsByRecipeID: this.#servingsByRecipeID
     };
   };
@@ -130,9 +125,12 @@ export class Meal {
       this.#Name = json.name;
       this.#servingsRequired = json.servingsRequired ?? 1;
       this.#validateServings(this.#servingsRequired);
-      this.#recipes = json.recipes instanceof Recipes
-        ? json.recipes
-        : Recipes.fromJSON(json.recipes || {});
+      this.#recipeIDs = Array.isArray(json.recipeIDs)
+        ? [...new Set(json.recipeIDs.map(String))]
+        : Object.keys(json.recipes?.collection || {});
+      if (!this.#recipeIDs.length && json.recipes?.collection) {
+        this.#recipeIDs = Object.keys(json.recipes.collection);
+      }
       this.#servingsByRecipeID = json.servingsByRecipeID || {};
       this.#syncRecipeServings();
     }
@@ -141,15 +139,22 @@ export class Meal {
     id = null,
     name = '',
     servingsRequired = 1,
-    recipes = new Recipes(),
+    recipes = [],
     servingsByRecipeID = {}
   } = {}) {
     this.#ID = id;
     this.#Name = name;
     this.#validateServings(servingsRequired);
     this.#servingsRequired = servingsRequired;
-    this.#recipes = recipes instanceof Recipes ? recipes : Recipes.fromJSON(recipes);
+    this.#recipeIDs = Array.isArray(recipes)
+      ? [...new Set(recipes.map(String))]
+      : Object.keys(recipes?.collection || {});
     this.#servingsByRecipeID = { ...servingsByRecipeID };
+    Object.keys(this.#servingsByRecipeID).forEach(recipeID => {
+      if (!this.#recipeIDs.includes(recipeID)) {
+        this.#recipeIDs.push(recipeID);
+      }
+    });
     this.#syncRecipeServings();
   };
   toJSON() {
@@ -169,7 +174,10 @@ export class Meal {
     this.#servingsRequired = servings;
   };
   get recipes() {
-    return this.#recipes;
+    return [...this.#recipeIDs];
+  };
+  get recipeIDs() {
+    return [...this.#recipeIDs];
   };
   get servingsByRecipeID() {
     this.#syncRecipeServings();
@@ -177,29 +185,44 @@ export class Meal {
   };
   addRecipe(recipe, servings = 1) {
     this.#validateServings(servings);
-    const addedRecipe = this.#recipes.addRecipe(recipe);
-    this.#servingsByRecipeID[recipe.ID] = servings;
-    return addedRecipe;
+    const recipeID = typeof recipe === 'object' && recipe !== null ? recipe.ID : recipe;
+    if (recipeID === undefined || recipeID === null || String(recipeID).trim() === '') {
+      throw new TypeError('recipe must have an ID');
+    }
+    const normalizedID = String(recipeID);
+    if (this.#recipeIDs.includes(normalizedID)) {
+      throw new Error(`Recipe "${normalizedID}" is already in this meal`);
+    }
+    this.#recipeIDs.push(normalizedID);
+    this.#servingsByRecipeID[normalizedID] = servings;
+    return normalizedID;
   };
   removeRecipeByID(id) {
-    const removedRecipe = this.#recipes.removeRecipeByID(id);
-    if (removedRecipe) {
-      delete this.#servingsByRecipeID[id];
+    const recipeID = String(id);
+    const index = this.#recipeIDs.indexOf(recipeID);
+    if (index !== -1) {
+      this.#recipeIDs.splice(index, 1);
+      delete this.#servingsByRecipeID[recipeID];
+      return recipeID;
     }
-    return removedRecipe;
+    return undefined;
   };
   updateRecipe(recipe, servings) {
     if (servings !== undefined) {
       this.#validateServings(servings);
     }
-    const updatedRecipe = this.#recipes.updateRecipe(recipe);
-    if (servings !== undefined) {
-      this.#servingsByRecipeID[recipe.ID] = servings;
+    const recipeID = String(typeof recipe === 'object' && recipe !== null ? recipe.ID : recipe);
+    if (!this.#recipeIDs.includes(recipeID)) {
+      throw new Error(`No recipe exists with ID "${recipeID}" in this meal`);
     }
-    return updatedRecipe;
+    if (servings !== undefined) {
+      this.#servingsByRecipeID[recipeID] = servings;
+    }
+    return recipeID;
   };
   getRecipeServings(recipeID) {
-    if (!this.#recipes.getRecipeByID(recipeID)) {
+    recipeID = String(recipeID);
+    if (!this.#recipeIDs.includes(recipeID)) {
       return undefined;
     }
     this.#syncRecipeServings();
@@ -207,14 +230,15 @@ export class Meal {
   };
   setRecipeServings(recipeID, servings) {
     this.#validateServings(servings);
-    if (!this.#recipes.getRecipeByID(recipeID)) {
+    recipeID = String(recipeID);
+    if (!this.#recipeIDs.includes(recipeID)) {
       throw new Error(`No recipe exists with ID "${recipeID}"`);
     }
     this.#servingsByRecipeID[recipeID] = servings;
     return servings;
   };
   clearRecipes() {
-    this.#recipes.clearAll();
+    this.#recipeIDs = [];
     this.#servingsByRecipeID = {};
   };
 };

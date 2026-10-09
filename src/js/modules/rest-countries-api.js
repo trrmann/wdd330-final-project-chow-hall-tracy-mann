@@ -63,7 +63,7 @@ const data = await response.json();
 export class RestCountries {
   static baseURL = "https://api.restcountries.com/";
   static countriesAPIPath = "countries/v5";
-  static countriesQueryFunction = "?q";
+  static countriesQueryFunction = "?q=";
   static countriesQueryLimitOption = "limit=";
   static countriesQueryOffsetOption = "offset=";
   static countriesQueryPrettyOption = "pretty";
@@ -143,9 +143,10 @@ export class RestCountries {
     this.#localCache.clearCache();
   }
   async search25CountriesWithNoOffsetByStringQuery(string, cache = true) {
-    const cacheKey = `Country-${string}`;
+    const searchTerm = String(string).trim();
+    const cacheKey = `Country-${searchTerm.toLocaleLowerCase()}`;
     if (!this.#hasCache(cacheKey)) {
-      const request = `${RestCountries.baseURL}${RestCountries.countriesAPIPath}${RestCountries.countriesQueryFunction}${string}`;
+      const request = `${RestCountries.baseURL}${RestCountries.countriesAPIPath}${RestCountries.countriesQueryFunction}${encodeURIComponent(searchTerm)}&${RestCountries.countriesQueryLimitOption}25`;
       this.#setCache(cacheKey, await this.#fetch(request, this.#apiLiveFreeAPIKey));
     }
     if (cache) {
@@ -155,6 +156,19 @@ export class RestCountries {
       this.#deleteCache(cacheKey);
       return response;
     }
+  }
+  async lookupCountryByName(name, cache = true) {
+    const countryName = String(name).trim();
+    if (!countryName) {
+      return undefined;
+    }
+    const records = await this.search25CountriesWithNoOffsetByStringQuery(countryName, cache);
+    const countries = Array.isArray(records) ? records : records ? [records] : [];
+    const normalizedName = countryName.toLocaleLowerCase();
+    return countries.find(country => {
+      const commonName = country?.names?.common ?? country?.name?.common;
+      return typeof commonName === 'string' && commonName.trim().toLocaleLowerCase() === normalizedName;
+    });
   }
   async convertCurrency(from, to, amount, cache = true) {
     const cacheKey = `Convert-${from}-${to}-${amount}`;

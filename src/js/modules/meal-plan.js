@@ -1,18 +1,12 @@
 import {
-  Storage
-} from './storage.js'
-import {
-  Recipes
-} from './recipes.js'
-import {
   persistQueryParameter
 } from '../utils.js';
 import {
   updateHeaderWeekParameters
 } from '../site-shell.js';
 import {
-  APIs
-} from './apis.js'
+  siteData
+} from './site-data.js'
 const weekNamedOffsets = {
   min: {
     param: "min",
@@ -767,9 +761,6 @@ export class MealPlanPage {
   #folderTabTemplate;
   #dailyMealsListContainer;
   #dailyMealSlotTemplate;
-  #apis;
-  #storage;
-
   constructor(parms) {
     this.#mealPlanPageContainer = document.getElementById(MealPlanPage.mealPlanPageMainId);
     this.#mealPlanPageTemplate = document.getElementById(MealPlanPage.mealPlanPageTemplateId);
@@ -779,32 +770,11 @@ export class MealPlanPage {
     this.#selectedDay = new URLSearchParams(window.location.search).get('day') || 'Mon';
     this.#weekOffset = 0;
     this.#parseInitialWeekOffset();
-    this.#apis = new APIs();
-    this.#storage = new Storage();
   }
   get selectedDay() {
     return this.#selectedDay;
   }
   async render() {
-    const random = await this.#apis.RandomMeal();
-    console.log(random);
-    let recipes = new Recipes();
-    if (this.#storage.hasKey('recipes')) {
-      recipes = Recipes.fromJSON(this.#storage.objectRead('recipes', true));
-    }
-    recipes = Recipes.importMealsDBJSON(recipes, random);
-    console.log(recipes);
-    this.#storage.objectWrite('recipes', recipes, true);
-    const categories = await this.#apis.MealCategories();
-    console.log(categories);
-    // CORS Error
-    const word = await this.#apis.lookupDictionaryEntryByString('food');
-    console.log(word);
-    // CORS Error
-    const symbols = await this.#apis.currencySymbols();
-    console.log(symbols);
-    const current100DollorsInPeruvianPEN = await this.#apis.convertCurrency('USD', 'PEN', 100.00);
-    console.log(current100DollorsInPeruvianPEN);
     this.#mealPlanPageContainer.innerHTML = '';
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     this.#renderWeekNavigationData(pageContentClone);
@@ -815,7 +785,6 @@ export class MealPlanPage {
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
       const activeDayData = activeWeekData[day] || {};
       const activeStatus = activeDayData.status || 'undefined';
-      console.log("Looking for:", MealPlanPage.folderTabClass, "Found element:", tabElement);
       if (activeStatus === 'planned') {
         tabElement.classList.remove(MealPlanPage.folderTabAttentionIndicatorClass);
       } else {
@@ -853,34 +822,20 @@ export class MealPlanPage {
     const labelContainer = container.querySelector(MealPlanPage.weekNavLabelClass);
     const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     const rangeContainer = container.querySelector(MealPlanPage.weekNavRangeClass);
-    let isNameOffset = false;
-    Object.keys(weekNamedOffsets).forEach((namedOffset) => {
-      if (this.#weekOffset === weekNamedOffsets[namedOffset].offset) {
-        labelContainer.textContent = `${weekNamedOffsets[namedOffset].name} Week`;
-        if (weekNamedOffsets[namedOffset].resetHidden) {
-          resetButtonContainer.classList.add(MealPlanPage.weekNavIsHiddenClass);
-        } else {
-          resetButtonContainer.classList.remove(MealPlanPage.weekNavIsHiddenClass);
-        }
-        if (weekNamedOffsets[namedOffset].isOffset) {
-          resetButtonContainer.classList.add(MealPlanPage.weekNavHasOffsetClass);
-        } else {
-          resetButtonContainer.classList.remove(MealPlanPage.weekNavHasOffsetClass);
-        }
-        isNameOffset = true;
-      }
-    });
-    if (!isNameOffset) {
+    const week = siteData.getWeekByOffset(this.#weekOffset);
+    const namedOffset = weekNamedOffsets[week.Name];
+    if (namedOffset) {
+      labelContainer.textContent = `${namedOffset.name} Week`;
+      resetButtonContainer.classList.toggle(MealPlanPage.weekNavIsHiddenClass, namedOffset.resetHidden);
+      resetButtonContainer.classList.toggle(MealPlanPage.weekNavHasOffsetClass, namedOffset.isOffset);
+    } else {
       labelContainer.textContent = this.#weekOffset > 0 ? `Week +${this.#weekOffset}` : `Week ${this.#weekOffset}`;
       resetButtonContainer.classList.remove(MealPlanPage.weekNavIsHiddenClass);
       resetButtonContainer.classList.add(MealPlanPage.weekNavHasOffsetClass);
     }
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + (this.#weekOffset * 7));
-    const dayOfWeek = targetDate.getDay();
-    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Handle Sunday wrap
-    const monday = new Date(targetDate.setDate(targetDate.getDate() + distanceToMonday));
-    const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+    const monday = new Date(`${week.weekStartDate}T00:00:00`);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
     const formatter = new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',

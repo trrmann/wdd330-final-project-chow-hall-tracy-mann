@@ -16,11 +16,7 @@ export class QuantifiedIngredients {
         instance = original instanceof QuantifiedIngredients ? original : new QuantifiedIngredients();
       }
     }
-    console.log('quantifiedingredients importmealsdbjson static');
-    console.log(json);
     instance.#importMealsDBJSON(json);
-    console.log('quantifiedingredients importmealsdbjson static end');
-    console.log(instance);
     return instance;
   }
   #collection;
@@ -41,8 +37,6 @@ export class QuantifiedIngredients {
     };
   }
   #fromJSON(json) {
-    console.log('quantifiedIngredients fromJSON')
-    console.log(json);
     if (json && json.collection) {
       this.#collection = {};
       this.#index = {};
@@ -60,8 +54,6 @@ export class QuantifiedIngredients {
     }
   }
   #importMealsDBJSON(json) {
-    console.log('quantifiedIngredients importMealsDBJSON')
-    console.log(json);
     const collection = { ...this.#collection };
     Object.keys(json || {}).forEach(indexKey => {
       const dataItem = json[indexKey];
@@ -74,11 +66,8 @@ export class QuantifiedIngredients {
     });
     this.#collection = collection;
     this.#rebuildIndex();
-    console.log('quantifiedIngredients importMealsDBJSON end')
-    console.log(this);
   }
   constructor() {
-    console.log('QuantifiedIngredients constructor')
     this.#collection = {};
     this.#index = {};
   }
@@ -162,24 +151,18 @@ export class QuantifiedIngredient {
     };
   }
   #fromJSON(json) {
-    console.log('quantifiedIngredient fromJSON')
-    console.log(json);
     if (json && json.measure !== undefined && json.ingredient !== undefined) {
       this.#measure = json.measure;
       this.#ingredient = json.ingredient;
     }
   }
   #importMealsDBJSON(json) {
-    console.log('quantifiedIngredient importMealsDBJSON')
-    console.log(json);
     if (json) {
       this.#measure = json.measure ? json.measure.trim() : "";
       this.#ingredient = json.ingredient ? json.ingredient.trim() : "";
     }
   }
-  constructor() {
-    console.log('QuantifiedIngredient constructor')
-  }
+  constructor() {}
   toJSON() {
     return this.#toJSON();
   }

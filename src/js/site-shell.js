@@ -3,6 +3,9 @@ import {
   getQueryParam,
   persistQueryParameter
 } from './utils.js';
+import {
+  siteData
+} from './modules/site-data.js'
 
 const menuListClass = '.site-nav';
 const menuItemTemplateId = 'menu-item-template';
@@ -33,6 +36,7 @@ const menuItems = [{
 ];
 
 export async function loadSiteShell(activePage) {
+  await siteData.initialize();
   await Promise.all([
     loadPartial('#site-header', '/partials/header.html'),
     loadPartial('#site-footer', '/partials/footer.html'),
