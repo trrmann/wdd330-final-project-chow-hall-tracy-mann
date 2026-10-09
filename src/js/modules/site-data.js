@@ -20,6 +20,7 @@ export class SiteData {
   #countries;
   #weeks;
   #recipes;
+  #currencyConversionTest;
   #initialization;
   constructor() {
     this.#apis = new APIs();
@@ -41,7 +42,8 @@ export class SiteData {
     return {
       countries: this.#countries.toJSON(),
       recipes: this.#recipes.toJSON(),
-      weeks: this.#weeks.toJSON()
+      weeks: this.#weeks.toJSON(),
+      currencyConversionTest: this.#currencyConversionTest
     };
   };
   initialize() {
@@ -79,6 +81,7 @@ export class SiteData {
         strCountry: recipe.Country
       }));
     await this.importMealDBMeals(meals);
+    this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
     this.#storage.objectWrite('recipes', this.#recipes, false);
     this.#storage.objectWrite('weeks', this.#weeks, false);
     console.log('Site data initialized:', JSON.parse(JSON.stringify(this)));
