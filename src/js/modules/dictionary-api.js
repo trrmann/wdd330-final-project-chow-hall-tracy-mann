@@ -58,7 +58,9 @@ export class DictionaryAPI {
   }
   constructor(isSessionCache = true) {
     this.#version = 'v1';
-    this.#localCache = new Cache({isSessionCache:isSessionCache});
+    this.#localCache = new Cache({
+      isSessionCache: isSessionCache
+    });
   }
   clearCache() {
     this.#localCache.clearCache();

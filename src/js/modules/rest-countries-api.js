@@ -135,7 +135,9 @@ export class RestCountries {
   constructor(isSessionCache = true) {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
-    this.#localCache = new Cache({isSessionCache:isSessionCache});
+    this.#localCache = new Cache({
+      isSessionCache: isSessionCache
+    });
   }
   clearCache() {
     this.#localCache.clearCache();

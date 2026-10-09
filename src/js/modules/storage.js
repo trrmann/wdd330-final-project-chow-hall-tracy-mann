@@ -180,7 +180,10 @@ export class Cache {
     });
   }
 
-  constructor({entryLifeMS = 86400000/*3000 = 3 sec*//*60000 = 1 min*//*300000 = 5 min*//*3600000 = 1 hour*//*86400000 = 1 day*/, isSessionCache = true} = {}) {
+  constructor({
+    entryLifeMS = 86400000 /*3000 = 3 sec*/ /*60000 = 1 min*/ /*300000 = 5 min*/ /*3600000 = 1 hour*/ /*86400000 = 1 day*/ ,
+    isSessionCache = true
+  } = {}) {
     this.#isSessionCache = isSessionCache;
     this.#entryLifeMS = entryLifeMS;
     this.#storage = new Storage();

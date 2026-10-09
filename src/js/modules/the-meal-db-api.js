@@ -71,7 +71,9 @@ export class TheMealDBAPI {
     this.#localCache.deleteCache(key);
   }
   constructor(isSessionCache = true) {
-    this.#localCache = new Cache({isSessionCache: isSessionCache});
+    this.#localCache = new Cache({
+      isSessionCache: isSessionCache
+    });
   }
   clearCache() {
     this.#localCache.clearCache();

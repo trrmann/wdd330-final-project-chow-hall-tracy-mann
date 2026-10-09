@@ -1,4 +1,10 @@
 import {
+  Storage
+} from './storage.js'
+import {
+  Recipes
+} from './recipes.js'
+import {
   persistQueryParameter
 } from '../utils.js';
 import {
@@ -762,6 +768,7 @@ export class MealPlanPage {
   #dailyMealsListContainer;
   #dailyMealSlotTemplate;
   #apis;
+  #storage;
 
   constructor(parms) {
     this.#mealPlanPageContainer = document.getElementById(MealPlanPage.mealPlanPageMainId);
@@ -773,6 +780,7 @@ export class MealPlanPage {
     this.#weekOffset = 0;
     this.#parseInitialWeekOffset();
     this.#apis = new APIs();
+    this.#storage = new Storage();
   }
   get selectedDay() {
     return this.#selectedDay;
@@ -780,6 +788,13 @@ export class MealPlanPage {
   async render() {
     const random = await this.#apis.RandomMeal();
     console.log(random);
+    let recipes = new Recipes();
+    if (this.#storage.hasKey('recipes')) {
+      recipes = Recipes.fromJSON(this.#storage.objectRead('recipes', true));
+    }
+    recipes = Recipes.importMealsDBJSON(recipes, random);
+    console.log(recipes);
+    this.#storage.objectWrite('recipes', recipes, true);
     const categories = await this.#apis.MealCategories();
     console.log(categories);
     // CORS Error
