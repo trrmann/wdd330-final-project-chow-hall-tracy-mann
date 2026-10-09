@@ -1,11 +1,10 @@
 import {
   persistQueryParameter
 } from '../utils.js';
+import {
+  siteData
+} from './site-data.js'
 
-const recipeLists = {
-  current: ['Southern Fried Chicken', 'Salisbury Steak'],
-  next: ['Southern Fried Chicken', 'Salisbury Steak', 'Chicken Fried Steak', 'Chicken and Dumplings']
-};
 export class SearchPage {
 
   static searchPageMainId = 'app';
@@ -38,10 +37,11 @@ export class SearchPage {
     this.#recipeSuggestionTemplate = document.getElementById(SearchPage.recipeSuggestionTemplateId);
     const recipeSuggestionsDashBoardClone = this.#recipeSuggestionsDashBoardTemplate.content.cloneNode(true);
     const targetContainer = recipeSuggestionsDashBoardClone.querySelector(SearchPage.recipeSuggestionsClass);
-    const recipeList = recipeLists[weekParameter] || [];
-    recipeList.forEach((recipe) => {
+    const recipes = Object.values(siteData.recipes.toJSON().collection)
+      .sort((left, right) => left.Name.localeCompare(right.Name));
+    recipes.forEach((recipe) => {
       const clone = this.#recipeSuggestionTemplate.content.cloneNode(true);
-      clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe;
+      clone.querySelector(SearchPage.recipeSuggestionClass).textContent = recipe.Name;
       clone.querySelector(SearchPage.recipeSuggestionClass).href = persistQueryParameter(clone.querySelector(SearchPage.recipeSuggestionClass).href, 'week', weekParameter);
       targetContainer.appendChild(clone);
     });

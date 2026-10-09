@@ -1,7 +1,7 @@
-const shoppingLists = {
-  current: ['Chicken', 'Rice', 'Milk'],
-  next: ['Chicken', 'Rice', 'Milk', 'Ground Beef', 'Lard', 'Eggs', 'Flour', 'Sugar', 'Salt']
-};
+import {
+  siteData
+} from './site-data.js'
+
 export class ShoppingPage {
   static shoppingPageMainId = 'app';
   static shoppingPageTemplateId = 'shopping-page-template';
@@ -11,32 +11,36 @@ export class ShoppingPage {
   static itemCountNumberClass = '.item-count-number';
   static shoppingItemNameClass = '.shopping-item-name';
   static shoppingListItemTemplateId = 'shopping-list-item-template';
+  static emptyShoppingListMessage = 'No shopping list data available yet.';
   #shoppingPageContainer
   #shoppingPageTemplate;
   #shoppingListDashBoardTemplate;
-  #weekParameter;
-  constructor(parms) {
+  constructor() {
     this.#shoppingPageContainer = document.getElementById(ShoppingPage.shoppingPageMainId);
     this.#shoppingPageTemplate = document.getElementById(ShoppingPage.shoppingPageTemplateId);
-    this.#weekParameter = parms.week;
   }
   render() {
     this.#shoppingPageContainer.innerHTML = '';
     this.#shoppingPageContainer.appendChild(this.#shoppingPageTemplate.content.cloneNode(true));
   }
-  mountDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
-    this.renderShoppingListDashBoard(dashboardContainer, weekParameter);
+  mountDashboard(dashboardContainer) {
+    this.renderShoppingListDashBoard(dashboardContainer);
   }
-  renderShoppingListDashBoard(dashboardContainer, weekParameter = this.#weekParameter) {
+  renderShoppingListDashBoard(dashboardContainer) {
     this.#shoppingListDashBoardTemplate = document.getElementById(ShoppingPage.shoppingListDashBoardTemplateId);
     const shoppingDashBoardClone = this.#shoppingListDashBoardTemplate.content.cloneNode(true);
     const targetContainer = shoppingDashBoardClone.querySelector(ShoppingPage.shoppingItemsClass);
     const shoppingListItemTemplate = document.getElementById(ShoppingPage.shoppingListItemTemplateId);
     targetContainer.innerHTML = '';
-    const shoppingList = shoppingLists[weekParameter] || [];
-    shoppingList.forEach((item) => {
+    const shoppingList = Object.values(siteData.shoppingList.toJSON().collection);
+    if (!shoppingList.length) {
+      const emptyMessage = document.createElement('li');
+      emptyMessage.textContent = ShoppingPage.emptyShoppingListMessage;
+      targetContainer.appendChild(emptyMessage);
+    }
+    shoppingList.forEach(ingredient => {
       const clone = shoppingListItemTemplate.content.cloneNode(true);
-      clone.querySelector(ShoppingPage.shoppingItemNameClass).textContent = item;
+      clone.querySelector(ShoppingPage.shoppingItemNameClass).textContent = [ingredient.Measure, ingredient.Name].filter(Boolean).join(' ');
       targetContainer.appendChild(clone);
     });
     const itemCountContainer = shoppingDashBoardClone.querySelector(ShoppingPage.itemCountNumberClass);

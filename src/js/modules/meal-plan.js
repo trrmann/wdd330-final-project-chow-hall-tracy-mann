@@ -1,4 +1,6 @@
 import {
+  getWeekDays,
+  getWeekForParameter,
   persistQueryParameter
 } from '../utils.js';
 import {
@@ -7,718 +9,6 @@ import {
 import {
   siteData
 } from './site-data.js'
-const weekNamedOffsets = {
-  min: {
-    param: "min",
-    name: "Minimum",
-    offset: -3,
-    resetHidden: false,
-    isOffset: true,
-    allowNextWeek: true,
-    allowPreviousWeek: false,
-    onDashboard: false,
-    nextDashboardKey: "current",
-    dashboardDisplay: "Other Week",
-    dashboardTitle: "Click to change to the current week!"
-  },
-  last: {
-    param: "last",
-    name: "Last",
-    offset: -1,
-    resetHidden: false,
-    isOffset: true,
-    allowNextWeek: true,
-    allowPreviousWeek: true,
-    onDashboard: true,
-    nextDashboardKey: "current",
-    dashboardDisplay: "Last Week",
-    dashboardTitle: "Click to change to the current week!"
-  },
-  current: {
-    param: "current",
-    name: "Current",
-    offset: 0,
-    resetHidden: true,
-    isOffset: false,
-    allowNextWeek: true,
-    allowPreviousWeek: true,
-    onDashboard: true,
-    nextDashboardKey: "next",
-    dashboardDisplay: "This Week",
-    dashboardTitle: "Click to change to next week!"
-  },
-  next: {
-    param: "next",
-    name: "Next",
-    offset: 1,
-    resetHidden: false,
-    isOffset: true,
-    allowNextWeek: true,
-    allowPreviousWeek: true,
-    onDashboard: true,
-    nextDashboardKey: "last",
-    dashboardDisplay: "Next Week",
-    dashboardTitle: "Click to change to last week!"
-  },
-  max: {
-    param: "max",
-    name: "Maximum",
-    offset: 3,
-    resetHidden: false,
-    isOffset: true,
-    allowNextWeek: false,
-    allowPreviousWeek: true,
-    onDashboard: false,
-    nextDashboardKey: "current",
-    dashboardDisplay: "Other Week",
-    dashboardTitle: "Click to change to the current week!"
-  }
-}
-const weekDays = [
-  'Mon',
-  'Tue',
-  'Wed',
-  'Thu',
-  'Fri',
-  'Sat',
-  'Sun'
-];
-const weekDaysLong = {
-  Mon: 'Monday',
-  Tue: 'Tuesday',
-  Wed: 'Wednesday',
-  Thu: 'Thursday',
-  Fri: 'Friday',
-  Sat: 'Saturday',
-  Sun: 'Sunday'
-};
-const defaultMeals = {
-  breakfast: {
-    display: "Breakfast",
-    required: true
-  },
-  brunch: {
-    display: "Brunch",
-    required: false
-  },
-  lunch: {
-    display: "Lunch",
-    required: true
-  },
-  dinner: {
-    display: "Dinner",
-    required: true
-  },
-  midnightMeal: {
-    display: "Midnight Meal",
-    required: false
-  }
-};
-const weekDayStatuses = {
-  current: {
-    Mon: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Tue: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Wed: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Thu: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Fri: {
-      status: 'review',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Sat: {
-      status: 'review',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Sun: {
-      status: 'suggestion',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    }
-  },
-  next: {
-    Mon: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Tue: {
-      status: 'planned',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Wed: {
-      status: 'review',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        brunch: {
-          servings: 4,
-          recipes: [{
-              percentServings: 25,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 75,
-              recipe: 'Fried Chicken'
-            }
-          ]
-        },
-        lunch: {
-          servings: 4,
-          recipes: [{
-            percentServings: 100,
-            recipe: 'Fried Chicken'
-          }]
-        },
-        dinner: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Thu: {
-      status: 'suggestion',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Fri: {
-      status: 'suggestion',
-      meals: {
-        breakfast: {
-          servings: 2,
-          recipes: [{
-              percentServings: 50,
-              recipe: 'Eggs'
-            },
-            {
-              percentServings: 50,
-              recipe: 'Omlette'
-            }
-          ]
-        },
-        midnightMeal: {
-          servings: 4,
-          recipes: [{
-              percentServings: 100,
-              recipe: 'Fried Chicken'
-            },
-            {
-              percentServings: 100,
-              recipe: 'Rice'
-            }
-          ]
-        }
-      }
-    },
-    Sat: {
-      status: 'empty',
-      meals: {}
-    },
-    Sun: {
-      status: 'empty',
-      meals: {}
-    }
-  }
-};
 
 export class MealPlanPage {
   static mealPlanPageMainId = 'app';
@@ -779,20 +69,19 @@ export class MealPlanPage {
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     this.#renderWeekNavigationData(pageContentClone);
     const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
-    const activeWeekData = weekDayStatuses[this.#weekParameter] || {};
-    weekDays.forEach((day) => {
+    const activeWeek = getWeekForParameter(this.#weekParameter, siteData);
+    getWeekDays(activeWeek).forEach((day) => {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
-      const activeDayData = activeWeekData[day] || {};
-      const activeStatus = activeDayData.status || 'undefined';
+      const activeStatus = day.status || 'empty';
       if (activeStatus === 'planned') {
         tabElement.classList.remove(MealPlanPage.folderTabAttentionIndicatorClass);
       } else {
         tabElement.classList.add(MealPlanPage.folderTabAttentionIndicatorClass);
       }
-      tabElement.textContent = day;
-      tabElement.dataset.day = day;
-      if (day === this.#selectedDay) {
+      tabElement.textContent = day.ID;
+      tabElement.dataset.day = day.ID;
+      if (day.ID === this.#selectedDay) {
         tabElement.classList.add(MealPlanPage.activeTabClass);
         tabElement.setAttribute('aria-selected', 'true');
       } else {
@@ -823,7 +112,7 @@ export class MealPlanPage {
     const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     const rangeContainer = container.querySelector(MealPlanPage.weekNavRangeClass);
     const week = siteData.getWeekByOffset(this.#weekOffset);
-    const namedOffset = weekNamedOffsets[week.Name];
+    const namedOffset = siteData.weekNamedOffsets[week.Name];
     if (namedOffset) {
       labelContainer.textContent = `${namedOffset.name} Week`;
       resetButtonContainer.classList.toggle(MealPlanPage.weekNavIsHiddenClass, namedOffset.resetHidden);
@@ -847,10 +136,10 @@ export class MealPlanPage {
     const navPanelContainer = renderedFragment.querySelector(MealPlanPage.weekNavPanelClass);
     const resetButtonContainer = renderedFragment.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
     if (!navPanelContainer) return;
-    const foundItem = Object.values(weekNamedOffsets).find(item => item.offset === this.#weekOffset);
-    const resultKey = foundItem ? foundItem.param : weekNamedOffsets['current'].param;
-    const isPreviousWeekAllowed = weekNamedOffsets[resultKey].allowPreviousWeek;
-    const isNextWeekAllowed = weekNamedOffsets[resultKey].allowNextWeek;
+    const foundItem = Object.values(siteData.weekNamedOffsets).find(item => item.offset === this.#weekOffset);
+    const resultKey = foundItem ? foundItem.param : siteData.weekNamedOffsets.current.param;
+    const isPreviousWeekAllowed = siteData.weekNamedOffsets[resultKey].allowPreviousWeek;
+    const isNextWeekAllowed = siteData.weekNamedOffsets[resultKey].allowNextWeek;
     const prevButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="-1"]`);
     const nextButton = navPanelContainer.querySelector(`${MealPlanPage.weekNavButtonClass}[data-nav-dir="1"]`);
     if (prevButton) {
@@ -867,9 +156,9 @@ export class MealPlanPage {
       if (directionalStep > 0 && !isNextWeekAllowed) return;
       this.#weekOffset += directionalStep;
       let weekParamValue = String(this.#weekOffset);
-      Object.keys(weekNamedOffsets).forEach((namedOffset) => {
-        if (this.#weekOffset === weekNamedOffsets[namedOffset].offset) {
-          weekParamValue = weekNamedOffsets[namedOffset].param;
+      Object.keys(siteData.weekNamedOffsets).forEach((namedOffset) => {
+        if (this.#weekOffset === siteData.weekNamedOffsets[namedOffset].offset) {
+          weekParamValue = siteData.weekNamedOffsets[namedOffset].param;
         }
       });
       this.#updateUrlParameter('week', weekParamValue);
@@ -881,19 +170,19 @@ export class MealPlanPage {
       resetButtonContainer.addEventListener('click', () => {
         if (this.#weekOffset === 0) return;
         this.#weekOffset = 0;
-        this.#weekParameter = weekNamedOffsets['current'].param;
-        this.#updateUrlParameter('week', weekNamedOffsets['current'].param);
+        this.#weekParameter = siteData.weekNamedOffsets.current.param;
+        this.#updateUrlParameter('week', siteData.weekNamedOffsets.current.param);
         this.render();
       });
     }
   }
   #parseInitialWeekOffset() {
     if (!this.#weekParameter) {
-      this.#weekParameter = weekNamedOffsets['current'].param;
+      this.#weekParameter = siteData.weekNamedOffsets.current.param;
     }
-    const isNamedOffset = Object.values(weekNamedOffsets).some(item => item.param === this.#weekParameter);
+    const isNamedOffset = Object.values(siteData.weekNamedOffsets).some(item => item.param === this.#weekParameter);
     if (isNamedOffset) {
-      this.#weekOffset = weekNamedOffsets[this.#weekParameter].offset;
+      this.#weekOffset = siteData.weekNamedOffsets[this.#weekParameter].offset;
     } else {
       const parsed = parseInt(this.#weekParameter, 10);
       this.#weekOffset = isNaN(parsed) ? 0 : parsed;
@@ -920,29 +209,25 @@ export class MealPlanPage {
     const heading = panel.querySelector('h3');
     this.#dailyMealsListContainer = rootContainer.querySelector(MealPlanPage.dailyMealsListClass);
     this.#dailyMealsListContainer.innerHTML = '';
-    const activeWeekData = weekDayStatuses[weekParameter] || {};
-    const activeDayData = activeWeekData[day] || {};
-    const activeStatus = activeDayData.status || 'undefined';
-    const activeMeals = activeDayData.meals || {};
-    const activeMealsArray = Object.keys(activeMeals);
-    heading.textContent = `${weekDaysLong[day]}'s Meal Plan:  (${activeStatus})`;
-    activeMealsArray.forEach((meal) => {
-      const mealPlan = activeMeals[meal];
-      const mealServings = mealPlan.servings;
-      const mealRecipes = mealPlan.recipes;
-      const mealDetails = mealRecipes.map((recipe) => {
-        const servings = mealServings * (recipe.percentServings / 100);
-        return `${servings} servings of ${recipe.recipe}`;
+    const activeDay = getWeekForParameter(weekParameter, siteData).days.getDayByID(day);
+    const activeStatus = activeDay?.status || 'empty';
+    const activeMeals = activeDay?.meals.toJSON().collection || {};
+    heading.textContent = `${activeDay?.Name || day}'s Meal Plan:  (${activeStatus})`;
+    Object.values(activeMeals).forEach(meal => {
+      if (!meal.recipeIDs.length) {
+        return;
+      }
+      const mealDetails = meal.recipeIDs.map(recipeID => {
+        const recipe = siteData.recipes.getRecipeByID(recipeID) ||
+          siteData.recipes.getRecipeByName(recipeID);
+        const recipeName = recipe?.Name || recipeID;
+        return `${meal.getRecipeServings(recipeID)} servings of ${recipeName}`;
       });
       const mealSlotClone = this.#dailyMealSlotTemplate.content.cloneNode(true);
       const dailyMealSlot = mealSlotClone.querySelector(MealPlanPage.dailyMealSlotClass);
       const dailyMealSlotLabel = dailyMealSlot.querySelector(MealPlanPage.dailyMealSlotLabelClass);
       const description = dailyMealSlot.querySelector('p');
-      if (Object.hasOwn(defaultMeals, meal)) {
-        description.textContent = `${defaultMeals[meal].display} is ${mealDetails}.`;
-      } else {
-        description.textContent = `${meal} is ${mealDetails}.`;
-      }
+      description.textContent = `${meal.Name} is ${mealDetails}.`;
       dailyMealSlotLabel.innerText = "";
       this.#dailyMealsListContainer.appendChild(mealSlotClone);
     });
@@ -957,32 +242,30 @@ export class MealPlanPage {
     const weekKicker = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerClass);
     const weekKickerAnchor = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelKickerAnchorClass);
     let isWeekParameterNamedDashboardOffset = false;
-    Object.keys(weekNamedOffsets).forEach((namedOffset) => {
-      const offset = weekNamedOffsets[namedOffset];
+    Object.keys(siteData.weekNamedOffsets).forEach((namedOffset) => {
+      const offset = siteData.weekNamedOffsets[namedOffset];
       if (weekParameter === offset['param']) {
-        weekKicker.textContent = weekNamedOffsets[namedOffset].dashboardDisplay;
-        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', weekNamedOffsets[namedOffset].nextDashboardKey);
-        weekKickerAnchor.title = weekNamedOffsets[namedOffset].dashboardTitle;
+        weekKicker.textContent = siteData.weekNamedOffsets[namedOffset].dashboardDisplay;
+        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets[namedOffset].nextDashboardKey);
+        weekKickerAnchor.title = siteData.weekNamedOffsets[namedOffset].dashboardTitle;
         isWeekParameterNamedDashboardOffset = true;
       }
     });
     if (!isWeekParameterNamedDashboardOffset) {
       weekKicker.textContent = `Other Week`;
-      weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', weekNamedOffsets['current'].param);
+      weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets.current.param);
       weekKickerAnchor.title = 'Click to change to the current week!';
     }
     const weekPanelLink = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelLinkClass);
     weekPanelLink.href = persistQueryParameter(weekPanelLink.href, 'week', weekParameter);
     const targetContainer = weekDashBoardClone.querySelector(MealPlanPage.weekStripClass);
-    weekDays.forEach((day) => {
+    const selectedWeek = getWeekForParameter(weekParameter, siteData);
+    getWeekDays(selectedWeek).forEach(day => {
       const clone = this.#mealPlanDayTemplate.content.cloneNode(true);
-      clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day;
+      clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day.ID;
       const statusSpan = clone.querySelector(MealPlanPage.weekStripStatusClass);
-      const statusWeek = weekDayStatuses[weekParameter] || {};
-      const statusDay = statusWeek[day] || {};
-      const status = statusDay.status || "N/A"
-
-      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${ status }`);
+      const status = day.status || 'empty';
+      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${status}`);
       statusSpan.setAttribute('aria-label', status);
       targetContainer.appendChild(clone);
     });

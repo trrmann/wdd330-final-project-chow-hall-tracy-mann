@@ -32,7 +32,9 @@ https://www.themealdb.com/images/ingredients/olive_oil.png/medium
 https://www.themealdb.com/images/ingredients/olive_oil.png/large
 */
 export class TheMealDBAPI {
-  static baseURL = APIRequestQueue.providers.themealdb.baseURL;
+  static get baseURL() {
+    return APIRequestQueue.providers.themealdb.baseURL;
+  }
   static apiPath = "api/json/v1/1/";
   static searchFunction = "search.php?";
   static searchByStringQuery = "s=";
@@ -72,7 +74,8 @@ export class TheMealDBAPI {
   }
   constructor(isSessionCache = true) {
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache
+      isSessionCache: isSessionCache,
+      namespace: 'themealdb'
     });
   }
   async #cachedRequest(cacheKey, request, cache = true) {

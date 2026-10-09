@@ -2,138 +2,26 @@ import {
   Storage
 } from './storage.js'
 
-const defaultProviderRateLimits = {
-  themealdb: [{
-    requests: 1,
-    interval: 'second'
-  }],
-  'rest-countries': [{
-    requests: 1,
-    interval: 'second'
-  }, {
-    requests: 1000,
-    interval: 'month'
-  }],
-  dictionary: [{
-    requests: 1,
-    interval: 'second'
-  }, {
-    requests: 1000,
-    interval: 'hour'
-  }]
-};
-const supportedRateLimitIntervals = new Set([
-  'second',
-  'minute',
-  'hour',
-  'day',
-  'week',
-  'month',
-  'year'
-]);
-const viteEnvironment = import.meta.env || {};
-
-function getProviderRateLimits(environmentVariable, defaultLimits) {
-  const configuredLimits = viteEnvironment[environmentVariable];
-  if (typeof configuredLimits !== 'string' || !configuredLimits.trim()) {
-    return defaultLimits.map(limit => ({
-      ...limit
-    }));
-  }
-
-  let limits;
-  try {
-    limits = JSON.parse(configuredLimits);
-  } catch (error) {
-    throw new Error(`${environmentVariable} must contain a JSON array of rate-limit rules`, {
-      cause: error
-    });
-  }
-
-  if (!Array.isArray(limits) || !limits.length || limits.some(limit =>
-      !limit ||
-      typeof limit !== 'object' ||
-      !Number.isSafeInteger(limit.requests) ||
-      limit.requests < 1 ||
-      !supportedRateLimitIntervals.has(limit.interval)
-    )) {
-    throw new TypeError(`${environmentVariable} must contain a JSON array of valid rate-limit rules`);
-  }
-
-  return limits.map(({
-    requests,
-    interval
-  }) => ({
-    requests,
-    interval
-  }));
-}
-
-function getProviderBaseURL(environmentVariable, defaultBaseURL) {
-  const configuredBaseURL = viteEnvironment[environmentVariable];
-  const baseURL = typeof configuredBaseURL === 'string' && configuredBaseURL.trim() ?
-    configuredBaseURL.trim() :
-    defaultBaseURL;
-  let parsedURL;
-
-  try {
-    parsedURL = new URL(baseURL);
-  } catch (error) {
-    throw new Error(`${environmentVariable} must be an absolute HTTP or HTTPS URL`, {
-      cause: error
-    });
-  }
-
-  if (!['http:', 'https:'].includes(parsedURL.protocol)) {
-    throw new TypeError(`${environmentVariable} must be an absolute HTTP or HTTPS URL`);
-  }
-
-  return `${baseURL.replace(/\/+$/, '')}/`;
-}
-
 export class APIRequestQueue {
-  static priorities = {
-    recipe: 0,
-    country: 1,
-    word: 2
+  static configuration = {
+    priorities: {},
+    providers: {}
   }
 
-  static providers = {
-    themealdb: {
-      priority: 'recipe',
-      requestLimit: getProviderRateLimits(
-        'VITE_MEALDB_RATE_LIMITS',
-        defaultProviderRateLimits.themealdb
-      ),
-      baseURL: getProviderBaseURL('VITE_MEALDB_BASE_URL', 'https://www.themealdb.com/'),
-      usageStorageKey: 'TheMealDB-API-Request-Usage'
-    },
-    'rest-countries': {
-      priority: 'country',
-      requestLimit: getProviderRateLimits(
-        'VITE_REST_COUNTRIES_RATE_LIMITS',
-        defaultProviderRateLimits['rest-countries']
-      ),
-      baseURL: getProviderBaseURL('VITE_REST_COUNTRIES_BASE_URL', 'https://api.restcountries.com/'),
-      usageStorageKey: 'RestCountries-API-Throttle-Usage'
-    },
-    dictionary: {
-      priority: 'word',
-      requestLimit: getProviderRateLimits(
-        'VITE_DICTIONARY_RATE_LIMITS',
-        defaultProviderRateLimits.dictionary
-      ),
-      baseURL: getProviderBaseURL('VITE_DICTIONARY_BASE_URL', 'https://freedictionaryapi.com/'),
-      usageStorageKey: 'Dictionary-API-Request-Usage'
-    }
+  static configure(configuration) {
+    APIRequestQueue.configuration = configuration;
   }
 
-  static intervalMilliseconds = {
-    second: 1000,
-    minute: 60 * 1000,
-    hour: 60 * 60 * 1000,
-    day: 24 * 60 * 60 * 1000,
-    week: 7 * 24 * 60 * 60 * 1000
+  static get priorities() {
+    return APIRequestQueue.configuration.priorities;
+  }
+
+  static get providers() {
+    return APIRequestQueue.configuration.providers;
+  }
+
+  static get intervalMilliseconds() {
+    return APIRequestQueue.configuration.intervalMilliseconds;
   }
 
   #storage;

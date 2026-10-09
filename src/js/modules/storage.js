@@ -163,65 +163,105 @@ export class Storage {
 
 export class Cache {
   #storage;
+  #entries;
+  #storagePrefix;
   #isSessionCache;
   #entryLifeMS;
 
+  #getStorageKey(key) {
+    return `${this.#storagePrefix}${encodeURIComponent(key)}`;
+  }
+
+  #getNamespacedKeys() {
+    return this.#storage.keys(this.#isSessionCache)
+      .filter(key => key.startsWith(this.#storagePrefix));
+  }
+
   #expireCache() {
-    const keys = this.#storage.keys(this.#isSessionCache);
-    if (!keys || !keys.forEach) return;
     const now = Date.now();
-    keys.forEach(key => {
+    if (this.#entries) {
+      this.#entries.forEach((record, key) => {
+        if (record.updated + this.#entryLifeMS < now) {
+          this.#entries.delete(key);
+        }
+      });
+      return;
+    }
+    this.#getNamespacedKeys().forEach(key => {
       const record = this.#storage.objectRead(key, this.#isSessionCache);
-      const expireDT = record.updated + this.#entryLifeMS;
-      const isExpired = expireDT < now;
-      if (record && isExpired) {
-        this.deleteCache(key);
+      if (record && record.updated + this.#entryLifeMS < now) {
+        this.#storage.remove(key, this.#isSessionCache);
       }
     });
   }
 
   constructor({
-    entryLifeMS = 86400000 /*3000 = 3 sec*/ /*60000 = 1 min*/ /*300000 = 5 min*/ /*3600000 = 1 hour*/ /*86400000 = 1 day*/ ,
-    isSessionCache = true
+    entryLifeMS = 86400000,
+    isSessionCache = true,
+    namespace = 'default',
+    storage = 'session'
   } = {}) {
+    if (typeof namespace !== 'string' || !namespace.trim()) {
+      throw new TypeError('Cache namespace must be a non-empty string');
+    }
+    if (!['memory', 'session'].includes(storage)) {
+      throw new TypeError('Cache storage must be either "memory" or "session"');
+    }
     this.#isSessionCache = isSessionCache;
     this.#entryLifeMS = entryLifeMS;
     this.#storage = new Storage();
+    this.#entries = storage === 'memory' ? new Map() : null;
+    this.#storagePrefix = `cache:${encodeURIComponent(namespace)}:`;
   }
 
   hasCache(key) {
     this.#expireCache();
-    return this.#storage.hasKey(key, this.#isSessionCache);
+    return this.#entries ?
+      this.#entries.has(key) :
+      this.#storage.hasKey(this.#getStorageKey(key), this.#isSessionCache);
   }
 
   getCache(key) {
     this.#expireCache();
-    const record = this.#storage.objectRead(key, this.#isSessionCache);
+    const record = this.#entries ?
+      this.#entries.get(key) :
+      this.#storage.objectRead(this.#getStorageKey(key), this.#isSessionCache);
     return record ? record.entry : undefined;
   }
 
   setCache(key, value) {
     this.#expireCache();
     const now = Date.now();
+    const existing = this.#entries ?
+      this.#entries.get(key) :
+      this.#storage.objectRead(this.#getStorageKey(key), this.#isSessionCache);
     const entry = {
-      created: now,
+      created: existing?.created ?? now,
       updated: now,
       entry: value
     };
-    if (this.#storage.hasKey(key, this.#isSessionCache)) {
-      const existing = this.#storage.hasKey(key, this.#isSessionCache);
-      if (existing) {
-        entry.created = existing.created;
-      }
+    if (this.#entries) {
+      this.#entries.set(key, entry);
+    } else {
+      this.#storage.objectWrite(this.#getStorageKey(key), entry, this.#isSessionCache);
     }
-    this.#storage.objectWrite(key, entry, this.#isSessionCache);
   }
 
   deleteCache(key) {
-    this.#storage.remove(key, this.#isSessionCache);
+    if (this.#entries) {
+      this.#entries.delete(key);
+    } else {
+      this.#storage.remove(this.#getStorageKey(key), this.#isSessionCache);
+    }
   }
 
   clearCache() {
-    this.#storage.clear(this.#isSessionCache);
+    if (this.#entries) {
+      this.#entries.clear();
+    } else {
+      this.#getNamespacedKeys().forEach(key =>
+        this.#storage.remove(key, this.#isSessionCache)
+      );
+    }
   }
 }

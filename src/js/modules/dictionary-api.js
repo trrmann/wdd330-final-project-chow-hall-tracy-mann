@@ -2,6 +2,9 @@ import {
   fetchRequest
 } from '../utils.js'
 import {
+  Cache
+} from './storage.js'
+import {
   APIRequestQueue,
   apiRequestQueue
 } from './api-request-queue.js'
@@ -14,39 +17,13 @@ original api went down (v2 dev), adjusting to new api (v1 prod).
 https://freedictionaryapi.com/api/v1#GET/entries/{language}/{word}
 
 */
-class DictionaryMemoryCache {
-  #entries;
-
-  constructor() {
-    this.#entries = new Map();
-  }
-
-  hasCache(key) {
-    return this.#entries.has(key);
-  }
-
-  getCache(key) {
-    return this.#entries.get(key);
-  }
-
-  setCache(key, value) {
-    this.#entries.set(key, value);
-  }
-
-  deleteCache(key) {
-    this.#entries.delete(key);
-  }
-
-  clearCache() {
-    this.#entries.clear();
-  }
-}
-
 export class DictionaryAPI {
-  static baseURL = {
-    v1: APIRequestQueue.providers.dictionary.baseURL,
-    v2: "https://api.dictionaryapi.dev/"
-  };
+  static get baseURL() {
+    return {
+      v1: APIRequestQueue.providers.dictionary.baseURL,
+      v2: "https://api.dictionaryapi.dev/"
+    };
+  }
   static apiPath = {
     v1: "api/v1/entries/",
     v2: "api/v2/entries/"
@@ -80,7 +57,10 @@ export class DictionaryAPI {
   }
   constructor() {
     this.#version = 'v1';
-    this.#localCache = new DictionaryMemoryCache();
+    this.#localCache = new Cache({
+      namespace: 'dictionary',
+      storage: 'memory'
+    });
   }
   clearCache() {
     this.#localCache.clearCache();

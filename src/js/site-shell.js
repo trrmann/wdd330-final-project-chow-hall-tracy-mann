@@ -4,37 +4,25 @@ import {
   persistQueryParameter
 } from './utils.js';
 import {
+  SiteData,
   siteData
 } from './modules/site-data.js'
 
 const menuListClass = '.site-nav';
 const menuItemTemplateId = 'menu-item-template';
-const menuItems = [{
-    href: '/MealPlan/',
-    dataNavPage: "meals",
-    display: 'Meals',
-    class: 'site-nav-link'
-  },
-  {
-    href: '/Inventory/',
-    dataNavPage: "inventory",
-    display: 'Inventory',
-    class: 'site-nav-link'
-  },
-  {
-    href: '/Shopping/',
-    dataNavPage: "shopping",
-    display: 'Shopping',
-    class: 'site-nav-link'
-  },
-  {
-    href: '/Search/',
-    dataNavPage: "search",
-    display: 'Search',
-    class: 'site-nav-link special-menu-item'
-  }
-];
 
+export function updateHeaderWeekParameters(newWeekValue) {
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  const brandAnchor = header.querySelector('a.site-brand');
+  if (brandAnchor) {
+    brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', newWeekValue);
+  }
+  const menuLinks = header.querySelectorAll('.site-nav-link');
+  menuLinks.forEach((anchor) => {
+    anchor.href = persistQueryParameter(anchor.href, 'week', newWeekValue);
+  });
+}
 export async function loadSiteShell(activePage) {
   await siteData.initialize();
   await Promise.all([
@@ -53,7 +41,7 @@ export async function loadSiteShell(activePage) {
   brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', parms.week);
   const menuList = document.querySelector(menuListClass);
   const menuItemTemplate = document.getElementById(menuItemTemplateId);
-  menuItems.forEach(item => {
+  SiteData.shellMenuItems.forEach(item => {
     const clone = menuItemTemplate.content.cloneNode(true);
     const anchor = clone.querySelector('a');
     anchor.href = persistQueryParameter(item.href, 'week', parms.week);
@@ -99,16 +87,4 @@ export async function loadSiteShell(activePage) {
 
   window.matchMedia('(min-width: 1024px)').addEventListener('change', () => setMenuOpen(false));
   return parms;
-}
-export function updateHeaderWeekParameters(newWeekValue) {
-  const header = document.querySelector('.site-header');
-  if (!header) return;
-  const brandAnchor = header.querySelector('a.site-brand');
-  if (brandAnchor) {
-    brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', newWeekValue);
-  }
-  const menuLinks = header.querySelectorAll('.site-nav-link');
-  menuLinks.forEach((anchor) => {
-    anchor.href = persistQueryParameter(anchor.href, 'week', newWeekValue);
-  });
 }

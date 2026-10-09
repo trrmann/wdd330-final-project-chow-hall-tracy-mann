@@ -22,7 +22,8 @@ export class APIs {
   #dictionaryAPI;
   constructor(isSessionCache = true) {
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache
+      isSessionCache: isSessionCache,
+      namespace: 'apis'
     });
     this.#theMealDB = new TheMealDBAPI();
     this.#restCountries = new RestCountries();

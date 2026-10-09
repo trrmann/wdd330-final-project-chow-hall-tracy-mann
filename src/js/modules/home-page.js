@@ -44,7 +44,7 @@ export class HomePage {
     this.#homePageDashboardContainer = homePageContent.querySelector(HomePage.homePageDashBoardClass);
     this.#mealPlanPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
     this.#inventoryPage.mountDashboards(this.#homePageDashboardContainer, this.#weekParameter);
-    this.#shoppingPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
+    this.#shoppingPage.mountDashboard(this.#homePageDashboardContainer);
     this.#searchPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
     this.#homePageContainer.innerHTML = '';
     this.#homePageContainer.appendChild(homePageContent);

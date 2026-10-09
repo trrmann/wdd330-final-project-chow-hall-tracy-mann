@@ -331,7 +331,7 @@ a.panel-kicker-anchor {
 
 .week-strip,
 .shopping-items,
-.low-stock-items,
+.inventory-items,
 .recipe-suggestions {
   list-style: none;
   margin: 0;
@@ -539,27 +539,6 @@ a.panel-kicker-anchor {
   box-shadow: var(--shadow);
 }
 
-.inventory-reading {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin: 4px 0 12px;
-}
-
-.inventory-reading-value {
-  color: var(--tactical-olive);
-  font-family: var(--heading);
-  font-size: 34px;
-  line-height: 1;
-}
-
-.inventory-progress {
-  display: block;
-  width: 100%;
-  height: 12px;
-  accent-color: var(--tactical-olive);
-}
-
 .shopping-items {
   display: grid;
   gap: 10px;
@@ -578,13 +557,13 @@ a.panel-kicker-anchor {
   accent-color: var(--tactical-olive);
 }
 
-.low-stock-items {
+.inventory-items {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.low-stock-items li {
+.inventory-items li {
   padding: 6px 10px;
   border: 1px solid var(--copper-canteen);
   border-radius: 3px;

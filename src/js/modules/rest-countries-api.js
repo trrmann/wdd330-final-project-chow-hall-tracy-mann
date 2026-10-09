@@ -1,5 +1,7 @@
 import {
-  fetchRequest
+  fetchRequest,
+  getCountryMatchRank,
+  getCountryRecords
 } from '../utils.js'
 import {
   Cache,
@@ -8,72 +10,6 @@ import {
   APIRequestQueue,
   apiRequestQueue
 } from './api-request-queue.js'
-
-function normalizeCountryName(value) {
-  return String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLocaleLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
-
-function getCountryRecords(response) {
-  if (Array.isArray(response)) {
-    return response;
-  }
-  if (!response || typeof response !== 'object') {
-    return [];
-  }
-  for (const key of ['data', 'objects', 'results', 'countries', 'result']) {
-    if (response[key] !== undefined) {
-      const records = getCountryRecords(response[key]);
-      if (records.length) {
-        return records;
-      }
-    }
-  }
-  return response.names || response.name || response.codes || response.cca3 ? [response] : [];
-}
-
-function getStrings(value) {
-  if (typeof value === 'string') {
-    return [value];
-  }
-  if (Array.isArray(value)) {
-    return value.flatMap(getStrings);
-  }
-  if (value && typeof value === 'object') {
-    return Object.values(value).flatMap(getStrings);
-  }
-  return [];
-}
-
-function getCountryMatchRank(country, searchName) {
-  const target = normalizeCountryName(searchName);
-  const primaryNames = [
-    country?.names?.common,
-    country?.names?.official,
-    country?.name?.common,
-    country?.name?.official
-  ];
-  if (primaryNames.some(name => typeof name === 'string' && normalizeCountryName(name) === target)) {
-    return 2;
-  }
-  const searchableNames = [
-    country?.names,
-    country?.name,
-    country?.demonyms,
-    country?.demonym,
-    country?.altSpellings,
-    country?.alt_spellings,
-    country?.nativeName,
-    country?.translations
-  ];
-  return searchableNames.some(names =>
-    getStrings(names).some(name => normalizeCountryName(name) === target)
-  ) ? 1 : 0;
-}
 
 /*
 const response = await fetch(
@@ -131,7 +67,9 @@ const data = await response.json();
 
 */
 export class RestCountries {
-  static baseURL = APIRequestQueue.providers['rest-countries'].baseURL;
+  static get baseURL() {
+    return APIRequestQueue.providers['rest-countries'].baseURL;
+  }
   static countriesAPIPath = "countries/v5";
   static countriesQueryFunction = "?q=";
   static countriesQueryLimitOption = "limit=";
@@ -197,7 +135,8 @@ export class RestCountries {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache
+      isSessionCache: isSessionCache,
+      namespace: 'rest-countries'
     });
   }
   async #cachedRequest(cacheKey, request, cache = true, apiKey = this.#apiLiveFreeAPIKey) {

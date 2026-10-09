@@ -1,19 +1,9 @@
-function normalizeWord(value) {
-  return typeof value === 'string' ? value.trim().normalize('NFC').toLocaleLowerCase() : '';
-}
-
-function objectOrEmpty(value) {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
-}
-
-function modelArray(value, Model) {
-  return Array.isArray(value) ?
-    value.map(item => item instanceof Model ? item : Model.fromJSON(item)) : [];
-}
-
-function stringArray(value) {
-  return Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
-}
+import {
+  modelArray,
+  normalizeWord,
+  objectOrEmpty,
+  stringArray
+} from '../utils.js'
 
 export class Words {
   static fromJSON(json) {

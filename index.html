@@ -67,37 +67,22 @@
       <div class="panel-heading">
         <div>
           <p class="panel-kicker">Pantry</p>
-          <h2 id="inventory-title">Inventory Status</h2>
+          <h2 id="inventory-title">Inventory</h2>
         </div>
         <a class="panel-link" href="/Inventory/">Review list</a>
       </div>
-      <div class="inventory-reading">
-        <span class="inventory-reading-value"></span>
-        <span>in stock</span>
-      </div>
-      <progress class="inventory-progress" value="" max="100" aria-label=""></progress>
+      <ul class="inventory-items"></ul>
     </section>
   </template>
-  <template id="inventory-low-stock-dashboard-template">
-    <section class="dashboard-panel dashboard-panel-low-stock" aria-labelledby="low-stock-title">
-      <div class="panel-heading">
-        <div>
-          <p class="panel-kicker">Restock soon</p>
-          <h2 id="low-stock-title">Low Stock</h2>
-        </div>
-      </div>
-      <ul class="low-stock-items"></ul>
-    </section>
-  </template>
-  <template id="low-stock-item-template">
-    <li><span class="low-stock-item-name"></span></li>
+  <template id="inventory-item-template">
+    <li><span class="inventory-item-name"></span></li>
   </template>
   <template id="recipe-suggestions-dashboard-template">
     <section class="dashboard-panel dashboard-panel-recipes" id="recipe-search" aria-labelledby="recipe-title">
       <div class="panel-heading">
         <div>
-          <p class="panel-kicker">A few ideas</p>
-          <h2 id="recipe-title">Recipe Suggestions</h2>
+          <p class="panel-kicker">From TheMealDB</p>
+          <h2 id="recipe-title">Recipes</h2>
         </div>
       </div>
       <ul class="recipe-suggestions" data-recipe-list></ul>

@@ -2,92 +2,26 @@ import {
   Meal,
   Meals
 } from './meals'
-
-const weekAliasOffsets = {
-  min: -3,
-  last: -1,
-  current: 0,
-  next: 1,
-  max: 3
-};
-
-const weekDays = [
-  ['Mon', 'Monday'],
-  ['Tue', 'Tuesday'],
-  ['Wed', 'Wednesday'],
-  ['Thu', 'Thursday'],
-  ['Fri', 'Friday'],
-  ['Sat', 'Saturday'],
-  ['Sun', 'Sunday']
-];
-
-function toMondayDate(date = new Date()) {
-  const monday = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const distanceFromMonday = (monday.getUTCDay() + 6) % 7;
-  monday.setUTCDate(monday.getUTCDate() - distanceFromMonday);
-  return monday.toISOString().slice(0, 10);
-}
-
-function addWeeks(date, offset) {
-  const [year, month, day] = date.split('-').map(Number);
-  const monday = new Date(Date.UTC(year, month - 1, day));
-  monday.setUTCDate(monday.getUTCDate() + offset * 7);
-  return monday.toISOString().slice(0, 10);
-}
-
-function parseDate(date) {
-  const [year, month, day] = date.split('-').map(Number);
-  const parsed = new Date(year, month - 1, day);
-  if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
-    throw new TypeError('weekStartDate must be a valid date in YYYY-MM-DD format');
-  }
-  return parsed;
-}
-
-function getWeekOffset(weekStartDate, referenceDate = toMondayDate()) {
-  return Math.round((Date.parse(`${weekStartDate}T00:00:00.000Z`) -
-    Date.parse(`${referenceDate}T00:00:00.000Z`)) / 604800000);
-}
-
-function getWeekName(weekStartDate) {
-  const offset = getWeekOffset(weekStartDate);
-  const namedOffset = Object.entries(weekAliasOffsets).find(([, value]) => value === offset);
-  if (namedOffset) {
-    return namedOffset[0];
-  }
-  return offset < 0 ? `week ${offset}` : `week +${offset}`;
-}
-
-function createDefaultMeals() {
-  const meals = new Meals();
-  [
-    ['breakfast', 'Breakfast'],
-    ['brunch', 'Brunch'],
-    ['lunch', 'Lunch'],
-    ['dinner', 'Dinner'],
-    ['midnightMeal', 'Midnight Meal']
-  ].forEach(([id, name]) => {
-    meals.addMeal(new Meal({
-      id,
-      name
-    }));
-  });
-  return meals;
-};
-
-function ensureWeekDays(days) {
-  weekDays.forEach(([id, name]) => {
-    if (!days.getDayByID(id) && !days.getDayByName(name)) {
-      days.addDay(new Day({
-        id,
-        name
-      }));
-    }
-  });
-  return days;
-}
+import {
+  addWeeks,
+  createDefaultMeals,
+  ensureWeekDays,
+  getWeekName,
+  parseDate,
+  toMondayDate
+} from '../utils.js'
 
 export class Days {
+  static #configuration;
+  static configure(configuration) {
+    Days.#configuration = configuration;
+  };
+  static get configuration() {
+    if (!Days.#configuration) {
+      throw new Error('Week configuration must be provided before creating week data');
+    }
+    return Days.#configuration;
+  };
   static fromJSON(json) {
     const instance = new Days();
     instance.#fromJSON(json);
@@ -200,7 +134,7 @@ export class Day {
       this.#meals = json.meals instanceof Meals ?
         json.meals :
         json.meals === undefined ?
-        createDefaultMeals() :
+        createDefaultMeals(Meal, Meals, Days.configuration.mealTypes) :
         Meals.fromJSON(json.meals);
     }
   };
@@ -214,7 +148,7 @@ export class Day {
     this.#Name = name;
     this.#Status = status;
     this.#meals = meals === null ?
-      createDefaultMeals() :
+      createDefaultMeals(Meal, Meals, Days.configuration.mealTypes) :
       meals instanceof Meals ?
       meals :
       Meals.fromJSON(meals);
@@ -274,7 +208,7 @@ export class Week {
       this.#days = json.days instanceof Days ?
         json.days :
         Days.fromJSON(json.days || {});
-      ensureWeekDays(this.#days);
+      ensureWeekDays(this.#days, Day, Days.configuration.weekDays);
     }
   };
   constructor({
@@ -287,7 +221,7 @@ export class Week {
     this.#weekStartDate = toMondayDate(parseDate(weekStartDate));
     this.#ID = this.#weekStartDate;
     this.#days = days instanceof Days ? days : Days.fromJSON(days);
-    ensureWeekDays(this.#days);
+    ensureWeekDays(this.#days, Day, Days.configuration.weekDays);
   };
   toJSON() {
     return this.#toJSON();
@@ -296,7 +230,7 @@ export class Week {
     return this.#ID;
   };
   get Name() {
-    return getWeekName(this.#weekStartDate);
+    return getWeekName(this.#weekStartDate, Days.configuration.weekAliasOffsets);
   };
   get weekStartDate() {
     return this.#weekStartDate;
@@ -319,6 +253,9 @@ export class Week {
 };
 
 export class Weeks {
+  static configure(configuration) {
+    Days.configure(configuration);
+  };
   static fromJSON(json) {
     const instance = new Weeks();
     instance.#fromJSON(json);
