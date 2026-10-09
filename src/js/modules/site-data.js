@@ -305,9 +305,7 @@ export class SiteData {
     if (this.#storage.hasKey('words', false)) {
       this.#words = Words.fromJSON(this.#storage.objectRead('words', false));
     }
-    for (let offset = -3; offset <= 3; offset += 1) {
-      this.#weeks.getWeekByOffset(offset);
-    }
+    this.#normalizeWeekRange();
     this.#restoreRecipes(storedWeeks);
     this.#removeLegacyDefaultRecipeReferences();
     if (Object.keys(this.#recipes.toJSON().collection).length === 0) {
@@ -324,6 +322,25 @@ export class SiteData {
     this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
     console.log('Site data initialized:', JSON.parse(JSON.stringify(this)));
     return this;
+  };
+  #normalizeWeekRange() {
+    const minOffset = SiteData.weekNamedOffsets.min.offset;
+    const maxOffset = SiteData.weekNamedOffsets.max.offset;
+    if (!Number.isInteger(minOffset) || !Number.isInteger(maxOffset) || minOffset > maxOffset) {
+      throw new RangeError('Minimum and maximum week offsets must be valid ordered integers');
+    }
+    const referenceDate = Weeks.getMondayDate();
+    const minWeekStart = this.#weeks.getWeekByOffset(minOffset, referenceDate).weekStartDate;
+    const maxWeekStart = this.#weeks.getWeekByOffset(maxOffset, referenceDate).weekStartDate;
+    Object.keys(this.#weeks.toJSON().collection).forEach(weekStartDate => {
+      if (weekStartDate < minWeekStart || weekStartDate > maxWeekStart) {
+        this.#weeks.removeWeekByID(weekStartDate);
+      }
+    });
+    for (let offset = minOffset; offset <= maxOffset; offset += 1) {
+      this.#weeks.getWeekByOffset(offset, referenceDate);
+    }
+    this.#storage.objectWrite('weeks', this.#weeks, false);
   };
   async #resolveRecipeWords() {
     const pendingWords = new Map();
