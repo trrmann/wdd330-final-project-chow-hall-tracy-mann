@@ -4,6 +4,7 @@ import {
 import {
   Cache
 } from './storage.js'
+import { apiRequestQueue } from './api-request-queue.js'
 
 /*
 https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
@@ -54,10 +55,6 @@ export class TheMealDBAPI {
     large: "/large"
   }
   #localCache;
-  async #fetch(request) {
-    const response = await fetchRequest(request);
-    return await response
-  }
   #hasCache(key) {
     return this.#localCache.hasCache(key);
   }
@@ -75,152 +72,77 @@ export class TheMealDBAPI {
       isSessionCache: isSessionCache
     });
   }
+  async #cachedRequest(cacheKey, request, cache = true) {
+    const response = await apiRequestQueue.run({
+      api: 'themealdb',
+      cache: this.#localCache,
+      cacheKey,
+      request: () => fetchRequest(request)
+    });
+    if (!cache) {
+      this.#deleteCache(cacheKey);
+    }
+    return response;
+  }
   clearCache() {
     this.#localCache.clearCache();
   }
   async searchMealsByStringQuery(string, cache = true) {
     const cacheKey = `Meals-str-${string}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByStringQuery}${string}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByStringQuery}${string}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async searchMealsByFirstCharQuery(firstChar, cache = true) {
     const cacheKey = `Meals-fc-${firstChar}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByFirstCharQuery}${firstChar}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByFirstCharQuery}${firstChar}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async lookupMealByIDCharQuery(id, cache = true) {
     const cacheKey = `Meals-id-${id}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.lookupFunction}${TheMealDBAPI.lookupByIDCharQuery}${id}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.lookupFunction}${TheMealDBAPI.lookupByIDCharQuery}${id}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
-  async RandomMeal() {
+  RandomMeal() {
     const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.randomFunction}`;
-    return await this.#fetch(request);
+    return apiRequestQueue.run({
+      api: 'themealdb',
+      request: () => fetchRequest(request)
+    });
   }
   async MealCategories(cache = true) {
     const cacheKey = `Categories`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.categoriesFunction}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.categoriesFunction}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async MealCategoriesList(cache = true) {
     const cacheKey = `List-Categories`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listCategoriesOption}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listCategoriesOption}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async MealAreasList(cache = true) {
     const cacheKey = `List-Areas`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listAreasOption}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listAreasOption}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async MealIngredientsList(cache = true) {
     const cacheKey = `List-Ingredients`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listIngredientsOption}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.listFunction}${TheMealDBAPI.listIngredientsOption}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async filterMealsByIngredientQuery(ingredient, cache = true) {
     const cacheKey = `Meals-Filter-Ingredient-${ingredient}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByIngredientQuery}${ingredient}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByIngredientQuery}${ingredient}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async filterMealsByCategoryQuery(category, cache = true) {
     const cacheKey = `Meals-Filter-Category-${category}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByCategoryQuery}${category}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByCategoryQuery}${category}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async filterMealsByAreaQuery(area, cache = true) {
     const cacheKey = `Meals-Filter-Area-${area}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByAreaQuery}${area}`;
-      this.#setCache(cacheKey, await this.#fetch(request));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByAreaQuery}${area}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   mealThumbnailImageURL(imageFileName, cache = true) {
     const cacheKey = `Meal-URL-Thumbnail-${imageFileName}`;

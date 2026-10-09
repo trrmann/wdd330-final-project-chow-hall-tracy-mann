@@ -8,6 +8,10 @@ import {
   Recipes
 } from './recipes.js'
 import {
+  Word,
+  Words
+} from './words.js'
+import {
   Weeks
 } from './days.js'
 import {
@@ -20,14 +24,20 @@ export class SiteData {
   #countries;
   #weeks;
   #recipes;
+  #words;
   #currencyConversionTest;
   #initialization;
+  #wordResolutionTask;
+  #wordResolutionRequested;
   constructor() {
     this.#apis = new APIs();
     this.#storage = new Storage();
     this.#countries = new Countries();
     this.#weeks = new Weeks();
     this.#recipes = new Recipes();
+    this.#words = new Words();
+    this.#wordResolutionTask = null;
+    this.#wordResolutionRequested = false;
   };
   get countries() {
     return this.#countries;
@@ -38,10 +48,14 @@ export class SiteData {
   get recipes() {
     return this.#recipes;
   };
+  get words() {
+    return this.#words;
+  };
   toJSON() {
     return {
       countries: this.#countries.toJSON(),
       recipes: this.#recipes.toJSON(),
+      words: this.#words.toJSON(),
       weeks: this.#weeks.toJSON(),
       currencyConversionTest: this.#currencyConversionTest
     };
@@ -65,6 +79,9 @@ export class SiteData {
     this.#recipes = this.#storage.hasKey('recipes', false) ?
       Recipes.fromJSON(this.#storage.objectRead('recipes', false)) :
       new Recipes();
+    this.#words = this.#storage.hasKey('words', false) ?
+      Words.fromJSON(this.#storage.objectRead('words', false)) :
+      new Words();
     for (let offset = -3; offset <= 3; offset += 1) {
       this.#weeks.getWeekByOffset(offset);
     }
@@ -73,8 +90,9 @@ export class SiteData {
     this.#restoreWeekRecipes(storedWeeks);
     if (Object.keys(this.#recipes.toJSON().collection).length === 0) {
       const randomMeal = await this.#apis.RandomMeal();
-      this.#recipes = Recipes.importMealsDBJSON(this.#recipes, randomMeal);
+      await this.importMealDBRecipes(randomMeal);
     }
+    this.#scheduleRecipeWordResolution();
 
     const meals = Object.values(this.#recipes.toJSON().collection).map(recipe => ({
         strArea: recipe.Area,
@@ -86,6 +104,58 @@ export class SiteData {
     this.#storage.objectWrite('weeks', this.#weeks, false);
     console.log('Site data initialized:', JSON.parse(JSON.stringify(this)));
     return this;
+  };
+  async #resolveRecipeWords() {
+    const pendingWords = new Map();
+    const recipeWords = new Map();
+    Object.values(this.#recipes.toJSON().collection).forEach(recipe => {
+      const words = String(recipe.Instructions || '').match(/[\p{L}]+(?:['’][\p{L}]+)*/gu) || [];
+      const normalizedWords = [...new Set(words.map(word => word.normalize('NFC').toLocaleLowerCase()))];
+      recipeWords.set(recipe, normalizedWords);
+      normalizedWords.forEach(word => {
+        if (!this.#words.getWordByWord(word)) {
+          pendingWords.set(word, word);
+        }
+      });
+    });
+    await Promise.all([...pendingWords.values()].map(async word => {
+      try {
+        const entry = await this.#apis.lookupDictionaryEntryByString(word);
+        this.#words.addWord(new Word({
+          word,
+          entry
+        }));
+        this.#storage.objectWrite('words', this.#words, false);
+      } catch (error) {
+        console.warn(`Dictionary lookup failed for "${word}":`, error);
+      }
+    }));
+    recipeWords.forEach((words, recipe) => {
+      recipe.WordIDs = words
+        .map(word => this.#words.getWordByWord(word)?.ID)
+        .filter(wordID => wordID !== undefined);
+    });
+    this.#storage.objectWrite('words', this.#words, false);
+    this.#storage.objectWrite('recipes', this.#recipes, false);
+  };
+  #scheduleRecipeWordResolution() {
+    this.#wordResolutionRequested = true;
+    if (!this.#wordResolutionTask) {
+      this.#wordResolutionTask = (async () => {
+        while (this.#wordResolutionRequested) {
+          this.#wordResolutionRequested = false;
+          await this.#resolveRecipeWords();
+        }
+      })().catch(error => {
+        console.error('Recipe word resolution failed:', error);
+      }).finally(() => {
+        this.#wordResolutionTask = null;
+        if (this.#wordResolutionRequested) {
+          this.#scheduleRecipeWordResolution();
+        }
+      });
+    }
+    return this.#wordResolutionTask;
   };
   #restoreLegacyRecipes() {
     if (!this.#storage.hasKey('recipes', true)) {
@@ -116,6 +186,14 @@ export class SiteData {
   };
   getRecipeByID(id) {
     return this.#recipes.getRecipeByID(id);
+  };
+  getWordByID(id) {
+    return this.#words.getWordByID(id);
+  };
+  async importMealDBRecipes(mealDBResponse) {
+    this.#recipes = Recipes.importMealsDBJSON(this.#recipes, mealDBResponse);
+    this.#scheduleRecipeWordResolution();
+    return this.#recipes;
   };
   getWeekByName(name) {
     return this.#weeks.getWeekByName(name);

@@ -20,7 +20,15 @@ export async function fetchRequest(request, header = null) {
     });
   }
   if (!response.ok) {
-    throw new Error(`Request failed for ${request}: ${response.status} ${response.statusText}`.trim());
+    let responseBody = '';
+    if (typeof response.text === 'function') {
+      responseBody = await response.text();
+    }
+    const message = `Request failed for ${request}: ${response.status} ${response.statusText} ${responseBody}`.trim();
+    const error = new Error(message);
+    error.status = response.status;
+    error.retryAfter = response.headers?.get('Retry-After') || null;
+    throw error;
   }
   return await response.json();
 }

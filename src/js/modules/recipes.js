@@ -139,6 +139,7 @@ export class Recipe {
   #CreativeCommonsConfirmed;
   #ImageSource;
   #Instructions;
+  #wordIDs;
   #Ingredients;
   #Name;
   #MealAlternate;
@@ -176,7 +177,8 @@ export class Recipe {
       //this.#Ingredients['18'].importMealsDB(json.strMeasure18, json.strIngredient18); //: "", ""
       //this.#Ingredients['19'].importMealsDB(json.strMeasure19, json.strIngredient19); //: "", ""
       //this.#Ingredients['20'].importMealsDB(json.strMeasure20, json.strIngredient20); //: "", ""      
-      instructions: this.#Instructions, //: "Wash the stewing steak and place it in the mixing bowl with the lemon or lime juice.\r\nSet that to one side; while you slice the garlic into tiny slices, slice the onion. Chop the basil and thyme.\r\nNow you need to be very careful when you slice the scotch bonnet peppers; you want these in fine pieces, which you can either do with a long knife trying not to touch the pepper, or you can wear rubber gloves to cut it up. Wash your hands straight afterward and do not touch your eyes; these peppers really burn your hands and eyes if they make contact with the skin!\r\nNow rinse the lime or lemon juice off the stewing steak. And cut the meat into cubes.\r\nAlso, chop the pig’s trotters and the oxtail into cubes.\r\nFill the large saucepan with water and bring to a boil.\r\nAdd the pig’s trotters.\r\nWhen the pig’s trotters have boiled, drain the excess water, and now add the stewing steak and cover with fresh hot water.\r\nNow add your chopped garlic, onion, and peppers.\r\nNow add the cinnamon stick, cloves, basil, and thyme and a pinch of salt and sugar to taste.\r\nNow simmer until the meat is tender. The flavor of this dish comes out over a few days and therefore gets tastier each time you reheat it; make sure you always reheat the entire pot to boiling point."
+      instructions: this.#Instructions, //: "Wash the stewing steak and place it in the mixing bowl with the lemon or lime juice.\r\nSet that to one side; while you slice the garlic into tiny slices, slice the onion. Chop the basil and thyme.\r\nNow you need to be very careful when you slice the scotch bonnet peppers; you want these in fine pieces, which you can either do with a long knife trying not to touch the pepper, or you can wear rubber gloves to cut it up. Wash your hands straight afterward and do not touch your eyes; these peppers really burn your hands and eyes if they make contact with the skin!\r\nNow rinse the lime or lemon juice off the stewing steak. And cut the meat into cubes.\r\nAlso, chop the pig’s trotters and the oxtail into cubes.\r\nFill the large saucepan with water and bring to a boil.\r\nAdd the pig’s trotters.\r\nWhen the pig’s trotters have boiled, drain the excess water, and now add the stewing steak and cover with fresh hot water.\r\nNow add your chopped garlic, onion, and peppers.\r\nNow add the cinnamon stick, cloves, basil, and thyme and a pinch of salt and sugar to taste.\r\nNow simmer until the meat is tender. The flavor of this dish comes out over a few days and therefore gets tastier each time you reheat it; make sure you always reheat the entire pot to boiling point.",
+      wordIDs: [...this.#wordIDs],
       name: this.#Name, //: "Barbados Pepperpot"
       mealAlternate: this.#MealAlternate, //: null
       thumbnailURL: this.#ThumbnailURL, //: "https://www.themealdb.com/images/media/meals/5tf8j11782236249.jpg"
@@ -215,6 +217,9 @@ export class Recipe {
         ? json.ingredients
         : QuantifiedIngredients.fromJSON(json.ingredients);
       this.#Instructions = json.instructions;
+      this.#wordIDs = Array.isArray(json.wordIDs) ?
+        [...new Set(json.wordIDs.filter(word => Number.isSafeInteger(word) && word >= 0))] :
+        [];
       this.#Name = json.name;
       this.#MealAlternate = json.mealAlternate;
       this.#ThumbnailURL = json.thumbnailURL;
@@ -243,6 +248,7 @@ export class Recipe {
       creativeCommonsConfirmed: json.strCreativeCommonsConfirmed || null,
       imageSource: json.strImageSource || null,
       instructions: json.strInstructions,
+      wordIDs: [],
       ingredients: quantifiedIngredients,
       name: json.strMeal,
       mealAlternate: json.strMealAlternate || null,
@@ -254,6 +260,7 @@ export class Recipe {
   };
   constructor() {
     this.#Ingredients = new QuantifiedIngredients();
+    this.#wordIDs = [];
   };
   toJSON() {
     return this.#toJSON();
@@ -281,6 +288,19 @@ export class Recipe {
   };
   get Instructions() {
     return this.#Instructions;
+  };
+  set Instructions(instructions) {
+    this.#Instructions = instructions;
+    this.#wordIDs = [];
+  };
+  get WordIDs() {
+    return [...(this.#wordIDs || [])];
+  };
+  set WordIDs(wordIDs) {
+    if (!Array.isArray(wordIDs) || wordIDs.some(word => !Number.isSafeInteger(word) || word < 0)) {
+      throw new TypeError('wordIDs must be an array of non-negative safe integers');
+    }
+    this.#wordIDs = [...new Set(wordIDs)];
   };
   get QuantifiedIngredient() {
     return this.#Ingredients;

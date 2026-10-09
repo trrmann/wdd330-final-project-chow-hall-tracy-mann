@@ -2,8 +2,78 @@ import {
   fetchRequest
 } from '../utils.js'
 import {
-  Cache
+  Cache,
+  Storage
 } from './storage.js'
+import { apiRequestQueue } from './api-request-queue.js'
+
+function normalizeCountryName(value) {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function getCountryRecords(response) {
+  if (Array.isArray(response)) {
+    return response;
+  }
+  if (!response || typeof response !== 'object') {
+    return [];
+  }
+  for (const key of ['data', 'objects', 'results', 'countries', 'result']) {
+    if (response[key] !== undefined) {
+      const records = getCountryRecords(response[key]);
+      if (records.length) {
+        return records;
+      }
+    }
+  }
+  return response.names || response.name || response.codes || response.cca3 ?
+    [response] :
+    [];
+}
+
+function getStrings(value) {
+  if (typeof value === 'string') {
+    return [value];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(getStrings);
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value).flatMap(getStrings);
+  }
+  return [];
+}
+
+function getCountryMatchRank(country, searchName) {
+  const target = normalizeCountryName(searchName);
+  const primaryNames = [
+    country?.names?.common,
+    country?.names?.official,
+    country?.name?.common,
+    country?.name?.official
+  ];
+  if (primaryNames.some(name => typeof name === 'string' && normalizeCountryName(name) === target)) {
+    return 2;
+  }
+  const searchableNames = [
+    country?.names,
+    country?.name,
+    country?.demonyms,
+    country?.demonym,
+    country?.altSpellings,
+    country?.alt_spellings,
+    country?.nativeName,
+    country?.translations
+  ];
+  return searchableNames.some(names =>
+    getStrings(names).some(name => normalizeCountryName(name) === target)
+  ) ? 1 : 0;
+}
 
 /*
 const response = await fetch(
@@ -103,7 +173,9 @@ export class RestCountries {
   static currenciesConvertToQuery = "&to=";
   static currenciesConvertAmountQuery = "&amount=";
   static currenciesSymbolsFunction = "symbols";
+  static requestUsageStorageKey = 'restCountriesApiRequestUsage';
   #localCache;
+  #storage;
   //#apiLiveDemoPublicAPIKey;
   #apiLiveFreeAPIKey;
   #header(apiKey) {
@@ -117,17 +189,34 @@ export class RestCountries {
     return configOptions;
   }
   async #fetch(request, apiKey) {
+    this.#recordRequest();
     const response = await fetchRequest(request, this.#header(apiKey));
     return response
   }
-  #hasCache(key) {
-    return this.#localCache.hasCache(key);
+  #readRequestUsage() {
+    const storedUsage = this.#storage.objectRead(RestCountries.requestUsageStorageKey, false) || {};
+    const storedMonthlyUsage = storedUsage.requestsByMonth && typeof storedUsage.requestsByMonth === 'object' ?
+      storedUsage.requestsByMonth :
+      {};
+    const requestsByMonth = Object.fromEntries(
+      Object.entries(storedMonthlyUsage).filter(([, count]) =>
+        Number.isSafeInteger(count) && count >= 0)
+    );
+    const totalRequests = Number.isSafeInteger(storedUsage.totalRequests) && storedUsage.totalRequests >= 0 ?
+      storedUsage.totalRequests :
+      Object.values(requestsByMonth).reduce((total, count) =>
+        total + (Number.isSafeInteger(count) && count >= 0 ? count : 0), 0);
+    return {
+      totalRequests,
+      requestsByMonth
+    };
   }
-  #getCache(key) {
-    return this.#localCache.getCache(key);
-  }
-  #setCache(key, value) {
-    this.#localCache.setCache(key, value);
+  #recordRequest() {
+    const usage = this.#readRequestUsage();
+    const month = new Date().toISOString().slice(0, 7);
+    usage.totalRequests += 1;
+    usage.requestsByMonth[month] = (usage.requestsByMonth[month] || 0) + 1;
+    this.#storage.objectWrite(RestCountries.requestUsageStorageKey, usage, false);
   }
   #deleteCache(key) {
     this.#localCache.deleteCache(key);
@@ -135,9 +224,32 @@ export class RestCountries {
   constructor(isSessionCache = true) {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
+    this.#storage = new Storage();
     this.#localCache = new Cache({
       isSessionCache: isSessionCache
     });
+  }
+  async #cachedRequest(cacheKey, request, cache = true, apiKey = this.#apiLiveFreeAPIKey) {
+    const response = await apiRequestQueue.run({
+      api: 'rest-countries',
+      cache: this.#localCache,
+      cacheKey,
+      request: () => this.#fetch(request, apiKey)
+    });
+    if (!cache) {
+      this.#deleteCache(cacheKey);
+    }
+    return response;
+  }
+  getRequestUsage() {
+    const usage = this.#readRequestUsage();
+    const month = new Date().toISOString().slice(0, 7);
+    return {
+      totalRequests: usage.totalRequests,
+      currentMonth: month,
+      currentMonthRequests: usage.requestsByMonth[month] || 0,
+      requestsByMonth: { ...usage.requestsByMonth }
+    };
   }
   clearCache() {
     this.#localCache.clearCache();
@@ -145,17 +257,8 @@ export class RestCountries {
   async search25CountriesWithNoOffsetByStringQuery(string, cache = true) {
     const searchTerm = String(string).trim();
     const cacheKey = `Country-${searchTerm.toLocaleLowerCase()}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${RestCountries.baseURL}${RestCountries.countriesAPIPath}${RestCountries.countriesQueryFunction}${encodeURIComponent(searchTerm)}&${RestCountries.countriesQueryLimitOption}25`;
-      this.#setCache(cacheKey, await this.#fetch(request, this.#apiLiveFreeAPIKey));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${RestCountries.baseURL}${RestCountries.countriesAPIPath}${RestCountries.countriesQueryFunction}${encodeURIComponent(searchTerm)}&${RestCountries.countriesQueryLimitOption}25`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async lookupCountryByName(name, cache = true) {
     const countryName = String(name).trim();
@@ -163,39 +266,28 @@ export class RestCountries {
       return undefined;
     }
     const records = await this.search25CountriesWithNoOffsetByStringQuery(countryName, cache);
-    const countries = Array.isArray(records) ? records : records ? [records] : [];
-    const normalizedName = countryName.toLocaleLowerCase();
-    return countries.find(country => {
-      const commonName = country?.names?.common ?? country?.name?.common;
-      return typeof commonName === 'string' && commonName.trim().toLocaleLowerCase() === normalizedName;
-    });
+    const countries = getCountryRecords(records);
+    const rankedMatches = countries
+      .map(country => ({
+        country,
+        rank: getCountryMatchRank(country, countryName)
+      }))
+      .filter(match => match.rank > 0)
+      .sort((first, second) => second.rank - first.rank);
+    if (rankedMatches.length) {
+      const bestMatches = rankedMatches.filter(match => match.rank === rankedMatches[0].rank);
+      return bestMatches.length === 1 ? bestMatches[0].country : undefined;
+    }
+    return countries.length === 1 ? countries[0] : undefined;
   }
   async convertCurrency(from, to, amount, cache = true) {
     const cacheKey = `Convert-${from}-${to}-${amount}`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesConvertFunction}${RestCountries.currenciesConvertFromQuery}${from}${RestCountries.currenciesConvertToQuery}${to}${RestCountries.currenciesConvertAmountQuery}${amount}`;
-      this.#setCache(cacheKey, await this.#fetch(request, this.#apiLiveFreeAPIKey /*this.#apiLiveDemoPublicAPIKey*/ ));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesConvertFunction}${RestCountries.currenciesConvertFromQuery}${from}${RestCountries.currenciesConvertToQuery}${to}${RestCountries.currenciesConvertAmountQuery}${amount}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
   async currencySymbols(cache = true) {
     const cacheKey = `Symbols`;
-    if (!this.#hasCache(cacheKey)) {
-      const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesSymbolsFunction}`;
-      this.#setCache(cacheKey, await this.#fetch(request, this.#apiLiveFreeAPIKey));
-    }
-    if (cache) {
-      return this.#getCache(cacheKey);
-    } else {
-      const response = this.#getCache(cacheKey);
-      this.#deleteCache(cacheKey);
-      return response;
-    }
+    const request = `${RestCountries.baseURL}${RestCountries.currenciesAPIPath}${RestCountries.currenciesSymbolsFunction}`;
+    return this.#cachedRequest(cacheKey, request, cache);
   }
 }

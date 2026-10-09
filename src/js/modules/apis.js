@@ -44,17 +44,8 @@ export class APIs {
     this.#localCache.clearCache();
   }
   async lookupDictionaryEntryByString(string, cache = true) {
-    const cacheKey = `Dictionary-Entry-${string}`;
-    if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#dictionaryAPI.lookupEntryByString(string, !cache));
-    }
-    if (cache) {
-      return this.getCache(cacheKey);
-    } else {
-      const response = this.getCache(cacheKey);
-      this.deleteCache(cacheKey);
-      return response;
-    }
+    const word = String(string).trim().normalize('NFC').toLocaleLowerCase();
+    return this.#dictionaryAPI.lookupEntryByString(word, cache);
   }
   async searchMealsByStringQuery(string, cache = true) {
     const cacheKey = `Meal-String-${string}`;
@@ -296,7 +287,7 @@ export class APIs {
   async search25CountriesWithNoOffsetByStringQuery(string, cache = true) {
     const cacheKey = `Countries-String-${string}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#restCountries.search25CountriesWithNoOffsetByStringQuery(string, !cache));
+      this.setCache(cacheKey, await this.#restCountries.search25CountriesWithNoOffsetByStringQuery(string, cache));
     }
     if (cache) {
       return this.getCache(cacheKey);
@@ -309,7 +300,10 @@ export class APIs {
   async lookupCountryByName(name, cache = true) {
     const cacheKey = `Country-Name-${String(name).trim().toLocaleLowerCase()}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#restCountries.lookupCountryByName(name, !cache));
+      const country = await this.#restCountries.lookupCountryByName(name, cache);
+      if (country !== undefined && country !== null) {
+        this.setCache(cacheKey, country);
+      }
     }
     if (cache) {
       return this.getCache(cacheKey);
@@ -318,27 +312,20 @@ export class APIs {
     this.deleteCache(cacheKey);
     return response;
   }
+  getRestCountriesRequestUsage() {
+    return this.#restCountries.getRequestUsage();
+  }
   async importMealCountries(mealDBResponse, countries = new Countries()) {
     const meals = Array.isArray(mealDBResponse) ?
       mealDBResponse :
       mealDBResponse?.meals || [];
-    const areaByName = new Map();
-    if (meals.some(meal => !meal.strCountry && meal.strArea)) {
-      const areasResponse = await this.MealAreasList();
-      (areasResponse?.meals || []).forEach(area => {
-        const areaName = area.strArea?.trim().toLocaleLowerCase();
-        if (areaName && area.strCountry) {
-          areaByName.set(areaName, area.strCountry.trim());
-        }
-      });
-    }
 
     const countriesAndAreas = new Map();
     meals.forEach(meal => {
       const area = typeof meal.strArea === 'string' ? meal.strArea.trim() : '';
       const countryName = typeof meal.strCountry === 'string' && meal.strCountry.trim() ?
         meal.strCountry.trim() :
-        areaByName.get(area.toLocaleLowerCase());
+        area;
       if (!countryName) {
         return;
       }
@@ -380,7 +367,7 @@ export class APIs {
   async convertCurrency(from, to, amount, cache = true) {
     const cacheKey = `Currency-Convert-${from}-${to}-${amount}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#restCountries.convertCurrency(from, to, amount, !cache));
+      this.setCache(cacheKey, await this.#restCountries.convertCurrency(from, to, amount, cache));
     }
     if (cache) {
       return this.getCache(cacheKey);
@@ -393,7 +380,7 @@ export class APIs {
   async currencySymbols(cache = true) {
     const cacheKey = `CurrencySymbols`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#restCountries.currencySymbols(!cache));
+      this.setCache(cacheKey, await this.#restCountries.currencySymbols(cache));
     }
     if (cache) {
       return this.getCache(cacheKey);
