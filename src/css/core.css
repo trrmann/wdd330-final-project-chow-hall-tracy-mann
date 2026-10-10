@@ -1539,6 +1539,37 @@ a.panel-kicker-anchor {
   white-space: pre-line;
 }
 
+.recipe-word-definition-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted var(--tactical-olive);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.recipe-word-definition-button:hover,
+.recipe-word-definition-button:focus-visible {
+  border-radius: 2px;
+  background-color: color-mix(in srgb, var(--tactical-olive) 16%, transparent);
+}
+
+.recipe-word-entry {
+  display: inline;
+}
+
+.recipe-word-definition {
+  display: block;
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--tactical-olive);
+  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+  color: var(--command-black);
+}
+
 .recipe-detail-acknowledge {
   justify-self: center;
 }

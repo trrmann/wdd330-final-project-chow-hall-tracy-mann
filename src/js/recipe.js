@@ -26,8 +26,23 @@ if (!recipe) {
   page.querySelector('.recipe-detail-acknowledge').addEventListener('click', returnToCaller);
 } else {
   page.querySelector('.recipe-detail-title').textContent = recipe.Name;
-  page.querySelector('.recipe-detail-instructions').textContent =
-    recipe.Instructions || 'No instructions are available for this recipe.';
+  const instructions = page.querySelector('.recipe-detail-instructions');
+  if (recipe.Instructions) {
+    renderInstructions(instructions, recipe);
+    const message = page.querySelector('.recipe-detail-message');
+    message.textContent = 'Looking up instruction definitions…';
+    siteData.resolveDictionaryWordsForRecipe(recipe, () => {
+      renderInstructions(instructions, recipe);
+    }).then(() => {
+      message.textContent = '';
+      renderInstructions(instructions, recipe);
+    }).catch(error => {
+      message.textContent = 'Some instruction definitions could not be loaded.';
+      console.error(`Could not load dictionary definitions for "${recipe.Name}":`, error);
+    });
+  } else {
+    instructions.textContent = 'No instructions are available for this recipe.';
+  }
 
   const metadata = [recipe.Category, recipe.Area].filter(Boolean).join(' · ');
   page.querySelector('.recipe-detail-meta').textContent = metadata;
@@ -59,6 +74,69 @@ if (!recipe) {
 }
 
 app.replaceChildren(page);
+
+function renderInstructions(container, currentRecipe) {
+  const instructionText = currentRecipe.Instructions;
+  const wordPattern = /[\p{L}]+(?:['’][\p{L}]+)*/gu;
+  let lastIndex = 0;
+
+  for (const match of instructionText.matchAll(wordPattern)) {
+    const [matchedWord] = match;
+    const matchIndex = match.index;
+    container.append(document.createTextNode(instructionText.slice(lastIndex, matchIndex)));
+
+    const dictionaryWord = siteData.words.getWordByWord(matchedWord);
+    const definitions = getDefinitions(dictionaryWord);
+    if (definitions.length) {
+      const word = document.createElement('span');
+      word.className = 'recipe-word-entry';
+
+      const button = document.createElement('button');
+      button.className = 'recipe-word-definition-button';
+      button.type = 'button';
+      button.textContent = matchedWord;
+      button.title = 'Click to view the definition';
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', `Show definition for ${matchedWord}`);
+
+      const definition = document.createElement('span');
+      definition.className = 'recipe-word-definition';
+      definition.hidden = true;
+      definition.textContent = definitions
+        .map((item, index) => `${index + 1}. ${item}`)
+        .join(' ');
+
+      button.addEventListener('click', () => {
+        definition.hidden = !definition.hidden;
+        button.setAttribute('aria-expanded', String(!definition.hidden));
+      });
+
+      word.append(button, definition);
+      container.append(word);
+    } else {
+      container.append(document.createTextNode(matchedWord));
+    }
+    lastIndex = matchIndex + matchedWord.length;
+  }
+
+  container.append(document.createTextNode(instructionText.slice(lastIndex)));
+}
+
+function getDefinitions(dictionaryWord) {
+  const definitions = [];
+  const addSenseDefinitions = (sense, partOfSpeech) => {
+    if (sense.Definition) {
+      definitions.push([partOfSpeech, sense.Definition].filter(Boolean).join(' — '));
+    }
+    sense.Subsenses.forEach(subsense => addSenseDefinitions(subsense, partOfSpeech));
+  };
+
+  dictionaryWord?.Entry?.Entries.forEach(entry => {
+    entry.Senses.forEach(sense => addSenseDefinitions(sense, entry.PartOfSpeech));
+  });
+
+  return [...new Set(definitions)];
+}
 
 function returnToCaller() {
   const returnTo = new URLSearchParams(window.location.search).get('returnTo');

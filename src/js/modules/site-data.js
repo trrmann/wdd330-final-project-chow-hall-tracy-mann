@@ -35,6 +35,8 @@ import {
   toMondayDate
 } from '../utils.js'
 
+const inventoryZeroTolerance = 1e-9;
+
 const legacyDefaultRecipeIDs = new Set([
   'Eggs',
   'Omlette',
@@ -416,6 +418,7 @@ export class SiteData {
   #weekRecipeSuggestions;
   #wordResolutionTask;
   #wordResolutionRequested;
+  #wordLookupTasks;
   constructor() {
     this.#apiConfiguration = createApiConfiguration(
       SiteData.apiConfigurationDefaults,
@@ -442,6 +445,7 @@ export class SiteData {
     this.#weekRecipeSuggestions = {};
     this.#wordResolutionTask = null;
     this.#wordResolutionRequested = false;
+    this.#wordLookupTasks = new Map();
   };
   get countries() {
     return this.#countries;
@@ -504,6 +508,7 @@ export class SiteData {
     if (this.#storage.hasKey('inventory', false)) {
       this.#inventory = QuantifiedIngredients.fromJSON(this.#storage.objectRead('inventory', false));
     }
+    this.#saveInventory();
     if (this.#storage.hasKey('shoppingList', false)) {
       this.#shoppingList = QuantifiedIngredients.fromJSON(this.#storage.objectRead('shoppingList', false));
     }
@@ -765,6 +770,13 @@ export class SiteData {
     this.#storage.objectWrite('weeks', this.#weeks, false);
   };
   #saveInventory() {
+    const collection = this.#inventory.toJSON().collection;
+    Object.keys(collection).forEach(key => {
+      const quantity = collection[key].Quantity;
+      if (Number.isFinite(quantity) && quantity <= inventoryZeroTolerance) {
+        this.#inventory.removeIngredientByIndex(key);
+      }
+    });
     this.#storage.objectWrite('inventory', this.#inventory, false);
   };
   #saveShoppingList() {
@@ -2109,9 +2121,14 @@ export class SiteData {
     this.#storage.objectWrite('weeks', this.#weeks, false);
   };
   async #resolveRecipeWords() {
+    return this.#resolveDictionaryWordsForRecipes(
+      Object.values(this.#recipes.toJSON().collection)
+    );
+  };
+  async #resolveDictionaryWordsForRecipes(recipes, onWordResolved = null) {
     const pendingWords = new Map();
     const recipeWords = new Map();
-    Object.values(this.#recipes.toJSON().collection).forEach(recipe => {
+    recipes.forEach(recipe => {
       const words = String(recipe.Instructions || '').match(/[\p{L}]+(?:['’][\p{L}]+)*/gu) || [];
       const normalizedWords = [...new Set(words.map(word => word.normalize('NFC').toLocaleLowerCase()))];
       recipeWords.set(recipe, normalizedWords);
@@ -2123,12 +2140,8 @@ export class SiteData {
     });
     await Promise.all([...pendingWords.values()].map(async word => {
       try {
-        const entry = await this.#apis.lookupDictionaryEntryByString(word);
-        this.#words.addWord(new Word({
-          word,
-          entry
-        }));
-        this.#storage.objectWrite('words', this.#words, false);
+        const resolvedWord = await this.#lookupDictionaryWord(word);
+        onWordResolved?.(resolvedWord);
       } catch (error) {
         console.warn(`Dictionary lookup failed for "${word}":`, error);
       }
@@ -2140,6 +2153,42 @@ export class SiteData {
     });
     this.#storage.objectWrite('words', this.#words, false);
     this.#storage.objectWrite('recipes', this.#recipes, false);
+  };
+  async #lookupDictionaryWord(word) {
+    const existingWord = this.#words.getWordByWord(word);
+    if (existingWord) {
+      return existingWord;
+    }
+    const normalizedWord = word.normalize('NFC').toLocaleLowerCase();
+    let lookupTask = this.#wordLookupTasks.get(normalizedWord);
+    if (!lookupTask) {
+      lookupTask = (async () => {
+        const entry = await this.#apis.lookupDictionaryEntryByString(normalizedWord);
+        const existing = this.#words.getWordByWord(normalizedWord);
+        if (existing) {
+          return existing;
+        }
+        const resolvedWord = this.#words.addWord(new Word({
+          word: normalizedWord,
+          entry
+        }));
+        this.#storage.objectWrite('words', this.#words, false);
+        return resolvedWord;
+      })().finally(() => {
+        this.#wordLookupTasks.delete(normalizedWord);
+      });
+      this.#wordLookupTasks.set(normalizedWord, lookupTask);
+    }
+    return lookupTask;
+  };
+  async resolveDictionaryWordsForRecipe(recipe, onWordResolved = null) {
+    if (!recipe || typeof recipe.Instructions !== 'string') {
+      throw new TypeError('A recipe with instructions is required');
+    }
+    if (onWordResolved !== null && typeof onWordResolved !== 'function') {
+      throw new TypeError('onWordResolved must be a function');
+    }
+    await this.#resolveDictionaryWordsForRecipes([recipe], onWordResolved);
   };
   #scheduleRecipeWordResolution() {
     this.#wordResolutionRequested = true;
