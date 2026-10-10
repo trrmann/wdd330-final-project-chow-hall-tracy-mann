@@ -19,7 +19,56 @@
       <section class="home-intro inventory-intro" aria-labelledby="inventory-title">
         <p class="home-kicker">Your gathering</p>
         <h1 id="inventory-title">Inventory</h1>
-        <p>Manage your inventory and keep track of your supplies.</p>
+        <p>Track and update the quantities you currently have available.</p>
+      </section>
+      <section class="inventory-management" aria-labelledby="inventory-management-title">
+        <h2 id="inventory-management-title">Available stock</h2>
+        <form class="inventory-item-form">
+          <label>
+            <span>Ingredient</span>
+            <input class="inventory-name" type="text" maxlength="120" required />
+          </label>
+          <label>
+            <span>Quantity</span>
+            <input class="inventory-quantity" type="number" min="0" step="any" required />
+          </label>
+          <label>
+            <span>Unit</span>
+            <input class="inventory-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required />
+          </label>
+          <button class="inventory-save" type="submit">Save stock</button>
+        </form>
+        <p class="inventory-message" role="status" aria-live="polite"></p>
+        <ul class="inventory-stock-list"></ul>
+      </section>
+      <section class="inventory-management ingredient-unit-conversion-management" aria-labelledby="unit-conversion-title">
+        <h2 id="unit-conversion-title">Ingredient unit translations</h2>
+        <p>Set an ingredient-specific equivalence when recipes and pantry stock use different units. For example, 1 cup of flour = 120 g. Saved translations reconcile inventory, shopping-list quantities, and planned meal needs.</p>
+        <form class="ingredient-unit-conversion-form">
+          <label>
+            <span>Ingredient</span>
+            <input class="conversion-ingredient" type="text" maxlength="120" required />
+          </label>
+          <label>
+            <span>First amount</span>
+            <input class="conversion-from-quantity" type="number" min="0.000001" step="any" required />
+          </label>
+          <label>
+            <span>First unit</span>
+            <input class="conversion-from-unit" type="text" maxlength="40" placeholder="cup" required />
+          </label>
+          <label>
+            <span>Equivalent amount</span>
+            <input class="conversion-to-quantity" type="number" min="0.000001" step="any" required />
+          </label>
+          <label>
+            <span>Equivalent unit</span>
+            <input class="conversion-to-unit" type="text" maxlength="40" placeholder="g" required />
+          </label>
+          <button type="submit">Save translation</button>
+        </form>
+        <p class="unit-conversion-message" role="status" aria-live="polite"></p>
+        <ul class="ingredient-unit-conversion-list"></ul>
       </section>
     </div>
   </template>

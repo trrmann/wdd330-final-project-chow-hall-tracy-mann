@@ -100,7 +100,10 @@
     grid-column: 1 / -1;
   }
 
-  .dashboard-panel {
+  .dashboard-panel,
+  .inventory-management,
+  .shopping-list-management,
+  .recipe-detail {
     padding: 24px;
   }
 
@@ -152,9 +155,9 @@
 
   .folder-tab.is-active {
     background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
-    color: var(--tactical-olive);
+    color: var(--charcoal);
     border-color: var(--field-stone);
-    border-bottom-color: var(--khaki-field);
+    border-bottom-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
     border-top: 3px solid var(--tactical-olive);
     z-index: 2;
   }

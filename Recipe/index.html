@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg" />
+  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe - Chow Hall</title>
+  <script type="module" src="/src/js/recipe.js" defer></script>
+</head>
+
+<body>
+  <div id="site-header"></div>
+  <main id="app"></main>
+  <template id="recipe-page-template">
+    <article class="recipe-detail">
+      <section class="home-intro" aria-labelledby="recipe-detail-title">
+        <p class="home-kicker">Recipe details</p>
+        <h1 id="recipe-detail-title" class="recipe-detail-title"></h1>
+        <p class="recipe-detail-meta"></p>
+      </section>
+      <img class="recipe-detail-image" alt="" hidden />
+      <section aria-labelledby="recipe-ingredients-title">
+        <h2 id="recipe-ingredients-title">Ingredients</h2>
+        <ul class="recipe-detail-ingredients"></ul>
+      </section>
+      <section aria-labelledby="recipe-instructions-title">
+        <h2 id="recipe-instructions-title">Instructions</h2>
+        <p class="recipe-detail-instructions"></p>
+      </section>
+      <p class="recipe-detail-message" role="status"></p>
+      <button type="button" class="primary-action recipe-detail-acknowledge">Okay</button>
+    </article>
+  </template>
+  <div id="site-footer"></div>
+</body>
+
+</html>

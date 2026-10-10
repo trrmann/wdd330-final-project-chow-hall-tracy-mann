@@ -31,7 +31,10 @@
     gap: 20px;
   }
 
-  .dashboard-panel {
+  .dashboard-panel,
+  .inventory-management,
+  .shopping-list-management,
+  .recipe-detail {
     padding: 28px;
   }
 }

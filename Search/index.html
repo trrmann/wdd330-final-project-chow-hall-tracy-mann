@@ -21,6 +21,46 @@
         <h1 id="search-title">Search</h1>
         <p>Find recipes and ingredients for your meals.</p>
       </section>
+      <section class="recipe-search" aria-labelledby="recipe-search-title">
+        <h2 id="recipe-search-title">Find a recipe</h2>
+        <form class="recipe-search-form">
+          <label for="recipe-search-mode">Search by</label>
+          <select id="recipe-search-mode" name="searchMode">
+            <option value="name">Recipe name</option>
+            <option value="ingredient">Ingredient</option>
+            <option value="category">Category</option>
+          </select>
+          <label for="recipe-query">Recipe name</label>
+          <div class="recipe-search-controls">
+            <input id="recipe-query" name="query" type="search" autocomplete="off" required />
+            <datalist id="recipe-ingredient-options"></datalist>
+            <select id="recipe-category" name="category" aria-label="Recipe category" hidden></select>
+            <button type="submit" class="primary-action">Search recipes</button>
+          </div>
+        </form>
+        <p class="recipe-search-message" role="status" aria-live="polite"></p>
+        <ul class="recipe-search-results" aria-live="polite"></ul>
+      </section>
+      <section class="recipe-assignment" aria-labelledby="recipe-assignment-title" hidden>
+        <h2 id="recipe-assignment-title">Assign recipe</h2>
+        <a class="recipe-assignment-name"></a>
+        <form class="recipe-assignment-form">
+          <label for="assignment-day">Day</label>
+          <select id="assignment-day" name="day" required></select>
+          <label for="assignment-meal">Meal</label>
+          <select id="assignment-meal" name="meal" required></select>
+          <label for="assignment-expected-servings">Expected servings for this meal</label>
+          <input id="assignment-expected-servings" name="expectedServings" type="number" min="1" step="1" value="1" required />
+          <label for="assignment-meal-servings">Meal share to cover (100% covers all expected servings)</label>
+          <input id="assignment-meal-servings" name="mealServings" type="range" min="1" max="1" step="1" value="1" />
+          <p class="recipe-assignment-coverage" aria-live="polite"></p>
+          <label for="assignment-recipe-yield">Servings produced by one recipe</label>
+          <input id="assignment-recipe-yield" name="recipeYield" type="number" min="0.01" step="any" value="1" required />
+          <button type="submit" class="recipe-suggestion-deploy">Add to meal plan</button>
+        </form>
+        <p class="recipe-assignment-message" role="status" aria-live="polite"></p>
+        <button type="button" class="primary-action recipe-assignment-acknowledge" hidden>Okay</button>
+      </section>
     </div>
   </template>
   <div id="site-footer"></div>

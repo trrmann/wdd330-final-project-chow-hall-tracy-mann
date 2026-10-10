@@ -24,6 +24,7 @@ export default defineConfig({
         inventory: resolve(projectRoot, 'Inventory/index.html'),
         shopping: resolve(projectRoot, 'Shopping/index.html'),
         search: resolve(projectRoot, 'Search/index.html'),
+        recipe: resolve(projectRoot, 'Recipe/index.html'),
       },
     },
   },

@@ -95,7 +95,7 @@ export class TheMealDBAPI {
   }
   async searchMealsByStringQuery(string, cache = true) {
     const cacheKey = `Meals-str-${string}`;
-    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByStringQuery}${string}`;
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.searchFunction}${TheMealDBAPI.searchByStringQuery}${encodeURIComponent(string)}`;
     return this.#cachedRequest(cacheKey, request, cache);
   }
   async searchMealsByFirstCharQuery(firstChar, cache = true) {
@@ -137,12 +137,12 @@ export class TheMealDBAPI {
   }
   async filterMealsByIngredientQuery(ingredient, cache = true) {
     const cacheKey = `Meals-Filter-Ingredient-${ingredient}`;
-    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByIngredientQuery}${ingredient}`;
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByIngredientQuery}${encodeURIComponent(ingredient)}`;
     return this.#cachedRequest(cacheKey, request, cache);
   }
   async filterMealsByCategoryQuery(category, cache = true) {
     const cacheKey = `Meals-Filter-Category-${category}`;
-    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByCategoryQuery}${category}`;
+    const request = `${TheMealDBAPI.baseURL}${TheMealDBAPI.apiPath}${TheMealDBAPI.filterFunction}${TheMealDBAPI.filterByCategoryQuery}${encodeURIComponent(category)}`;
     return this.#cachedRequest(cacheKey, request, cache);
   }
   async filterMealsByAreaQuery(area, cache = true) {

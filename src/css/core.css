@@ -84,6 +84,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+.primary-action,
+.week-nav-button,
+.week-current-reset-button.has-offset,
+.add-meal-button {
+  font-family: var(--heading);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+button {
+  border: 1px solid var(--tactical-olive);
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: var(--field-stone);
@@ -275,12 +295,12 @@ p {
   border-radius: 4px;
   background: var(--tactical-olive);
   color: var(--off-white);
-  font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
 }
 
 .primary-action:hover {
+  border-color: var(--ranger-green);
   background: var(--ranger-green);
 }
 
@@ -400,14 +420,190 @@ a.panel-kicker-anchor {
   width: 100%;
 }
 
-.week-nav-button {
-  font-family: var(--heading);
-  text-transform: uppercase;
-  font-size: 14px;
-  font-weight: 700;
+.week-copy-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  align-items: end;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.week-copy-from-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--field-stone);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 75%, white);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.week-copy-from-controls[hidden],
+.week-copy-details[hidden],
+.day-copy-details[hidden],
+.meal-copy-details[hidden] {
+  display: none;
+}
+
+.week-copy-details,
+.day-copy-details,
+.meal-copy-details {
+  min-width: 0;
+}
+
+.week-copy-details {
+  grid-column: 1 / -1;
+}
+
+.week-copy-toggle,
+.day-copy-toggle,
+.meal-copy-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 4px;
   background-color: var(--tactical-olive);
   color: var(--off-white);
-  border: 1px solid var(--expedition-brown);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.week-copy-toggle:hover,
+.day-copy-toggle:hover,
+.meal-copy-toggle:hover {
+  border-color: var(--ranger-green);
+  background-color: var(--ranger-green);
+}
+
+.week-copy-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--field-stone);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--khaki-field) 75%, white);
+}
+
+.week-copy-panel[hidden] {
+  display: none;
+}
+
+.week-copy-panel>p:first-child,
+.week-copy-date-list,
+.week-copy-message {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.week-copy-panel label,
+.week-copy-from-controls label,
+.day-plan-actions label,
+.meal-slot-actions label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--command-black);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.week-copy-panel input,
+.week-copy-from-controls input,
+.day-plan-actions input,
+.meal-slot-actions input,
+.meal-slot-actions select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 5px 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: white;
+  color: var(--command-black);
+  font: inherit;
+}
+
+.week-copy-date-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.week-copy-date-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--field-stone) 30%, white);
+  color: var(--command-black);
+}
+
+.week-copy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.week-copy-panel button,
+.week-copy-from-controls button,
+.day-plan-actions button,
+.meal-slot-actions button {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 4px;
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  cursor: pointer;
+}
+
+.week-copy-from-controls .week-copy-from {
+  width: 100%;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.week-copy-panel :where(button:not(:disabled):hover),
+.week-copy-from-controls :where(button:not(:disabled):hover),
+.day-plan-actions :where(button:not(:disabled):hover),
+.meal-slot-actions :where(button:not(:disabled):hover) {
+  border-color: var(--ranger-green);
+  background-color: var(--ranger-green);
+  color: var(--off-white);
+}
+
+.week-copy-panel :where(button:disabled),
+.week-copy-from-controls :where(button:disabled),
+.day-plan-actions :where(button:disabled),
+.meal-slot-actions :where(button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.week-copy-panel .week-copy-remove-date {
+  min-height: 28px;
+  padding: 2px 6px;
+}
+
+.week-nav-button {
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  border: 1px solid var(--tactical-olive);
   border-radius: 4px;
   padding: 8px 16px;
   cursor: pointer;
@@ -415,6 +611,7 @@ a.panel-kicker-anchor {
 }
 
 .week-nav-button:hover {
+  border-color: var(--ranger-green);
   background-color: var(--ranger-green);
 }
 
@@ -501,33 +698,73 @@ a.panel-kicker-anchor {
   transition: background-color 160ms ease, color 160ms ease;
 }
 
-.folder-tab.tab-attention-indicator:not(.is-active) {
+.folder-tab.tab-attention-indicator:not(.is-past-day) {
   background-color: var(--copper-canteen);
   color: var(--off-white);
   font-weight: 700;
 }
 
-.folder-tab.tab-attention-indicator:not(.is-active)::before {
+.folder-tab:not(.is-active, .is-past-day) {
+  background-color: color-mix(in srgb, var(--tactical-olive) 18%, var(--off-white));
+  color: var(--charcoal);
+}
+
+.folder-tab.tab-attention-indicator:not(.is-active, .is-past-day) {
+  background-color: color-mix(in srgb, var(--tactical-olive) 18%, var(--off-white));
+  color: var(--charcoal);
+}
+
+.folder-tab.tab-attention-indicator:not(.is-past-day)::before {
   content: "* ";
   display: inline;
 }
 
-.folder-tab.tab-attention-indicator:not(.is-active)::after {
+.folder-tab.tab-attention-indicator:not(.is-past-day)::after {
   content: " *";
   display: inline;
 }
 
-.folder-tab:hover,
-.folder-tab.tab-attention-indicator:not(.is-active):hover {
+.folder-tab:not(.tab-attention-indicator):hover,
+.folder-tab.tab-attention-indicator:not(.is-active, .is-past-day):hover {
   background-color: var(--dust-storm);
   color: var(--command-black);
 }
 
 .folder-tab.is-active {
-  background-color: color-mix(in srgb, var(--tactical-olive) 97%, transparent);
-  color: var(--khaki-field);
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+  color: var(--charcoal);
   font-weight: 700;
-  border-color: var(--tactical-olive);
+  border-color: var(--field-stone);
+  border-bottom-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+}
+
+.folder-tab.tab-attention-indicator.is-active:not(.is-past-day) {
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+  color: var(--charcoal);
+  border-color: var(--field-stone);
+  border-bottom-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+}
+
+.folder-tab.tab-attention-indicator.is-active::before,
+.folder-tab.tab-attention-indicator.is-active::after {
+  color: var(--copper-canteen);
+}
+
+.folder-tab.is-past-day:not(.is-active) {
+  background-color: var(--field-stone);
+  color: var(--command-black);
+}
+
+.folder-tab.is-past-day.is-active {
+  background-color: color-mix(in srgb, var(--field-stone) 38%, var(--off-white));
+  color: var(--charcoal);
+  border-color: var(--supply-gray);
+  border-bottom-color: color-mix(in srgb, var(--field-stone) 38%, var(--off-white));
+}
+
+.folder-tab.is-past-day:hover {
+  background-color: var(--command-black);
+  color: var(--off-white);
 }
 
 .folder-panel {
@@ -539,9 +776,385 @@ a.panel-kicker-anchor {
   box-shadow: var(--shadow);
 }
 
+.add-meal-button {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 8px 18px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 6px;
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.add-meal-button:hover,
+.add-meal-button:focus-visible {
+  border-color: var(--ranger-green);
+  background-color: var(--ranger-green);
+  color: var(--off-white);
+}
+
+.folder-panel.is-past-day {
+  background-color: color-mix(in srgb, var(--field-stone) 38%, var(--off-white));
+  border-color: var(--supply-gray);
+}
+
+.meal-plan-day-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--field-stone);
+}
+
+.meal-plan-day-header .panel-kicker {
+  margin: 0 0 4px;
+}
+
+.meal-plan-day-header h3 {
+  margin: 0;
+}
+
+.meal-plan-day-status {
+  margin: 6px 0 0;
+  color: var(--charcoal);
+  font-size: 0.95rem;
+}
+
+.day-plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--field-stone);
+}
+
+.day-plan-message,
+.meal-slot-action-message,
+.week-copy-message {
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.day-plan-message {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.day-copy-details {
+  flex-basis: 100%;
+}
+
+.day-copy-panel,
+.meal-copy-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  align-items: end;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--field-stone);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 75%, white);
+}
+
+.meal-copy-details {
+  grid-column: 1 / -1;
+}
+
+.day-copy-panel button,
+.meal-copy-panel button {
+  justify-self: start;
+}
+
+.past-day-notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--charcoal);
+  background-color: color-mix(in srgb, var(--field-stone) 45%, var(--off-white));
+  color: var(--command-black);
+  font-weight: 600;
+}
+
+.past-day-empty-note {
+  margin: 0 0 12px;
+  color: var(--charcoal);
+  font-weight: 600;
+}
+
+.daily-meals-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.daily-meal-slot {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--field-stone);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+  box-shadow: 0 2px 8px rgb(35 35 35 / 8%);
+}
+
+.daily-meal-slot :where(input, select, button) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.meal-slot-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(88px, 112px);
+  align-items: start;
+  gap: 12px;
+}
+
+.meal-slot-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.meal-slot-actions .meal-copy-details {
+  grid-column: 1 / -1;
+}
+
+.meal-slot-action-message {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.meal-slot-heading {
+  min-width: 0;
+}
+
+.meal-slot-label {
+  margin: 0;
+  font-family: var(--heading);
+  font-size: 1.35rem;
+}
+
+.meal-slot-summary {
+  margin: 4px 0 0;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+}
+
+.meal-servings-control {
+  display: grid;
+  min-width: 0;
+  padding-right: 10px;
+  gap: 4px;
+  color: var(--charcoal);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.meal-servings-control input {
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: white;
+  color: var(--command-black);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.meal-servings-control :where(input:disabled) {
+  background-color: color-mix(in srgb, var(--field-stone) 35%, white);
+  color: var(--charcoal);
+}
+
+.meal-slot-recipes {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meal-slot-recipe {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border-left: 4px solid var(--tactical-olive);
+  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--khaki-field) 40%, white);
+  color: var(--command-black);
+}
+
+.folder-panel:not(.is-past-day) .daily-meal-slot {
+  background-color: color-mix(in srgb, var(--khaki-field) 40%, white);
+}
+
+.folder-panel:not(.is-past-day) .meal-slot-recipe {
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+}
+
+.meal-slot-recipe-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.meal-slot-recipe-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--command-black);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.meal-slot-recipe-remove {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.meal-slot-recipe-name:hover,
+.meal-slot-recipe-name:focus-visible {
+  color: var(--ranger-green);
+}
+
+.meal-slot-recipe :where(button, input, select) {
+  max-width: 100%;
+}
+
+.recipe-servings-control,
+.recipe-move-controls label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+}
+
+.recipe-servings-control {
+  padding-right: 8px;
+}
+
+.recipe-servings-produced {
+  width: 100%;
+  min-height: 36px;
+  padding: 5px 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background: white;
+}
+
+.recipe-meal-share-control {
+  display: grid;
+  gap: 4px;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.recipe-meal-share-control input {
+  width: 100%;
+  accent-color: var(--ranger-green);
+}
+
+.recipe-meal-share-summary,
+.recipe-action-message {
+  margin: 0;
+  color: var(--charcoal);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.recipe-move-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.recipe-move-controls select {
+  width: 100%;
+  min-height: 36px;
+  padding: 4px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background: white;
+}
+
+.recipe-move-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.recipe-action-message {
+  color: var(--ranger-green);
+}
+
+.meal-slot-empty {
+  margin: 0;
+  color: var(--charcoal);
+  font-style: italic;
+}
+
+.meal-servings-message {
+  margin: 0;
+  color: var(--ranger-green);
+  font-size: 0.9rem;
+}
+
+.meal-slot-add-recipe {
+  justify-self: start;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 4px;
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.meal-slot-add-recipe:hover,
+.meal-slot-add-recipe:focus-visible {
+  border-color: var(--ranger-green);
+  background-color: var(--ranger-green);
+}
+
 .shopping-items {
   display: grid;
   gap: 10px;
+}
+
+.shopping-dashboard-purchase {
+  margin-top: 14px;
+  padding: 8px 12px;
+}
+
+.shopping-dashboard-message {
+  margin: 8px 0 0;
+  color: var(--ranger-green);
 }
 
 .shopping-items label {
@@ -570,6 +1183,35 @@ a.panel-kicker-anchor {
   background: rgba(166, 106, 63, 0.1);
 }
 
+.low-stock-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.low-stock-items .low-stock-entry {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--copper-canteen);
+  border-radius: 3px;
+  background: rgba(166, 106, 63, 0.1);
+}
+
+.low-stock-items button {
+  min-height: 32px;
+  padding: 5px 9px;
+}
+
+.low-stock-message {
+  margin: 8px 0 0;
+}
+
 .recipe-suggestions {
   display: grid;
   gap: 8px;
@@ -581,7 +1223,7 @@ a.panel-kicker-anchor {
   gap: 10px;
 }
 
-.recipe-suggestions a {
+.recipe-suggestions a.recipe-suggestion {
   display: block;
   flex: 1;
   padding: 10px 0;
@@ -600,21 +1242,30 @@ a.panel-kicker-anchor {
 }
 
 .recipe-suggestion-deploy {
+  display: inline-block;
+  flex: 0 0 auto;
+  padding: 6px 10px;
   border-color: var(--tactical-olive);
   background-color: var(--tactical-olive);
   color: var(--off-white);
+  cursor: pointer;
   font-family: var(--heading);
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1.25;
   text-transform: uppercase;
+  text-decoration: none;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
+  transition: background-color 160ms ease;
 }
 
-.recipe-suggestion-deploy:hover {
+.recipe-suggestions a.recipe-suggestion-deploy:hover {
+  border-color: var(--ranger-green);
+  color: var(--off-white);
   background-color: var(--ranger-green);
+  text-decoration: none;
 }
 
 .recipe-suggestion-deploy:focus-visible {
@@ -622,7 +1273,24 @@ a.panel-kicker-anchor {
   outline-offset: 2px;
 }
 
-.recipe-suggestion-dismiss {
+.recipe-suggestion-deploy:disabled {
+  border-color: var(--field-stone);
+  background-color: var(--field-stone);
+  color: var(--charcoal);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.recipe-suggestion-deploy:disabled:hover {
+  border-color: var(--field-stone);
+  background-color: var(--field-stone);
+}
+
+.recipe-suggestion-dismiss,
+.meal-slot-recipe-remove,
+.day-plan-actions .day-clear,
+.meal-slot-actions .meal-slot-clear,
+.week-copy-panel .week-copy-remove-date {
   border-color: var(--charcoal);
   background-color: var(--charcoal);
   color: var(--off-white);
@@ -632,15 +1300,23 @@ a.panel-kicker-anchor {
   letter-spacing: 0.04em;
   line-height: 1.25;
   text-transform: uppercase;
-  -webkit-font-smoothing: auto;
-  -moz-osx-font-smoothing: auto;
+  transition: background-color 160ms ease;
 }
 
-.recipe-suggestion-dismiss:hover {
+.recipe-suggestion-dismiss:hover,
+.meal-slot-recipe-remove:hover,
+.day-plan-actions .day-clear:hover,
+.meal-slot-actions .meal-slot-clear:hover,
+.week-copy-panel .week-copy-remove-date:hover {
+  border-color: var(--command-black);
   background-color: var(--command-black);
 }
 
-.recipe-suggestion-dismiss:focus-visible {
+.recipe-suggestion-dismiss:focus-visible,
+.meal-slot-recipe-remove:focus-visible,
+.day-plan-actions .day-clear:focus-visible,
+.meal-slot-actions .meal-slot-clear:focus-visible,
+.week-copy-panel .week-copy-remove-date:focus-visible {
   outline: 3px solid var(--expedition-brown);
   outline-offset: 2px;
 }
@@ -651,6 +1327,220 @@ a.panel-kicker-anchor {
 
 .recipe-suggestion-error {
   color: var(--expedition-brown);
+}
+
+.recipe-search {
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--field-stone);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+}
+
+.recipe-search-form {
+  display: grid;
+  gap: 10px;
+}
+
+.recipe-search-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.recipe-search-controls input {
+  flex: 1 1 240px;
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  color: var(--command-black);
+  font: inherit;
+}
+
+.recipe-search-controls select {
+  flex: 1 1 240px;
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: var(--off-white);
+  color: var(--command-black);
+  font: inherit;
+}
+
+.recipe-search-message {
+  margin: 12px 0;
+  color: var(--charcoal);
+}
+
+.recipe-search-results {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipe-search-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+}
+
+.recipe-search-select {
+  color: var(--ranger-green);
+  font-weight: 600;
+}
+
+.recipe-search-select:hover,
+.recipe-search-select:focus-visible {
+  color: var(--primary-emphasis);
+}
+
+.recipe-assignment {
+  padding: 20px;
+  border: 1px solid var(--field-stone);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+}
+
+.recipe-assignment-name {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-h);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.recipe-assignment-name:hover,
+.recipe-assignment-name:focus-visible {
+  color: var(--primary-emphasis);
+  text-decoration: underline;
+}
+
+.recipe-assignment-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.recipe-assignment-form[hidden] {
+  display: none;
+}
+
+.recipe-assignment-acknowledge[hidden] {
+  display: none;
+}
+
+.recipe-assignment-acknowledge:not([hidden]) {
+  display: block;
+  margin: 12px auto 0;
+}
+
+.recipe-assignment-form select {
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: var(--off-white);
+  color: var(--command-black);
+  font: inherit;
+}
+
+.recipe-assignment-form input[type='number'] {
+  min-height: 42px;
+  padding: 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: var(--off-white);
+  color: var(--command-black);
+  font: inherit;
+}
+
+.recipe-assignment-form input[type='range'] {
+  width: 100%;
+  accent-color: var(--tactical-olive);
+}
+
+.recipe-assignment-coverage {
+  margin: 0;
+  color: var(--charcoal);
+  font-size: 0.95rem;
+}
+
+.recipe-assignment-message {
+  margin-top: 12px;
+  color: var(--ranger-green);
+  font-weight: 600;
+}
+
+.recipe-assignment-message.is-error {
+  color: var(--expedition-brown);
+}
+
+.recipe-detail {
+  display: grid;
+  gap: 24px;
+  max-width: 900px;
+  margin: 16px auto 0;
+  padding: 24px;
+  border: 1px solid var(--field-stone);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+  color: var(--command-black);
+  box-shadow: var(--shadow);
+}
+
+.recipe-detail>.home-intro {
+  margin: 0;
+}
+
+.recipe-detail>section:not(.home-intro) {
+  padding: 16px;
+  border: 1px solid var(--field-stone);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--khaki-field) 40%, white);
+}
+
+.recipe-detail-meta {
+  color: var(--charcoal);
+}
+
+.recipe-detail-image {
+  width: 100%;
+  max-height: 440px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.recipe-detail-ingredients {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipe-detail-ingredients li {
+  padding: 10px 12px;
+  border-left: 4px solid var(--tactical-olive);
+  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--khaki-field) 85%, transparent);
+  color: var(--command-black);
+}
+
+.recipe-detail-instructions {
+  white-space: pre-line;
+}
+
+.recipe-detail-acknowledge {
+  justify-self: center;
 }
 
 div.page-intro {
@@ -734,5 +1624,231 @@ code {
   &::after {
     right: 0;
     border-right-color: var(--border);
+  }
+}
+
+.meal-slot-recipe-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 6px;
+}
+
+.meal-slot-recipe-actions button,
+.day-add-meal-form button,
+.inventory-management button,
+.shopping-list-management button {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--tactical-olive);
+  border-radius: 4px;
+  background-color: var(--tactical-olive);
+  color: var(--off-white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.meal-slot-recipe-actions .meal-slot-recipe-replace,
+.meal-slot-recipe-actions .meal-slot-recipe-remove,
+.meal-slot-actions .meal-slot-remove,
+.meal-slot-actions .meal-shortages-shopping,
+.inventory-management .negative-action,
+.shopping-list-management .negative-action {
+  border-color: var(--charcoal);
+  background-color: var(--charcoal);
+  color: var(--off-white);
+}
+
+.meal-slot-recipe-actions button:not(:disabled):hover,
+.day-add-meal-form button:not(:disabled):hover,
+.inventory-management button:not(:disabled):hover,
+.shopping-list-management button:not(:disabled):hover,
+.meal-slot-actions .meal-slot-execute:not(:disabled):hover {
+  border-color: var(--ranger-green);
+  background-color: var(--ranger-green);
+}
+
+.meal-slot-recipe-actions .meal-slot-recipe-replace:not(:disabled):hover,
+.meal-slot-recipe-actions .meal-slot-recipe-remove:not(:disabled):hover,
+.meal-slot-actions .meal-slot-remove:not(:disabled):hover,
+.meal-slot-actions .meal-shortages-shopping:not(:disabled):hover,
+.inventory-management .negative-action:not(:disabled):hover,
+.shopping-list-management .negative-action:not(:disabled):hover {
+  border-color: var(--command-black);
+  background-color: var(--command-black);
+}
+
+.meal-slot-name-control,
+.day-add-meal-form label,
+.meal-amount-resolution-form label,
+.shopping-purchase-form label,
+.inventory-management form label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--command-black);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.meal-slot-name-control input,
+.day-add-meal-form input,
+.meal-amount-resolution-form input,
+.shopping-purchase-form input,
+.inventory-management form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 5px 8px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: white;
+  color: var(--command-black);
+  font: inherit;
+}
+
+.day-add-meal-form,
+.inventory-management,
+.shopping-list-management {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--field-stone);
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--khaki-field) 35%, white);
+}
+
+.inventory-management,
+.shopping-list-management {
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.day-add-meal-form {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.day-add-meal-form[hidden] {
+  display: none;
+}
+
+.day-add-meal-message,
+.inventory-message,
+.unit-conversion-message {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.inventory-management form,
+.shopping-purchase-form,
+.inventory-stock-list,
+.shopping-list-items {
+  display: grid;
+  gap: 10px;
+}
+
+.inventory-management form {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.inventory-management .ingredient-unit-conversion-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+}
+
+.ingredient-unit-conversion-form>label:first-child {
+  grid-column: 1 / -1;
+}
+
+.shopping-purchase-form {
+  grid-template-columns: minmax(120px, 1fr) auto;
+  align-items: end;
+}
+
+.inventory-stock-list,
+.shopping-list-items,
+.ingredient-unit-conversion-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inventory-stock-list li,
+.shopping-list-items li,
+.ingredient-unit-conversion-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  background-color: white;
+  color: var(--command-black);
+}
+
+.inventory-stock-list li span,
+.shopping-list-items li span,
+.ingredient-unit-conversion-list li span {
+  flex: 1 1 220px;
+}
+
+.meal-execution-status {
+  grid-column: 1 / -1;
+  padding: 10px;
+  border-left: 4px solid var(--copper-canteen);
+  background-color: color-mix(in srgb, var(--desert-sand) 28%, white);
+  color: var(--command-black);
+}
+
+.meal-execution-status :where(p) {
+  margin: 0 0 8px;
+}
+
+.meal-execution-shortages {
+  margin: 0 0 8px;
+  padding-left: 22px;
+}
+
+.meal-ingredient-resolution-list {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.meal-amount-resolution-form {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(100px, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .inventory-management form {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-management .ingredient-unit-conversion-form {
+    grid-template-columns: 1fr;
+  }
+
+  .ingredient-unit-conversion-form>label:first-child {
+    grid-column: auto;
+  }
+
+  .day-add-meal-form {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-amount-resolution-form {
+    grid-template-columns: 1fr;
   }
 }

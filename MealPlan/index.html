@@ -23,20 +23,79 @@
           <p>Plan your meals and keep track of your ingredients.</p>
         </div>
         <div class="week-nav-panel">
-          <a class="week-nav-button" data-nav-dir="-1" aria-label="Previous Week">&larr; Back</a>
+          <button class="week-nav-button" type="button" data-nav-dir="-1" aria-label="Previous Week">&larr; Back</button>
           <div class="week-nav-display">
             <span class="week-nav-label">Current Week</span>
             <span class="week-nav-range">Loading dates...</span>
-            <a class="week-current-reset-button" aria-label="Reset to Current Week">Current Week</a>
+            <button class="week-current-reset-button" type="button" aria-label="Reset to Current Week">Current Week</button>
           </div>
-          <a class="week-nav-button" data-nav-dir="1" aria-label="Next Week">Next &rarr;</a>
+          <button class="week-nav-button" type="button" data-nav-dir="1" aria-label="Next Week">Next &rarr;</button>
         </div>
+        <section class="week-copy-controls" aria-label="Copy week plan">
+          <button class="week-generate" type="button">Generate week</button>
+          <div class="week-copy-from-controls">
+            <label>
+              <span>Copy a week from its Monday date</span>
+              <input class="week-copy-source-date" type="date" />
+            </label>
+            <button class="week-copy-from" type="button">Copy week from date</button>
+          </div>
+          <details class="week-copy-details">
+            <summary class="week-copy-toggle">Copy week to dates</summary>
+            <div class="week-copy-panel">
+              <p>Choose destination dates. Each date receives the matching weekday from this week, replacing its current meal plan.</p>
+              <label>
+                <span>Destination date</span>
+                <input class="week-copy-date" type="date" />
+              </label>
+              <button class="week-copy-add-date" type="button">Add date</button>
+              <ul class="week-copy-date-list"></ul>
+              <div class="week-copy-actions">
+                <button class="week-copy-apply" type="button" disabled>Copy to selected dates</button>
+                <button class="week-copy-cancel" type="button">Cancel</button>
+              </div>
+              <p class="week-copy-message" role="status" aria-live="polite"></p>
+            </div>
+          </details>
+          <p class="week-generate-message" role="status" aria-live="polite"></p>
+        </section>
       </section>
       <section class="folder-container">
         <ul class="folder-tabs" role="tablist"></ul>
         <div class="folder-panel" role="tabpanel">
-          <h3>Meal Plan</h3>
+          <header class="meal-plan-day-header">
+            <div>
+              <p class="panel-kicker">Daily schedule</p>
+              <h3>Meal Plan</h3>
+              <p class="meal-plan-day-status"></p>
+            </div>
+          </header>
+          <p class="past-day-empty-note" role="status" hidden>No meal plan</p>
+          <p class="past-day-notice" role="status" hidden>Past days are closed for meal planning. Review the meals recorded here to guide inventory updates.</p>
           <ul class="daily-meals-list"></ul>
+          <form class="day-add-meal-form">
+            <label>
+              <span>Add a meal to this day</span>
+              <input class="day-add-meal-name" type="text" maxlength="80" required />
+            </label>
+            <button class="day-add-meal" type="submit">Add meal</button>
+            <p class="day-add-meal-message" role="status" aria-live="polite"></p>
+          </form>
+          <div class="day-plan-actions">
+            <button class="day-generate" type="button">Generate day</button>
+            <button class="day-clear" type="button">Clear day</button>
+            <details class="day-copy-details">
+              <summary class="day-copy-toggle">Copy day to date</summary>
+              <div class="day-copy-panel">
+                <label>
+                  <span class="day-copy-label">Destination date</span>
+                  <input class="day-copy-date" type="date" />
+                </label>
+                <button class="day-copy" type="button">Copy day</button>
+              </div>
+            </details>
+            <p class="day-plan-message" role="status" aria-live="polite"></p>
+          </div>
         </div>
       </section>
     </div>
@@ -46,8 +105,86 @@
   </template>
   <template id="daily-meal-slot-template">
     <li class="daily-meal-slot">
-      <strong class="meal-slot-label"></strong>
-      <p>Your scheduled menu items and meal breakdown details go here.</p>
+      <div class="meal-slot-header">
+        <div class="meal-slot-heading">
+          <h4 class="meal-slot-label">Meal</h4>
+          <label class="meal-slot-name-control">
+            <span>Meal name</span>
+            <input class="meal-slot-name" type="text" maxlength="80" required />
+          </label>
+          <p class="meal-slot-summary"></p>
+        </div>
+        <label class="meal-servings-control">
+          <span>Expected servings</span>
+          <input class="meal-servings-required" type="number" min="1" step="1" required />
+        </label>
+      </div>
+      <ul class="meal-slot-recipes"></ul>
+      <button class="meal-slot-add-recipe" type="button">Add recipe</button>
+      <p class="meal-slot-empty" hidden>No recipes planned for this meal.</p>
+      <p class="meal-servings-message" role="status" aria-live="polite"></p>
+      <div class="meal-slot-actions">
+        <button class="meal-slot-execute" type="button">Execute meal</button>
+        <button class="meal-slot-remove" type="button">Remove meal</button>
+        <button class="meal-generate" type="button">Generate meal</button>
+        <button class="meal-slot-clear" type="button">Clear meal</button>
+        <details class="meal-copy-details">
+          <summary class="meal-copy-toggle">Copy meal to date</summary>
+          <div class="meal-copy-panel">
+            <label>
+              <span class="meal-copy-date-label">Destination date</span>
+              <input class="meal-copy-date" type="date" />
+            </label>
+            <label class="meal-copy-destination-label">
+              <span class="meal-copy-destination-text">Destination meal</span>
+              <select class="meal-copy-destination"></select>
+            </label>
+            <button class="meal-slot-copy" type="button">Copy meal</button>
+          </div>
+        </details>
+        <p class="meal-slot-action-message" role="status" aria-live="polite"></p>
+        <div class="meal-execution-status" role="status" aria-live="polite" hidden>
+          <p class="meal-execution-message"></p>
+          <ul class="meal-ingredient-resolution-list"></ul>
+          <ul class="meal-execution-shortages"></ul>
+          <button class="meal-shortages-shopping" type="button" hidden>Add shortages to shopping list</button>
+        </div>
+      </div>
+    </li>
+  </template>
+  <template id="meal-slot-recipe-template">
+    <li class="meal-slot-recipe" data-recipe-id="">
+      <div class="meal-slot-recipe-header">
+        <a class="meal-slot-recipe-name" href="/Recipe/">Recipe details</a>
+        <div class="meal-slot-recipe-actions">
+          <button class="meal-slot-recipe-replace" type="button">Replace</button>
+          <button class="meal-slot-recipe-remove" type="button">Remove</button>
+        </div>
+      </div>
+      <label class="recipe-servings-control">
+        <span>Servings per batch</span>
+        <input class="recipe-servings-produced" type="number" min="0.01" step="any" required />
+      </label>
+      <label class="recipe-meal-share-control">
+        <span>Meal servings covered</span>
+        <input class="recipe-servings-needed" type="range" min="1" max="1" step="1" />
+      </label>
+      <p class="recipe-meal-share-summary" aria-live="polite"></p>
+      <div class="recipe-move-controls">
+        <label>
+          <span>Move or copy to day</span>
+          <select class="recipe-destination-day"></select>
+        </label>
+        <label>
+          <span>Meal</span>
+          <select class="recipe-destination-meal"></select>
+        </label>
+        <div class="recipe-move-actions">
+          <button class="recipe-move" type="button">Move</button>
+          <button class="recipe-copy" type="button">Copy</button>
+        </div>
+      </div>
+      <p class="recipe-action-message" role="status" aria-live="polite"></p>
     </li>
   </template>
   <div id="site-footer"></div>

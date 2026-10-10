@@ -109,7 +109,10 @@ h2 {
   padding-top: 16px;
 }
 
-.dashboard-panel {
+.dashboard-panel,
+.inventory-management,
+.shopping-list-management,
+.recipe-detail {
   padding: 16px;
   background-color: color-mix(in srgb, var(--khaki-field) 97%, transparent);
   border-radius: 32px;

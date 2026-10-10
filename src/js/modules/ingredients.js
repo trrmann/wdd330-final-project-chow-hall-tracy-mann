@@ -146,16 +146,25 @@ export class QuantifiedIngredient {
   }
   #measure;
   #ingredient;
+  #quantity;
+  #unit;
   #toJSON() {
     return {
       measure: this.#measure,
-      ingredient: this.#ingredient
+      ingredient: this.#ingredient,
+      quantity: this.#quantity,
+      unit: this.#unit
     };
   }
   #fromJSON(json) {
     if (json && json.measure !== undefined && json.ingredient !== undefined) {
       this.#measure = json.measure;
       this.#ingredient = json.ingredient;
+      this.#quantity = json.quantity !== null &&
+        json.quantity !== undefined &&
+        json.quantity !== '' &&
+        Number.isFinite(Number(json.quantity)) ? Number(json.quantity) : null;
+      this.#unit = typeof json.unit === 'string' ? json.unit : '';
     }
   }
   #importMealsDBJSON(json) {
@@ -164,7 +173,17 @@ export class QuantifiedIngredient {
       this.#ingredient = json.ingredient ? json.ingredient.trim() : "";
     }
   }
-  constructor() {}
+  constructor({
+    measure = '',
+    ingredient = '',
+    quantity = null,
+    unit = ''
+  } = {}) {
+    this.#measure = measure;
+    this.#ingredient = ingredient;
+    this.#quantity = quantity;
+    this.#unit = unit;
+  }
   toJSON() {
     return this.#toJSON();
   }
@@ -173,5 +192,32 @@ export class QuantifiedIngredient {
   }
   get Name() {
     return this.#ingredient;
+  }
+  get Quantity() {
+    return this.#quantity;
+  }
+  get Unit() {
+    return this.#unit;
+  }
+  setStock(quantity, unit) {
+    if (!Number.isFinite(quantity) || quantity < 0) {
+      throw new RangeError('Inventory quantity must be zero or greater');
+    }
+    if (typeof unit !== 'string') {
+      throw new TypeError('Inventory unit must be text');
+    }
+    this.#quantity = quantity;
+    this.#unit = unit.trim();
+    this.#measure = '';
+  }
+  setAmount(quantity, unit) {
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new RangeError('Ingredient amount must be greater than zero');
+    }
+    if (typeof unit !== 'string' || !unit.trim()) {
+      throw new TypeError('Ingredient unit must not be empty');
+    }
+    this.#quantity = quantity;
+    this.#unit = unit.trim();
   }
 }

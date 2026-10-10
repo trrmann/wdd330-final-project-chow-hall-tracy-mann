@@ -56,9 +56,10 @@ export class APIs {
     return this.#dictionaryAPI.lookupEntryByString(word, cache);
   }
   async searchMealsByStringQuery(string, cache = true) {
-    const cacheKey = `Meal-String-${string}`;
+    const searchTerm = String(string).trim();
+    const cacheKey = `Meal-String-${searchTerm}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#theMealDB.searchMealsByStringQuery(string, !cache));
+      this.setCache(cacheKey, await this.#theMealDB.searchMealsByStringQuery(searchTerm, !cache));
     }
     if (cache) {
       return this.getCache(cacheKey);
@@ -150,9 +151,10 @@ export class APIs {
     }
   }
   async filterMealsByIngredientQuery(ingredient, cache = true) {
-    const cacheKey = `Meal-Filter-Ingredient-${ingredient}`;
+    const searchTerm = String(ingredient).trim();
+    const cacheKey = `Meal-Filter-Ingredient-${searchTerm}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#theMealDB.filterMealsByIngredientQuery(ingredient, !cache));
+      this.setCache(cacheKey, await this.#theMealDB.filterMealsByIngredientQuery(searchTerm, !cache));
     }
     if (cache) {
       return this.getCache(cacheKey);
@@ -163,9 +165,10 @@ export class APIs {
     }
   }
   async filterMealsByCategoryQuery(category, cache = true) {
-    const cacheKey = `Meal-Filter-Category-${category}`;
+    const searchCategory = String(category).trim();
+    const cacheKey = `Meal-Filter-Category-${searchCategory}`;
     if (!this.hasCache(cacheKey)) {
-      this.setCache(cacheKey, await this.#theMealDB.filterMealsByCategoryQuery(category, !cache));
+      this.setCache(cacheKey, await this.#theMealDB.filterMealsByCategoryQuery(searchCategory, !cache));
     }
     if (cache) {
       return this.getCache(cacheKey);

@@ -57,10 +57,12 @@
         <span class="item-count"><span class="item-count-number"></span> items</span>
       </div>
       <ul class="shopping-items"></ul>
+      <button class="shopping-dashboard-purchase" type="button" disabled>Purchase selected</button>
+      <p class="shopping-dashboard-message" role="status" aria-live="polite"></p>
     </section>
   </template>
   <template id="shopping-list-item-template">
-    <li><label><input type="checkbox" /> <span class="shopping-item-name"></span></label></li>
+    <li><label><input class="shopping-item-select" type="checkbox" /> <span class="shopping-item-name"></span></label></li>
   </template>
   <template id="inventory-status-dashboard-template">
     <section class="dashboard-panel dashboard-panel-inventory" id="inventory-status" aria-labelledby="inventory-title">
@@ -77,6 +79,18 @@
   <template id="inventory-item-template">
     <li><span class="inventory-item-name"></span></li>
   </template>
+  <template id="low-stock-dashboard-template">
+    <section class="dashboard-panel dashboard-panel-low-stock" id="low-stock-status" aria-labelledby="low-stock-title">
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">Planned meals</p>
+          <h2 id="low-stock-title">Low stock</h2>
+        </div>
+      </div>
+      <ul class="low-stock-items"></ul>
+      <p class="low-stock-message" role="status" aria-live="polite"></p>
+    </section>
+  </template>
   <template id="recipe-suggestions-dashboard-template">
     <section class="dashboard-panel dashboard-panel-recipes" id="recipe-search" aria-labelledby="recipe-title">
       <div class="panel-heading">
@@ -90,8 +104,8 @@
   </template>
   <template id="recipe-suggestion-template">
     <li class="recipe-suggestion-item">
-      <a href="/MealPlan/" class="recipe-suggestion">{placeholder}</a>
-      <button type="button" class="recipe-suggestion-deploy" disabled title="Recipe deployment is coming soon">Deploy (coming soon)</button>
+      <a href="/Recipe/" class="recipe-suggestion">{placeholder}</a>
+      <a href="/Search/" class="recipe-suggestion-deploy">Deploy</a>
       <button type="button" class="recipe-suggestion-dismiss">Dismiss</button>
     </li>
   </template>
