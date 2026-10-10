@@ -25,6 +25,7 @@ export default defineConfig({
         shopping: resolve(projectRoot, 'Shopping/index.html'),
         search: resolve(projectRoot, 'Search/index.html'),
         recipe: resolve(projectRoot, 'Recipe/index.html'),
+        country: resolve(projectRoot, 'Country/index.html'),
       },
     },
   },

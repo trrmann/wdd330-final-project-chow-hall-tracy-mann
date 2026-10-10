@@ -224,6 +224,30 @@ export class Country {
   get Flag() {
     return this.#properties.flag ?? null;
   };
+  get FlagURL() {
+    const flag = this.#properties.flag;
+    const flagURL = flag?.url_svg || flag?.url_png ||
+      this.#properties.flags?.svg || this.#properties.flags?.png;
+    if (flagURL) {
+      return flagURL;
+    }
+    const alpha2Code = this.Alpha2Code;
+    return /^[a-z]{2}$/i.test(alpha2Code || '') ?
+      `https://flagcdn.com/${alpha2Code.toLocaleLowerCase()}.svg` :
+      null;
+  };
+  get FlagEmoji() {
+    if (this.#properties.flag?.emoji) {
+      return this.#properties.flag.emoji;
+    }
+    const alpha2Code = this.Alpha2Code;
+    if (!/^[a-z]{2}$/i.test(alpha2Code || '')) {
+      return null;
+    }
+    return [...alpha2Code.toLocaleUpperCase()]
+      .map(character => String.fromCodePoint(0x1f1e6 + character.charCodeAt(0) - 65))
+      .join('');
+  };
   get Region() {
     return this.#properties.region ?? null;
   };

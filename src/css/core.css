@@ -1512,6 +1512,65 @@ a.panel-kicker-anchor {
   color: var(--charcoal);
 }
 
+.recipe-detail-origin {
+  margin: 0;
+  color: var(--charcoal);
+}
+
+.recipe-origin-link {
+  color: var(--command-black);
+  font-weight: 600;
+  text-decoration-color: var(--tactical-olive);
+  text-underline-offset: 3px;
+}
+
+.recipe-origin-link:hover {
+  color: var(--ranger-green);
+}
+
+.recipe-origin-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.recipe-detail-title-group {
+  display: flex;
+}
+
+.recipe-origin-flag {
+  display: inline-block;
+  width: 1.5em;
+  height: 1em;
+  flex: 0 0 auto;
+  object-fit: cover;
+  vertical-align: -0.08em;
+}
+
+.recipe-origin-flag-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  text-decoration: none;
+}
+
+.recipe-origin-flag-link:focus-visible {
+  outline: 3px solid var(--dust-storm);
+  outline-offset: 3px;
+}
+
+.recipe-origin-flag[role='img'] {
+  width: auto;
+  height: auto;
+  object-fit: initial;
+  font-size: 1.2em;
+}
+
+.recipe-origin-flag-emoji {
+  font-size: 1.2em;
+}
+
 .recipe-detail-image {
   width: 100%;
   max-height: 440px;
@@ -1572,6 +1631,45 @@ a.panel-kicker-anchor {
 
 .recipe-detail-acknowledge {
   justify-self: center;
+}
+
+.country-detail-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.country-detail-flag-emoji {
+  font-size: 1.25em;
+}
+
+.country-detail-flag {
+  display: block;
+  width: min(100%, 420px);
+  min-height: 96px;
+  max-height: 280px;
+  margin: 0 auto;
+  border: 1px solid var(--field-stone);
+  border-radius: 4px;
+  object-fit: contain;
+  background: white;
+}
+
+.country-detail-facts {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.35fr) minmax(0, 1fr);
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.country-detail-facts dt {
+  font-weight: 700;
+}
+
+.country-detail-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 div.page-intro {

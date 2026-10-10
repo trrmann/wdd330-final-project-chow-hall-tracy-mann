@@ -5,6 +5,9 @@ import {
   SiteData,
   siteData
 } from './site-data.js'
+import {
+  appendRecipeOriginFlag
+} from '../recipe-origin.js'
 
 export class SearchPage {
 
@@ -84,6 +87,9 @@ export class SearchPage {
         item.className = 'recipe-search-result';
         const name = document.createElement('span');
         name.textContent = recipe.Name;
+        appendRecipeOriginFlag(name, recipe).catch(error => {
+          console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+        });
         const selectLink = document.createElement('a');
         const selectionURL = new URL(window.location.href);
         selectionURL.searchParams.set('recipe', recipe.ID);
@@ -279,6 +285,9 @@ export class SearchPage {
     const recipeNameLink = this.#searchPageContainer.querySelector(SearchPage.recipeAssignmentNameClass);
     if (recipe) {
       recipeNameLink.textContent = recipe.Name;
+      appendRecipeOriginFlag(recipeNameLink, recipe).catch(error => {
+        console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+      });
     } else {
       recipeNameLink.hidden = true;
     }
@@ -581,6 +590,10 @@ export class SearchPage {
       returnURL.searchParams.set('week', weekParameter);
       recipeURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
       recipeLink.textContent = suggestion.recipe.Name;
+      appendRecipeOriginFlag(recipeLink, suggestion.recipe, `${returnURL.pathname}${returnURL.search}`)
+        .catch(error => {
+          console.error(`Could not load the origin flag for "${suggestion.recipe.Name}":`, error);
+        });
       recipeLink.href = `${recipeURL.pathname}${recipeURL.search}`;
       const deployLink = clone.querySelector('.recipe-suggestion-deploy');
       const deployURL = new URL(persistQueryParameter(

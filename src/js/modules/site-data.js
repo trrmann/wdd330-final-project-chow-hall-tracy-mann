@@ -2,6 +2,7 @@ import {
   APIs
 } from './apis.js'
 import {
+  Country,
   Countries
 } from './countries.js'
 import {
@@ -449,6 +450,23 @@ export class SiteData {
   };
   get countries() {
     return this.#countries;
+  };
+  async resolveCountryByName(name) {
+    if (typeof name !== 'string' || !name.trim()) {
+      throw new TypeError('A country name is required');
+    }
+    const countryName = name.trim();
+    let country = this.#countries.getCountryByName(countryName);
+    if (!country) {
+      const countryData = await this.#apis.lookupCountryByName(countryName);
+      if (!countryData) {
+        return undefined;
+      }
+      country = Country.fromRestCountriesJSON(countryData);
+      this.#countries.addOrUpdateCountry(country);
+      this.#storage.objectWrite('countries', this.#countries, false);
+    }
+    return country;
   };
   get weeks() {
     return this.#weeks;

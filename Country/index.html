@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg" />
+  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Country - Chow Hall</title>
+  <script type="module" src="/src/js/country.js" defer></script>
+</head>
+
+<body>
+  <div id="site-header"></div>
+  <main id="app"></main>
+  <template id="country-page-template">
+    <article class="recipe-detail country-detail">
+      <section class="home-intro" aria-labelledby="country-detail-title">
+        <p class="home-kicker">Country information</p>
+        <h1 id="country-detail-title" class="country-detail-title"></h1>
+      </section>
+      <img class="country-detail-flag" alt="" hidden />
+      <dl class="country-detail-facts"></dl>
+      <p class="country-detail-message" role="status"></p>
+      <button type="button" class="primary-action country-detail-acknowledge">Okay</button>
+    </article>
+  </template>
+  <div id="site-footer"></div>
+</body>
+
+</html>

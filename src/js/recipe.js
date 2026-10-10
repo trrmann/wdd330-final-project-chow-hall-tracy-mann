@@ -9,6 +9,9 @@ import {
 import {
   siteData
 } from './modules/site-data.js'
+import {
+  appendRecipeOriginFlag
+} from './recipe-origin.js'
 
 const parms = await loadSiteShell('recipe');
 const app = document.getElementById('app');
@@ -25,7 +28,11 @@ if (!recipe) {
   page.querySelector('.recipe-detail-instructions').closest('section').hidden = true;
   page.querySelector('.recipe-detail-acknowledge').addEventListener('click', returnToCaller);
 } else {
-  page.querySelector('.recipe-detail-title').textContent = recipe.Name;
+  const recipeTitle = page.querySelector('.recipe-detail-title');
+  recipeTitle.textContent = recipe.Name;
+  appendRecipeOriginFlag(recipeTitle, recipe).catch(error => {
+    console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+  });
   const instructions = page.querySelector('.recipe-detail-instructions');
   if (recipe.Instructions) {
     renderInstructions(instructions, recipe);
@@ -46,6 +53,27 @@ if (!recipe) {
 
   const metadata = [recipe.Category, recipe.Area].filter(Boolean).join(' · ');
   page.querySelector('.recipe-detail-meta').textContent = metadata;
+  const origin = page.querySelector('.recipe-detail-origin');
+  const originName = recipe.Country || recipe.Area;
+  if (originName) {
+    origin.hidden = false;
+    origin.textContent = 'Origin: ';
+    const originStatus = document.createElement('span');
+    originStatus.textContent = originName;
+    origin.append(originStatus);
+    siteData.resolveCountryByName(originName).then(country => {
+      if (!country) {
+        return;
+      }
+      const countryLink = document.createElement('a');
+      countryLink.className = 'recipe-origin-link';
+      countryLink.href = `/Country/?country=${encodeURIComponent(country.ID)}&returnTo=${encodeURIComponent(window.location.href)}`;
+      countryLink.textContent = country.Name || originName;
+      origin.replaceChildren(document.createTextNode('Origin: '), countryLink);
+    }).catch(error => {
+      console.error(`Could not load country information for "${originName}":`, error);
+    });
+  }
 
   const image = page.querySelector('.recipe-detail-image');
   if (recipe.ThumbnailURL) {

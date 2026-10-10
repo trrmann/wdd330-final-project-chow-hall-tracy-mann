@@ -10,6 +10,9 @@ import {
   SiteData,
   siteData
 } from './site-data.js'
+import {
+  appendRecipeOriginFlag
+} from '../recipe-origin.js'
 
 export class MealPlanPage {
   static mealPlanPageMainId = 'app';
@@ -695,6 +698,10 @@ export class MealPlanPage {
           returnURL.searchParams.set('day', day);
           detailsURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
           recipeTitle.href = `${detailsURL.pathname}${detailsURL.search}`;
+          appendRecipeOriginFlag(recipeTitle, recipe, `${returnURL.pathname}${returnURL.search}`)
+            .catch(error => {
+              console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+            });
         } else {
           recipeTitle.removeAttribute('href');
         }
