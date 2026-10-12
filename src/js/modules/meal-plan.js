@@ -427,46 +427,79 @@ export class MealPlanPage {
     const shortageList = mealSlot.querySelector('.meal-execution-shortages');
     const shoppingButton = mealSlot.querySelector('.meal-shortages-shopping');
     const executeButton = mealSlot.querySelector('.meal-slot-execute');
-    unresolvedList.replaceChildren(...check.unresolved.map(unresolved => {
-      const item = document.createElement('li');
+    const makeField = (labelText, input, ariaLabel) => {
+      const label = document.createElement('label');
+      const text = document.createElement('span');
+      text.textContent = labelText;
+      input.setAttribute('aria-label', ariaLabel);
+      label.append(text, input);
+      return label;
+    };
+    const makeInput = (type, className, placeholder = '') => {
+      const input = document.createElement('input');
+      input.type = type;
+      input.className = className;
+      if (type === 'number') {
+        input.min = '0.000001';
+        input.step = 'any';
+      } else {
+        input.maxLength = 40;
+      }
+      input.placeholder = placeholder;
+      return input;
+    };
+    const rows = check.unresolved.map(unresolved => {
+      const row = document.createElement('fieldset');
+      row.className = 'meal-issue-row';
+      const legend = document.createElement('legend');
+      const recipeTag = document.createElement('strong');
+      recipeTag.className = 'meal-issue-recipe';
+      recipeTag.textContent = unresolved.recipeName;
+      legend.append(recipeTag, ` — ${unresolved.name}`);
       const description = document.createElement('p');
-      description.textContent =
-        `${unresolved.name} in ${unresolved.recipeName}: "${unresolved.measure || 'no amount provided'}" needs a numeric amount and recognized unit.`;
+      description.className = 'meal-issue-note';
+      if (unresolved.kind === 'unit') {
+        row.dataset.kind = 'unit';
+        row.dataset.ingredient = unresolved.name;
+        row.dataset.fromUnit = unresolved.requiredUnit;
+        row.dataset.toUnit = unresolved.inventoryUnit;
+        description.textContent =
+          `Unit mismatch: recipe needs ${unresolved.requiredUnit}, inventory has ${unresolved.inventoryUnit}. Add a conversion rule (saved to the Inventory page).`;
+        const fromQty = makeInput('number', 'issue-from-quantity', '1');
+        const toQty = makeInput('number', 'issue-to-quantity', '0');
+        row.append(legend, description,
+          makeField(`${unresolved.requiredUnit}`, fromQty, `Quantity in ${unresolved.requiredUnit} for ${unresolved.name}`),
+          makeField(`= ${unresolved.inventoryUnit}`, toQty, `Equivalent quantity in ${unresolved.inventoryUnit} for ${unresolved.name}`));
+      } else {
+        row.dataset.kind = 'amount';
+        row.dataset.recipeId = unresolved.recipeID;
+        row.dataset.ingredientKey = unresolved.ingredientKey;
+        description.textContent =
+          `"${unresolved.measure || 'no amount provided'}" needs a numeric amount and recognized unit.`;
+        row.append(legend, description,
+          makeField('Amount', makeInput('number', 'issue-quantity'), `Amount for ${unresolved.name}`),
+          makeField('Unit', makeInput('text', 'issue-unit', 'e.g. g, cup, each'), `Unit for ${unresolved.name}`));
+      }
+      return row;
+    });
+    if (rows.length) {
       const form = document.createElement('form');
       form.className = 'meal-amount-resolution-form';
-      form.dataset.recipeId = unresolved.recipeID;
-      form.dataset.ingredientKey = unresolved.ingredientKey;
-      const quantityLabel = document.createElement('label');
-      const quantityText = document.createElement('span');
-      quantityText.textContent = 'Amount';
-      const quantityInput = document.createElement('input');
-      quantityInput.type = 'number';
-      quantityInput.min = '0.000001';
-      quantityInput.step = 'any';
-      quantityInput.required = true;
-      quantityInput.setAttribute('aria-label', `Amount for ${unresolved.name}`);
-      quantityLabel.append(quantityText, quantityInput);
-      const unitLabel = document.createElement('label');
-      const unitText = document.createElement('span');
-      unitText.textContent = 'Unit';
-      const unitInput = document.createElement('input');
-      unitInput.type = 'text';
-      unitInput.required = true;
-      unitInput.maxLength = 40;
-      unitInput.placeholder = 'e.g. g, cup, each';
-      unitInput.setAttribute('aria-label', `Unit for ${unresolved.name}`);
-      unitLabel.append(unitText, unitInput);
       const saveButton = document.createElement('button');
       saveButton.type = 'submit';
-      saveButton.textContent = 'Save amount';
-      form.append(quantityLabel, unitLabel, saveButton);
-      item.append(description, form);
-      return item;
-    }));
+      saveButton.textContent = 'Resolve all';
+      form.append(...rows, saveButton);
+      const item = document.createElement('li');
+      item.append(form);
+      unresolvedList.replaceChildren(item);
+    } else {
+      unresolvedList.replaceChildren();
+    }
     shortageList.replaceChildren(...check.shortages.map(shortage => {
       const item = document.createElement('li');
+      const recipes = shortage.recipeNames?.length ? ` [${shortage.recipeNames.join(', ')}]` : '';
       item.textContent =
-        `${shortage.name}: ${shortage.available.toLocaleString()} ${shortage.unit} available; ${shortage.required.toLocaleString()} required (${shortage.missing.toLocaleString()} missing).`;
+        `${shortage.name}${recipes}: ${shortage.available.toLocaleString()} ${shortage.unit} available; ${shortage.required.toLocaleString()} required (${shortage.missing.toLocaleString()} missing).`;
       return item;
     }));
     const hasUnresolved = check.unresolved.length > 0;
@@ -474,11 +507,11 @@ export class MealPlanPage {
     status.hidden = !hasUnresolved && !hasShortages;
     shoppingButton.hidden = hasUnresolved || !hasShortages;
     executeButton.textContent = hasUnresolved ?
-      '⚠ Resolve amounts' :
+      '⚠ Resolve issues' :
       hasShortages ? '⚠ Check inventory' : 'Execute meal';
     if (hasUnresolved) {
       message.textContent =
-        'Some recipe amounts or units could not be safely read. Enter a numeric amount and recognized unit for each item; your corrections are saved to the recipe and reused in future plans.';
+        'Fix the items below for all recipes in this meal. Fill in the rows you can; resolved items lose their alert and unit conversions are saved to the Inventory page.';
     } else if (hasShortages) {
       message.textContent =
         'Inventory is short. Add the deficit to the shopping list or reduce recipe servings, then check again.';
@@ -925,25 +958,45 @@ export class MealPlanPage {
       event.preventDefault();
       const mealSlot = form.closest(MealPlanPage.dailyMealSlotClass);
       const message = mealSlot.querySelector('.meal-execution-message');
-      const quantity = Number(form.querySelector('input[type="number"]').value);
-      const unit = form.querySelector('input[type="text"]').value;
+      const quantityRows = [...form.querySelectorAll('.meal-issue-row')];
+      let saved = 0;
+      const errors = [];
+      quantityRows.forEach(row => {
+        const label = row.querySelector('legend').textContent;
+        try {
+          if (row.dataset.kind === 'unit') {
+            const fromQty = row.querySelector('.issue-from-quantity').value;
+            const toQty = row.querySelector('.issue-to-quantity').value;
+            if (!fromQty && !toQty) return;
+            siteData.setIngredientUnitConversion(
+              row.dataset.ingredient, Number(fromQty), row.dataset.fromUnit,
+              Number(toQty), row.dataset.toUnit
+            );
+          } else {
+            const qty = row.querySelector('.issue-quantity').value;
+            const unit = row.querySelector('.issue-unit').value;
+            if (!qty && !unit.trim()) return;
+            siteData.resolveRecipeIngredientAmount(
+              row.dataset.recipeId, row.dataset.ingredientKey, Number(qty), unit
+            );
+          }
+          saved += 1;
+        } catch (error) {
+          errors.push(`${label}: ${error.message}`);
+        }
+      });
       try {
-        siteData.resolveRecipeIngredientAmount(
-          form.dataset.recipeId,
-          form.dataset.ingredientKey,
-          quantity,
-          unit
-        );
         await this.render();
         const updatedMealSlot = [...this.#mealPlanPageContainer.querySelectorAll(MealPlanPage.dailyMealSlotClass)]
           .find(slot => slot.querySelector(MealPlanPage.dailyMealSlotServingsClass).dataset.mealId ===
             mealSlot.querySelector(MealPlanPage.dailyMealSlotServingsClass).dataset.mealId);
         const status = updatedMealSlot.querySelector('.meal-execution-status');
         status.hidden = false;
+        const summary = saved ? `Resolved ${saved} item${saved === 1 ? '' : 's'}. ` : 'Nothing was saved. ';
         updatedMealSlot.querySelector('.meal-execution-message').textContent =
-          `Saved ${quantity} ${unit.trim()} for this recipe ingredient. Check the remaining amounts and inventory before executing.`;
+          summary + (errors.length ? `Could not save: ${errors.join('; ')}` : 'Check the remaining items before executing.');
       } catch (error) {
-        message.textContent = `Could not save this amount: ${error.message}`;
+        message.textContent = `Could not save: ${error.message}`;
       }
     };
     this.#dailyMealsListContainer.onclick = event => {

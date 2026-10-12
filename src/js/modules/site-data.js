@@ -1312,9 +1312,13 @@ export class SiteData {
           unit: definition.unit,
           displayUnit: rawUnit || 'each',
           factor: definition.factor,
-          required: 0
+          required: 0,
+          recipeNames: []
         };
         current.required += required;
+        if (!current.recipeNames.includes(recipe.Name)) {
+          current.recipeNames.push(recipe.Name);
+        }
         requirements.set(key, current);
       });
     });
@@ -1336,23 +1340,40 @@ export class SiteData {
     } = this.#getMealIngredientRequirements(meal);
     const stock = Object.values(this.#inventory.toJSON().collection);
     const shortages = requirements.flatMap(requirement => {
-      const available = stock.reduce((total, item) => {
-        if (normalizeIngredientName(item.Name || '') !== normalizeIngredientName(requirement.name) ||
-          !Number.isFinite(item.Quantity) || item.Quantity <= 0) {
-          return total;
-        }
+      const stocked = stock.filter(item =>
+        normalizeIngredientName(item.Name || '') === normalizeIngredientName(requirement.name) &&
+        Number.isFinite(item.Quantity) && item.Quantity > 0);
+      const available = stocked.reduce((total, item) => {
         const definition = this.#getIngredientUnitDefinition(requirement.name, item.Unit || '');
         return definition.category === requirement.category ?
           total + item.Quantity * definition.factor : total;
       }, 0);
       const missing = Math.max(0, requirement.required - available);
-      return missing > 0 ? [{
+      if (missing <= 0) {
+        return [];
+      }
+      const mismatched = stocked.find(item =>
+        this.#getIngredientUnitDefinition(requirement.name, item.Unit || '').category !== requirement.category);
+      if (mismatched) {
+        unresolved.push({
+          kind: 'unit',
+          recipeName: requirement.recipeNames.join(', '),
+          name: requirement.name,
+          requiredQuantity: requirement.required / requirement.factor,
+          requiredUnit: requirement.displayUnit || requirement.unit,
+          inventoryQuantity: mismatched.Quantity,
+          inventoryUnit: mismatched.Unit || ''
+        });
+        return [];
+      }
+      return [{
         name: requirement.name,
         required: requirement.required,
         available,
         missing,
-        unit: requirement.displayUnit || requirement.unit
-      }] : [];
+        unit: requirement.displayUnit || requirement.unit,
+        recipeNames: requirement.recipeNames
+      }];
     });
     return {
       executed: meal.isExecuted,

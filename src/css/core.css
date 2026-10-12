@@ -2022,9 +2022,28 @@ code {
 
 .meal-amount-resolution-form {
   display: grid;
-  grid-template-columns: minmax(80px, 1fr) minmax(100px, 1fr) auto;
+  gap: 10px;
+}
+
+.meal-issue-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(100px, 1fr);
   align-items: end;
   gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #d9c9a8;
+  border-radius: 6px;
+}
+
+.meal-issue-row .meal-issue-note,
+.meal-issue-row legend {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.meal-issue-recipe {
+  color: #2e6b3a;
 }
 
 @media (max-width: 640px) {
@@ -2044,7 +2063,7 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .meal-amount-resolution-form {
+  .meal-issue-row {
     grid-template-columns: 1fr;
   }
 }
