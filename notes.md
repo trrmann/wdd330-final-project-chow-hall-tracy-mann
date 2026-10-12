@@ -11,11 +11,12 @@ add a item to the shopping directly similar to the add inventory item.
 when i edited the inventory stock aned change the value the display did not update to reflecty the new quantity.
 the edit inventory should also allow the update of unit type, not just quantity.  also allow a translation of the unit type and value of the inventory item on this page.
 add recipe should default to by category first.
+drop box sizes need to be sure they are touching on mobile, especially noted on the add recipe case of the search page.
+
 
 reduce session storage data load and local storage data load, do not duplicate, use memory cache where applicable to reduce api calls.
 
 
 
 
-drop box sizes need to be sure they are touching on mobile, especially noted on the add recipe case of the search page.
 the shopping list buttons fall out of alignment and provide a poor UX

@@ -1908,6 +1908,7 @@ code {
 .day-add-meal-form label,
 .meal-amount-resolution-form label,
 .shopping-purchase-form label,
+.shopping-item-form label,
 .inventory-management form label {
   display: grid;
   min-width: 0;
@@ -1921,6 +1922,7 @@ code {
 .day-add-meal-form input,
 .meal-amount-resolution-form input,
 .shopping-purchase-form input,
+.shopping-item-form input,
 .inventory-management form input {
   box-sizing: border-box;
   width: 100%;
@@ -1977,7 +1979,8 @@ code {
   gap: 10px;
 }
 
-.inventory-management form {
+.inventory-management form,
+.shopping-item-form {
   grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   align-items: end;
 }
@@ -2100,12 +2103,37 @@ code {
   .recipe-search-controls input,
   .recipe-search-controls button,
   .recipe-assignment-form select,
+  .recipe-assignment-form input[type='number'],
+  .recipe-assignment-form button,
+  .recipe-search-form button,
   .recipe-move-controls select,
-  .inventory-management select {
+  .inventory-management select,
+  .inventory-management form input,
+  .inventory-management form button,
+  .shopping-list-management form input,
+  .shopping-list-management form button,
+  .shopping-list-items li>button {
     box-sizing: border-box;
     width: 100%;
     min-height: 48px;
     font-size: 16px;
+  }
+
+  .shopping-item-form,
+  .shopping-purchase-form {
+    grid-template-columns: 1fr;
+  }
+
+  .recipe-search-form {
+    gap: 12px;
+  }
+
+  .recipe-search-controls {
+    flex-direction: column;
+  }
+
+  .recipe-search-controls>* {
+    flex: 0 0 auto;
   }
 
   .recipe-search-form #recipe-search-mode {
