@@ -5,6 +5,7 @@ import {
   siteData
 } from './site-data.js'
 
+/** Controller for the Inventory page. */
 export class InventoryPage {
   static inventoryPageMainId = 'app';
   static inventoryPageTemplateId = 'inventory-page-template';

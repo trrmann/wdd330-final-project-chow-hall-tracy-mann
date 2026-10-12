@@ -1,3 +1,4 @@
+/** Wrapper around localStorage with JSON handling. */
 export class Storage {
   #baseReadLocalStorage(key) {
     return localStorage.getItem(key);
@@ -165,6 +166,7 @@ export class Storage {
   }
 }
 
+/** In-memory cache layered over Storage. */
 export class Cache {
   #storage;
   #entries;

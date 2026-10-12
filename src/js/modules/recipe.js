@@ -1,6 +1,7 @@
 import {
   siteData
 } from './site-data.js'
+/** Controller for the Recipe detail page. */
 export class RecipePage {
   #week;
   #recipe;
@@ -40,8 +41,9 @@ export class RecipePage {
     const page = this.#page;
     const recipeTitle = page.querySelector('.recipe-detail-title');
     recipeTitle.textContent = recipe.Name;
-    RecipePage.appendOriginFlag(recipeTitle, recipe).catch(error => {
-      console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+    RecipePage.appendOriginFlag(recipeTitle, recipe).catch(() => {
+
+      // Non-critical lookup; the page works without it.
     });
     this.#renderInstructionsSection();
     page.querySelector('.recipe-detail-meta').textContent = [recipe.Category, recipe.Area].filter(Boolean).join(' · ');
@@ -67,10 +69,10 @@ export class RecipePage {
       message.textContent = '';
       message.classList.remove('is-loading');
       this.#renderInstructions(instructions);
-    }).catch(error => {
+    }).catch(() => {
       message.classList.remove('is-loading');
       message.textContent = 'Some instruction definitions could not be loaded.';
-      console.error(`Could not load dictionary definitions for "${recipe.Name}":`, error);
+
     });
   };
 
@@ -92,11 +94,12 @@ export class RecipePage {
       }
       const countryLink = document.createElement('a');
       countryLink.className = 'recipe-origin-link';
-      countryLink.href = `/Country/?country=${encodeURIComponent(country.ID)}&returnTo=${encodeURIComponent(window.location.href)}`;
+      countryLink.href = `/country/?country=${encodeURIComponent(country.ID)}&returnTo=${encodeURIComponent(window.location.href)}`;
       countryLink.textContent = country.Name || originName;
       origin.replaceChildren(document.createTextNode('Origin: '), countryLink);
-    }).catch(error => {
-      console.error(`Could not load country information for "${originName}":`, error);
+    }).catch(() => {
+
+      // Non-critical lookup; the page works without it.
     });
   };
 
@@ -198,7 +201,7 @@ export class RecipePage {
     if (returnURL.origin !== window.location.origin) {
       throw new Error('Recipe origin links must return to a page on this site');
     }
-    const countryURL = new URL('/Country/', window.location.origin);
+    const countryURL = new URL('/country/', window.location.origin);
     countryURL.searchParams.set('country', country.ID);
     countryURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}${returnURL.hash}`);
 

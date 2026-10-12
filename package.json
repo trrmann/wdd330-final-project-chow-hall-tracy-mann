@@ -12,7 +12,7 @@
     "lint:format": "node scripts/format.js --check",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"**/*.css\"",
-    "lint:html": "html-validate index.html"
+    "lint:html": "html-validate index.html country/index.html inventory/index.html mealplan/index.html recipe/index.html search/index.html shopping/index.html"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

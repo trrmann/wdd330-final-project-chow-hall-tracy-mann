@@ -1,3 +1,4 @@
+/** Collection of dictionary words. */
 export class Words {
   static normalizeWord(value) {
     return typeof value === 'string' ? value.trim().normalize('NFC').toLocaleLowerCase() : '';
@@ -133,6 +134,7 @@ export class Words {
   };
 };
 
+/** A word and its dictionary entries. */
 export class Word {
   static fromJSON(json) {
     const instance = new Word();

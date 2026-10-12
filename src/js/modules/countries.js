@@ -2,6 +2,7 @@ function normalizeCountryKey(value) {
   return typeof value === 'string' ? value.trim().toLocaleLowerCase() : '';
 }
 
+/** Collection of countries, keyed by normalized name. */
 export class Countries {
   static fromJSON(json) {
     const instance = new Countries();
@@ -107,6 +108,7 @@ export class Countries {
   };
 };
 
+/** A single country with its flag, region and map details. */
 export class Country {
   static propertyNames = [
     'names',

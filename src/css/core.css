@@ -2237,7 +2237,7 @@ code {
 }
 
 .dashboard-panel,
-.meal-slot-recipe {
+:where(.meal-slot-recipe) {
   animation: deploy-in 400ms ease-out backwards;
 }
 
@@ -2292,23 +2292,17 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .recipe-detail-message.is-loading {
+    background: none;
+    color: var(--kicker);
+    animation: none;
+  }
 
-  .recipe-detail-message.is-loading,
   .recipe-detail-message.is-loading::before {
     animation: none;
   }
 
-  .recipe-detail-message.is-loading {
-    background: none;
-    color: var(--kicker);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .dashboard-panel,
-  .meal-slot-recipe,
-  .week-strip-status {
+  :is(.dashboard-panel, .meal-slot-recipe, [class*="week-strip-status-"]) {
     animation: none;
   }
 }

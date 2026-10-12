@@ -4,6 +4,7 @@ const floatNoiseLimit = 1e-6;
 const roundMeasurable = value => value <= floatNoiseLimit ? 0 :
   Math.max(0.01, Math.round(value * 100) / 100);
 
+/** Collection of ingredients with quantities and units. */
 export class QuantifiedIngredients {
   static fromJSON(json) {
     const instance = new QuantifiedIngredients();
@@ -129,6 +130,7 @@ export class QuantifiedIngredients {
     this.#index = {};
   }
 }
+/** An ingredient with a quantity and unit; supports unit conversion. */
 export class QuantifiedIngredient {
   static fromJSON(json) {
     const instance = new QuantifiedIngredient();

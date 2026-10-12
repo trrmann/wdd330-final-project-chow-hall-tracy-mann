@@ -2,6 +2,7 @@ import {
   siteData
 } from './site-data.js'
 
+/** Controller for the Shopping list page. */
 export class ShoppingPage {
   static shoppingPageMainId = 'app';
   static shoppingPageTemplateId = 'shopping-page-template';

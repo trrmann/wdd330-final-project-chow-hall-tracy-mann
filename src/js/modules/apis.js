@@ -15,6 +15,7 @@ import {
   Countries
 } from './countries.js'
 
+/** Facade that exposes the external API clients used by the app. */
 export class APIs {
   #localCache;
   #theMealDB;

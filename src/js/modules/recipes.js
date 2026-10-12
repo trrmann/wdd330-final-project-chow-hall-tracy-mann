@@ -2,6 +2,7 @@ import {
   QuantifiedIngredients
 } from './ingredients'
 
+/** Collection of recipes. */
 export class Recipes {
   static fromJSON(json) {
     const instance = new Recipes();
@@ -110,6 +111,7 @@ export class Recipes {
     this.#index = {};
   };
 };
+/** A recipe with ingredients, instructions and origin country. */
 export class Recipe {
   static fromJSON(json) {
     const instance = new Recipe();

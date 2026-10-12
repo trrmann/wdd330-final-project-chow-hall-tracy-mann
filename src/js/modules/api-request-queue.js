@@ -4,6 +4,7 @@ import {
 
 const viteEnvironment = import.meta.env || {};
 
+/** Serializes outbound API requests so rate limits are respected. */
 export class APIRequestQueue {
   static configuration = {
     priorities: {},
@@ -457,14 +458,7 @@ export class APIRequestQueue {
       .then(response => {
         const rateLimitError = this.#getRateLimitResponseError(response);
         if (rateLimitError) {
-          const blockedUntil = this.#recordRateLimit(
-            nextRequest,
-            rateLimitError,
-            Date.now()
-          );
-          console.warn(
-            `${nextRequest.api} API rate limit exceeded; pausing its queue until ${new Date(blockedUntil).toISOString()}.`
-          );
+          this.#recordRateLimit(nextRequest, rateLimitError, Date.now());
           nextRequest.reject(rateLimitError);
           return;
         }
@@ -476,18 +470,12 @@ export class APIRequestQueue {
               nextRequest.reject(error);
               return;
             }
-            console.warn(
-              `${nextRequest.api} API response was returned but not cached because browser storage is full.`
-            );
           }
         }
         nextRequest.resolve(response);
       }, error => {
         if (this.#isRateLimitError(error)) {
-          const blockedUntil = this.#recordRateLimit(nextRequest, error, Date.now());
-          console.warn(
-            `${nextRequest.api} API rate limit exceeded; pausing its queue until ${new Date(blockedUntil).toISOString()}.`
-          );
+          this.#recordRateLimit(nextRequest, error, Date.now());
         }
         nextRequest.reject(error);
       })

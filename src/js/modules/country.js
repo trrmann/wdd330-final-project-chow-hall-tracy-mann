@@ -2,6 +2,7 @@ import {
   siteData
 } from './site-data.js'
 
+/** Controller for the Country detail page. */
 export class CountryPage {
   #params;
   #country;

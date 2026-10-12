@@ -9,6 +9,7 @@ import {
   RecipePage
 } from './recipe.js'
 
+/** Controller for recipe search and assignment to meals. */
 export class SearchPage {
 
   static searchPageMainId = 'app';
@@ -51,6 +52,7 @@ export class SearchPage {
     this.#searchPageTemplate = document.getElementById(SearchPage.searchPageTemplateId);
     this.#weekParameter = parms.week;
   }
+  /** Builds the page shell and renders the active search or assignment view. */
   render() {
     this.#searchPageContainer.innerHTML = '';
     const page = this.#searchPageTemplate.content.cloneNode(true);
@@ -58,6 +60,7 @@ export class SearchPage {
     this.#renderRecipeAssignment();
     this.#renderRecipeSearch();
   }
+  /** Renders the recipe search form, suggestions and result cards. */
   #renderRecipeSearch() {
     const params = new URLSearchParams(window.location.search);
     const searchForm = this.#searchPageContainer.querySelector(SearchPage.recipeSearchFormClass);
@@ -89,8 +92,9 @@ export class SearchPage {
         item.className = 'recipe-search-result';
         const name = document.createElement('span');
         name.textContent = recipe.Name;
-        RecipePage.appendOriginFlag(name, recipe).catch(error => {
-          console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+        RecipePage.appendOriginFlag(name, recipe).catch(() => {
+
+          // Non-critical lookup; the page works without it.
         });
         const selectLink = document.createElement('a');
         const selectionURL = new URL(window.location.href);
@@ -265,6 +269,7 @@ export class SearchPage {
       searchRecipes(query);
     }
   }
+  /** Renders the view that assigns a chosen recipe to a meal slot. */
   async #renderRecipeAssignment() {
     const params = new URLSearchParams(window.location.search);
     const recipeID = params.get('recipe');
@@ -287,8 +292,9 @@ export class SearchPage {
     const recipeNameLink = this.#searchPageContainer.querySelector(SearchPage.recipeAssignmentNameClass);
     if (recipe) {
       recipeNameLink.textContent = recipe.Name;
-      RecipePage.appendOriginFlag(recipeNameLink, recipe).catch(error => {
-        console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+      RecipePage.appendOriginFlag(recipeNameLink, recipe).catch(() => {
+
+        // Non-critical lookup; the page works without it.
       });
     } else {
       recipeNameLink.hidden = true;
@@ -437,7 +443,7 @@ export class SearchPage {
       if (submitButton.disabled) {
         searchURL.searchParams.set('assigned', '1');
       }
-      const recipeURL = new URL('/Recipe/', window.location.origin);
+      const recipeURL = new URL('/recipe/', window.location.origin);
       recipeURL.searchParams.set('week', this.#weekParameter);
       recipeURL.searchParams.set('recipe', recipeID);
       recipeURL.searchParams.set('returnTo', `${searchURL.pathname}${searchURL.search}`);
@@ -548,6 +554,7 @@ export class SearchPage {
       updateRecipeDetailsLink();
     }
   }
+  /** Reads the week offset from the URL, defaulting to the current week. */
   #getWeekOffset() {
     const configuredWeek = Object.values(siteData.weekNamedOffsets)
       .find(configuration => configuration.param === this.#weekParameter);
@@ -557,11 +564,13 @@ export class SearchPage {
     const offset = Number.parseInt(this.#weekParameter, 10);
     return Number.isNaN(offset) ? 0 : offset;
   }
+  /** Shows a success or error message after an assignment attempt. */
   #showAssignmentMessage(message, isError = false) {
     const notice = this.#searchPageContainer.querySelector(SearchPage.recipeAssignmentMessageClass);
     notice.textContent = message;
     notice.classList.toggle('is-error', isError);
   }
+  /** Mounts the week dashboard into the supplied container. */
   async mountDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
     await this.renderRecipeSuggestionsDashboard(dashboardContainer, weekParameter);
   }
@@ -593,8 +602,9 @@ export class SearchPage {
       recipeURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
       recipeLink.textContent = suggestion.recipe.Name;
       RecipePage.appendOriginFlag(recipeLink, suggestion.recipe, `${returnURL.pathname}${returnURL.search}`)
-        .catch(error => {
-          console.error(`Could not load the origin flag for "${suggestion.recipe.Name}":`, error);
+        .catch(() => {
+
+          // Non-critical lookup; the page works without it.
         });
       recipeLink.href = `${recipeURL.pathname}${recipeURL.search}`;
       const deployLink = clone.querySelector('.recipe-suggestion-deploy');

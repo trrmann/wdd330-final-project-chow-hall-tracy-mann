@@ -20,12 +20,12 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(projectRoot, 'index.html'),
-        mealPlan: resolve(projectRoot, 'MealPlan/index.html'),
-        inventory: resolve(projectRoot, 'Inventory/index.html'),
-        shopping: resolve(projectRoot, 'Shopping/index.html'),
-        search: resolve(projectRoot, 'Search/index.html'),
-        recipe: resolve(projectRoot, 'Recipe/index.html'),
-        country: resolve(projectRoot, 'Country/index.html'),
+        mealPlan: resolve(projectRoot, 'mealplan/index.html'),
+        inventory: resolve(projectRoot, 'inventory/index.html'),
+        shopping: resolve(projectRoot, 'shopping/index.html'),
+        search: resolve(projectRoot, 'search/index.html'),
+        recipe: resolve(projectRoot, 'recipe/index.html'),
+        country: resolve(projectRoot, 'country/index.html'),
       },
     },
   },

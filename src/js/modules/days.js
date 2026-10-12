@@ -2,6 +2,7 @@ import {
   Meals
 } from './meals'
 
+/** Collection of meal-plan days. */
 export class Days {
   static #configuration;
   static configure(configuration) {
@@ -110,6 +111,7 @@ export class Days {
   };
 };
 
+/** One day of the meal plan; derives its status from its meals. */
 export class Day {
   static fromJSON(json) {
     const instance = new Day();
@@ -187,6 +189,7 @@ export class Day {
   };
 };
 
+/** Seven consecutive days of the meal plan. */
 export class Week {
   static fromJSON(json) {
     const instance = new Week();
@@ -289,6 +292,7 @@ export class Week {
   };
 };
 
+/** Collection of weeks in the meal plan. */
 export class Weeks {
   static configure(configuration) {
     Days.configure(configuration);

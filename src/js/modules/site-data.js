@@ -222,6 +222,7 @@ const normalizeUnit = unit => {
   };
 };
 
+/** Central data store: loads, caches and persists all app data. */
 export class SiteData {
   static recipeSuggestionConfiguration = {
     commonCount: 4,
@@ -309,25 +310,25 @@ export class SiteData {
     }
   };
   static shellMenuItems = [{
-      href: '/MealPlan/',
+      href: '/mealplan/',
       dataNavPage: "meals",
       display: 'Meals',
       class: 'site-nav-link'
     },
     {
-      href: '/Inventory/',
+      href: '/inventory/',
       dataNavPage: "inventory",
       display: 'Inventory',
       class: 'site-nav-link'
     },
     {
-      href: '/Shopping/',
+      href: '/shopping/',
       dataNavPage: "shopping",
       display: 'Shopping',
       class: 'site-nav-link'
     },
     {
-      href: '/Search/',
+      href: '/search/',
       dataNavPage: "search",
       display: 'Search',
       class: 'site-nav-link special-menu-item'
@@ -449,6 +450,7 @@ export class SiteData {
   get countries() {
     return this.#countries;
   };
+  /** Finds a country record by name, resolving it from the API if needed. */
   async resolveCountryByName(name) {
     if (typeof name !== 'string' || !name.trim()) {
       throw new TypeError('A country name is required');
@@ -487,6 +489,7 @@ export class SiteData {
   get apiConfiguration() {
     return this.#apiConfiguration;
   };
+  /** Returns the persistable subset of the site data. */
   toJSON() {
     return {
       countries: this.#countries.toJSON(),
@@ -509,6 +512,7 @@ export class SiteData {
     }
     return this.#initialization;
   };
+  /** Loads stored data, normalizes the weeks and starts background lookups. */
   async #initialize() {
     if (this.#storage.hasKey('countries', false)) {
       this.#countries = Countries.fromJSON(this.#storage.objectRead('countries', false));
@@ -554,6 +558,7 @@ export class SiteData {
     this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
     return this;
   };
+  /** Returns the suggested recipes for a week, fetching new ones when needed. */
   async getSuggestedRecipesForWeek(weekParameter) {
     const {
       commonCount,
@@ -782,6 +787,7 @@ export class SiteData {
     Meal.timeFields.forEach(field => destinationMeal.setPlannedTime(field, ''));
     Meal.timeFields.forEach(field => destinationMeal.setPlannedTime(field, times[field] ?? ''));
   };
+  /** Recomputes a day status from the state of its meals. */
   #updateDayStatus(day) {
     day.status = Object.values(day.meals.toJSON().collection)
       .some(meal => meal.recipeIDs.length) ? 'planned' : 'empty';
@@ -801,10 +807,12 @@ export class SiteData {
       return result;
     };
   };
+  /** Registers a listener that runs when any day status changes. */
   onDayStatusChange(listener) {
     this.#dayStatusListeners.add(listener);
     return () => this.#dayStatusListeners.delete(listener);
   };
+  /** Calls every registered day-status listener. */
   notifyDayStatusChange() {
     if (this.#dayStatusNotifyQueued || this.#dayStatusDispatching) {
       return;
@@ -836,6 +844,7 @@ export class SiteData {
   #saveShoppingList() {
     this.#storage.objectWrite('shoppingList', this.#shoppingList, false);
   };
+  /** Converts a recipe ingredient amount into an inventory-comparable quantity. */
   resolveRecipeIngredientAmount(recipeID, ingredientKey, quantity, unit) {
     if (typeof recipeID !== 'string' || !recipeID.trim()) {
       throw new TypeError('Choose a valid recipe');
@@ -852,6 +861,7 @@ export class SiteData {
     this.#storage.objectWrite('recipes', this.#recipes, false);
     return ingredient;
   };
+  /** Adds a named meal to a day. */
   addMealToDay(weekParameter, dayID, name) {
     const week = this.getWeekForParameter(weekParameter);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
@@ -1021,6 +1031,7 @@ export class SiteData {
       unit: rootUnit
     };
   }
+  /** Converts a quantity between units using the ingredient unit conversions. */
   translateIngredientQuantity(ingredientName, quantity, fromUnit, toUnit) {
     if (typeof ingredientName !== 'string' || !ingredientName.trim()) {
       throw new TypeError('Enter an ingredient name');
@@ -1039,6 +1050,7 @@ export class SiteData {
     }
     return quantity * fromDefinition.factor / toDefinition.factor;
   }
+  /** Adds or updates a unit conversion for an ingredient after checking it is consistent. */
   setIngredientUnitConversion(ingredientName, fromQuantity, fromUnit, toQuantity, toUnit) {
     const ingredient = typeof ingredientName === 'string' ? ingredientName.trim() : '';
     const sourceUnit = typeof fromUnit === 'string' ? fromUnit.trim() : '';
@@ -1106,6 +1118,7 @@ export class SiteData {
       ...removed
     };
   }
+  /** Adds or updates an inventory item and saves it. */
   setInventoryItem(name, quantity, unit) {
     if (typeof name !== 'string' || !name.trim()) {
       throw new TypeError('Enter an ingredient name');
@@ -1151,6 +1164,7 @@ export class SiteData {
     this.#inventory.removeIngredientByIndex(key);
     this.#saveInventory();
   };
+  /** Moves a purchased shopping list quantity into the inventory. */
   purchaseShoppingListItem(name, purchasedQuantity, unitFilter = null) {
     const keyName = normalizeIngredientName(name);
     const shoppingCollection = this.#shoppingList.toJSON().collection;
@@ -1240,6 +1254,7 @@ export class SiteData {
     this.#shoppingList.removeIngredientByIndex(key);
     this.#saveShoppingList();
   };
+  /** Totals the ingredients a meal needs, scaled by servings. */
   #getMealIngredientRequirements(meal) {
     const requirements = new Map();
     const unresolved = [];
@@ -1319,6 +1334,7 @@ export class SiteData {
       unresolved
     };
   };
+  /** Compares a meal requirements with the inventory. */
   getMealExecutionCheck(weekParameter, dayID, mealID) {
     const week = this.getWeekForParameter(weekParameter);
     const day = week.days.getDayByID(dayID);
@@ -1385,6 +1401,7 @@ export class SiteData {
       unresolved
     };
   };
+  /** Returns the status of a day derived from its meals. */
   getDayStatus(weekParameter, dayID) {
     const week = this.getWeekForParameter(weekParameter);
     const day = week.days.getDayByID(dayID);
@@ -1421,6 +1438,7 @@ export class SiteData {
     });
     return needsInventory ? 'inventory needed' : 'ready';
   };
+  /** Lists ingredient shortages across the planned meals of a week. */
   getPlannedIngredientShortages(weekParameter) {
     const week = this.getWeekForParameter(weekParameter);
     const requirements = new Map();
@@ -1489,6 +1507,7 @@ export class SiteData {
       }] : [];
     });
   };
+  /** Adds missing ingredients to the shopping list. */
   addMealShortagesToShoppingList(shortages) {
     if (!Array.isArray(shortages) || !shortages.length) {
       throw new TypeError('There are no missing ingredients to add');
@@ -1555,6 +1574,7 @@ export class SiteData {
     this.removeShoppingListItem(original.name, original.unit || null);
     this.addShoppingListItem(name, quantity, unit);
   };
+  /** Performs a meal stage (prepare, serve or complete) and updates the inventory. */
   executeMeal(weekParameter, dayID, mealID, action = 'complete') {
     if (!['preparing', 'serving', 'complete'].includes(action)) {
       throw new TypeError('Execution action must be "preparing", "serving", or "complete"');
@@ -1644,6 +1664,7 @@ export class SiteData {
     this.#updateDayStatus(day);
     this.#saveWeeks();
   };
+  /** Copies a meal plan to another date. */
   copyMealPlanToDate(weekParameter, sourceDayID, sourceMealID, destinationDate, destinationMealID = sourceMealID) {
     const sourceWeek = this.getWeekForParameter(weekParameter);
     const sourceDay = sourceWeek.days.getDayByID(sourceDayID);
@@ -1693,6 +1714,7 @@ export class SiteData {
       meal: destinationMeal.Name
     };
   };
+  /** Copies a day plan to another date. */
   copyDayPlanToDate(weekParameter, sourceDayID, destinationDate) {
     const sourceWeek = this.getWeekForParameter(weekParameter);
     const sourceDay = sourceWeek.days.getDayByID(sourceDayID);
@@ -1714,6 +1736,7 @@ export class SiteData {
     this.#saveWeeks();
     return destination.day.Name;
   };
+  /** Copies a week plan onto a set of dates. */
   copyWeekPlanToDates(weekParameter, destinationDates) {
     if (!Array.isArray(destinationDates) || destinationDates.length === 0) {
       throw new TypeError('Select at least one destination date');
@@ -1763,6 +1786,7 @@ export class SiteData {
     this.#saveWeeks();
     return copiedDays;
   };
+  /** Copies a meal plan from another date into this one. */
   copyMealPlanFromDate(weekParameter, destinationDayID, destinationMealID, sourceDate, sourceMealID) {
     const {
       week: destinationWeek,
@@ -1793,6 +1817,7 @@ export class SiteData {
       meal: destinationMeal.Name
     };
   };
+  /** Copies a day plan from another date into this one. */
   copyDayPlanFromDate(weekParameter, destinationDayID, sourceDate) {
     const destinationWeek = this.getWeekForParameter(weekParameter);
     const destinationIndex = SiteData.weekDays.findIndex(([id]) => id === destinationDayID);
@@ -1823,6 +1848,7 @@ export class SiteData {
     this.#saveWeeks();
     return destinationDay.Name;
   };
+  /** Copies a week plan from another date into this one. */
   copyWeekPlanFromDate(weekParameter, sourceDate) {
     const destinationWeek = this.getWeekForParameter(weekParameter);
     const sourceWeek = this.#weeks.getWeekByID(Week.toMondayDate(Week.parseDate(sourceDate)));
@@ -1890,6 +1916,7 @@ export class SiteData {
     day.status = 'planned';
     return true;
   };
+  /** Fills a meal with recipes that cover its servings. */
   generateMealPlan(weekParameter, dayID, mealID) {
     const {
       day,
@@ -1901,6 +1928,7 @@ export class SiteData {
     this.#saveWeeks();
     return meal.recipeIDs.length;
   };
+  /** Fills every meal of a day with recipes. */
   generateDayPlan(weekParameter, dayID) {
     const dayIndex = SiteData.weekDays.findIndex(([id]) => id === dayID);
     if (dayIndex < 0) {
@@ -1932,6 +1960,7 @@ export class SiteData {
       unfilled: results.filter(result => result.unfilled).length
     };
   };
+  /** Fills every meal of a week with recipes. */
   generateWeekPlan(weekParameter) {
     const week = this.getWeekForParameter(weekParameter);
     let days = 0;
@@ -1975,6 +2004,7 @@ export class SiteData {
     today.setHours(0, 0, 0, 0);
     return date < today;
   };
+  /** Updates the servings produced and needed for a recipe in a meal. */
   updateMealRecipeServings(weekParameter, dayID, mealID, recipeID, servingsProduced, servingsNeeded) {
     if (!Number.isFinite(servingsProduced) || servingsProduced <= 0) {
       throw new RangeError('Recipe yield must be greater than zero');
@@ -1997,6 +2027,7 @@ export class SiteData {
     this.#storage.objectWrite('weeks', this.#weeks, false);
     return wrapper;
   };
+  /** Removes a recipe from a meal and refreshes the day status. */
   removeRecipeFromMeal(weekParameter, dayID, mealID, recipeID) {
     const {
       day,
@@ -2192,6 +2223,7 @@ export class SiteData {
       dismissedRecipeIDs: []
     };
   };
+  /** Dismisses a suggested recipe and replaces it with a new one. */
   async dismissSuggestedRecipe(weekParameter, recipeID) {
     const week = this.getWeekForParameter(weekParameter);
     const suggestions = this.#weekRecipeSuggestions[week.weekStartDate];
@@ -2291,6 +2323,7 @@ export class SiteData {
       Object.values(this.#recipes.toJSON().collection)
     );
   };
+  /** Looks up dictionary definitions for the words in the given recipes. */
   async #resolveDictionaryWordsForRecipes(recipes, onWordResolved = null) {
     const pendingWords = new Map();
     const recipeWords = new Map();
@@ -2308,8 +2341,8 @@ export class SiteData {
       try {
         const resolvedWord = await this.#lookupDictionaryWord(word);
         onWordResolved?.(resolvedWord);
-      } catch (error) {
-        console.warn(`Dictionary lookup failed for "${word}":`, error);
+      } catch {
+        // Skip words that cannot be defined.
       }
     }));
     recipeWords.forEach((words, recipe) => {
@@ -2319,6 +2352,7 @@ export class SiteData {
     });
     this.#storage.objectWrite('recipes', this.#recipes, false);
   };
+  /** Looks up one word and caches the result. */
   async #lookupDictionaryWord(word) {
     const existingWord = this.#words.getWordByWord(word);
     if (existingWord) {
@@ -2354,6 +2388,7 @@ export class SiteData {
     }
     await this.#resolveDictionaryWordsForRecipes([recipe], onWordResolved);
   };
+  /** Defers word lookups until the browser is idle. */
   #scheduleRecipeWordResolution() {
     this.#wordResolutionRequested = true;
     if (!this.#wordResolutionTask) {
@@ -2362,8 +2397,9 @@ export class SiteData {
           this.#wordResolutionRequested = false;
           await this.#resolveRecipeWords();
         }
-      })().catch(error => {
-        console.error('Recipe word resolution failed:', error);
+      })().catch(() => {
+
+        // Non-critical lookup; the page works without it.
       }).finally(() => {
         this.#wordResolutionTask = null;
         if (this.#wordResolutionRequested) {
@@ -2418,6 +2454,7 @@ export class SiteData {
     }
     this.#storage.remove('mealPlanDefaultsVersion', false);
   };
+  /** Converts TheMealDB responses into stored recipes. */
   async importMealDBRecipes(mealDBResponse) {
     this.#recipes = Recipes.importMealsDBJSON(this.#recipes, mealDBResponse);
     this.#scheduleRecipeWordResolution();
@@ -2470,6 +2507,7 @@ export class SiteData {
     this.#storage.objectWrite('recipes', this.#recipes, false);
     return this.#recipes.getRecipeByID(String(id));
   };
+  /** Returns the week for a named or numeric week parameter. */
   getWeekForParameter(weekParameter) {
     const namedOffset = Object.values(SiteData.weekNamedOffsets)
       .find(item => item.param === weekParameter);
@@ -2481,13 +2519,11 @@ export class SiteData {
     this.#storage.objectWrite('weeks', this.#weeks, false);
     return week;
   };
+  /** Converts TheMealDB meal records into recipes. */
   async importMealDBMeals(meals) {
     const result = await this.#apis.importMealCountries(meals, this.#countries);
     this.#countries = result.countries;
     this.#storage.objectWrite('countries', this.#countries, false);
-    if (result.unmatchedCountries.length) {
-      console.warn('MealsDB countries not matched by Rest Countries:', result.unmatchedCountries);
-    }
     this.#storage.objectWrite('recipes', this.#recipes, false);
     this.#storage.objectWrite('weeks', this.#weeks, false);
     return this.#countries;

@@ -1,6 +1,3 @@
-export function logCurrentState(message) {
-  console.log(message);
-}
 export async function fetchRequest(request, header = null) {
   let response;
   try {

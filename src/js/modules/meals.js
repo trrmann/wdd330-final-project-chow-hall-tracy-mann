@@ -1,3 +1,4 @@
+/** Collection of meals for a day. */
 export class Meals {
   static fromJSON(json) {
     const instance = new Meals();
@@ -95,6 +96,7 @@ export class Meals {
   };
 };
 
+/** A planned meal: its recipes, times and execution status. */
 export class Meal {
   static fromJSON(json) {
     const instance = new Meal();
@@ -339,6 +341,7 @@ export class Meal {
   };
 };
 
+/** Links a recipe to a meal along with its serving count. */
 export class RecipeMealWrapper {
   static fromJSON(json) {
     return new RecipeMealWrapper(json);

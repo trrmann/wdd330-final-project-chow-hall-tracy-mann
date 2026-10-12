@@ -7,7 +7,9 @@
   <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chow Hall - by Tracy Robert Mann - WDD330 Term 5 Final Project</title>
+  <title>Chow Hall - Home Dashboard</title>
+  <meta name="description" content="Chow Hall is a meal planner that tracks your weekly meals, recipes, pantry inventory and shopping list in one dashboard." />
+  <meta name="author" content="Tracy Mann" />
   <script type="module" src="/src/js/main.js" defer></script>
 </head>
 
@@ -22,7 +24,7 @@
           <h1 id="home-title">Chow Hall</h1>
           <p>Plan a meal, keep track of your pantry, and know what to pick up.</p>
         </div>
-        <a class="primary-action" href="/MealPlan/">Plan a meal</a>
+        <a class="primary-action" href="/mealplan/">Plan a meal</a>
       </section>
       <div class="home-dashboard"></div>
     </div>
@@ -36,7 +38,7 @@
           </a>
           <h2 id="week-title">Weekly Meal Plan</h2>
         </div>
-        <a class="panel-link" href="/MealPlan/">Open meal plan</a>
+        <a class="panel-link" href="/mealplan/">Open meal plan</a>
       </div>
       <ol class="week-strip"></ol>
     </section>
@@ -72,7 +74,7 @@
           <p class="panel-kicker">Pantry</p>
           <h2 id="inventory-title">Inventory</h2>
         </div>
-        <a class="panel-link" href="/Inventory/">Review list</a>
+        <a class="panel-link" href="/inventory/">Review list</a>
       </div>
       <ul class="inventory-items"></ul>
     </section>
@@ -106,8 +108,8 @@
   </template>
   <template id="recipe-suggestion-template">
     <li class="recipe-suggestion-item">
-      <a href="/Recipe/" class="recipe-suggestion">{placeholder}</a>
-      <a href="/Search/" class="recipe-suggestion-deploy">Deploy</a>
+      <a href="/recipe/" class="recipe-suggestion">{placeholder}</a>
+      <a href="/search/" class="recipe-suggestion-deploy">Deploy</a>
       <button type="button" class="recipe-suggestion-dismiss">Dismiss</button>
     </li>
   </template>

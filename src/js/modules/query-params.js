@@ -1,3 +1,4 @@
+/** Helpers for reading and building URL query parameters. */
 export class QueryParams {
   static hasAny(url) {
     const parsedURL = new URL(url, window.location.origin);

@@ -13,6 +13,7 @@ import {
 import {
   QueryParams
 } from './query-params.js';
+/** Controller for the Home dashboard. */
 export class HomePage {
   static homePageMainId = 'app';
   static homePageTemplateId = 'home-page-template';

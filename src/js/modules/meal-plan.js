@@ -12,6 +12,7 @@ import {
   RecipePage
 } from './recipe.js'
 
+/** Controller for the Meal Plan page. */
 export class MealPlanPage {
   static mealPlanPageMainId = 'app';
   static mealPlanPageTemplateId = 'meal-plan-page-template'
@@ -86,6 +87,7 @@ export class MealPlanPage {
     );
     this.#watchDayStatuses();
   }
+  /** Subscribes to day-status changes so the page stays in sync with the data. */
   #watchDayStatuses() {
     siteData.onDayStatusChange(() => this.#refreshDayStatuses());
     document.addEventListener('visibilitychange', () => {
@@ -96,6 +98,7 @@ export class MealPlanPage {
     // Statuses depend on today's date, so re-check periodically (covers midnight rollover).
     setInterval(() => this.#refreshDayStatuses(), 60000);
   }
+  /** Updates the status badges and alerts for every visible day. */
   #refreshDayStatuses() {
     const week = siteData.getWeekForParameter(this.#weekParameter);
     const days = week.getDayList();
@@ -135,6 +138,7 @@ export class MealPlanPage {
   get selectedDay() {
     return this.#selectedDay;
   }
+  /** Renders the meal plan page for the selected week and day. */
   async render() {
     this.#mealPlanPageContainer.innerHTML = '';
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
@@ -172,6 +176,7 @@ export class MealPlanPage {
     this.#initWeekNavigationEvents(this.#mealPlanPageContainer);
     this.#initWeekCopyControls(this.#mealPlanPageContainer);
   }
+  /** Wires up the day folder tabs and their keyboard and click handlers. */
   initFolderEvents(renderedFragment) {
     const tabsContainer = renderedFragment.querySelector(MealPlanPage.folderTabsContainerClass);
     if (!tabsContainer) return;
@@ -185,6 +190,7 @@ export class MealPlanPage {
       this.updatePanelContent(this.#mealPlanPageContainer, this.#weekParameter, this.#selectedDay);
     });
   }
+  /** Fills the week navigation controls with the current week range. */
   #renderWeekNavigationData(container) {
     const labelContainer = container.querySelector(MealPlanPage.weekNavLabelClass);
     const resetButtonContainer = container.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
@@ -210,6 +216,7 @@ export class MealPlanPage {
     });
     rangeContainer.textContent = `${formatter.format(monday)} – ${formatter.format(sunday)}`;
   }
+  /** Attaches previous, next and current-week navigation handlers. */
   #initWeekNavigationEvents(renderedFragment) {
     const navPanelContainer = renderedFragment.querySelector(MealPlanPage.weekNavPanelClass);
     const resetButtonContainer = renderedFragment.querySelector(MealPlanPage.weekNavCurrentResetButtonClass);
@@ -254,6 +261,7 @@ export class MealPlanPage {
       });
     }
   }
+  /** Wires the controls that copy a week plan to or from another date. */
   #initWeekCopyControls(renderedFragment) {
     const controls = renderedFragment.querySelector('.week-copy-controls');
     const details = controls.querySelector('.week-copy-details');
@@ -373,6 +381,7 @@ export class MealPlanPage {
       }
     });
   }
+  /** Parses the starting week offset from the URL parameters. */
   #parseInitialWeekOffset() {
     if (!this.#weekParameter) {
       this.#weekParameter = siteData.weekNamedOffsets.current.param;
@@ -385,12 +394,14 @@ export class MealPlanPage {
       this.#weekOffset = isNaN(parsed) ? 0 : parsed;
     }
   }
+  /** Updates a URL query parameter without reloading the page. */
   #updateUrlParameter(key, value) {
     const url = new URL(window.location.href);
     url.searchParams.set(key, value);
     // Rewrites address string silently without triggering a structural page refresh
     window.history.replaceState({}, '', url.pathname + url.search);
   }
+  /** Moves the active state to the selected tab. */
   #switchActiveTab(tabsContainer, newActiveTab) {
     const currentActive = tabsContainer.querySelector(`.${MealPlanPage.activeTabClass}`);
     if (currentActive) {
@@ -401,6 +412,7 @@ export class MealPlanPage {
     newActiveTab.setAttribute('aria-selected', 'true');
   }
 
+  /** Returns true when the day falls before today. */
   #isPastDay(weekStartDate, dayIndex) {
     const dayDate = new Date(`${weekStartDate}T00:00:00`);
     dayDate.setDate(dayDate.getDate() + dayIndex);
@@ -409,6 +421,7 @@ export class MealPlanPage {
     return dayDate < today;
   }
 
+  /** Updates a recipe item with how many servings it covers for the meal. */
   #updateRecipeCoverageSummary(recipeItem, meal) {
     const servingsNeeded = Number(recipeItem.querySelector('.recipe-servings-needed').value);
     const servingsProduced = Number(recipeItem.querySelector('.recipe-servings-produced').value);
@@ -418,6 +431,7 @@ export class MealPlanPage {
       `${servingsNeeded} of ${meal.servingsRequired} meal servings (${percentage.toFixed(0)}%) · ${batches.toLocaleString(undefined, { maximumFractionDigits: 2 })} batch${batches === 1 ? '' : 'es'}`;
   }
 
+  /** Renders the ingredient availability check for a meal slot. */
   #renderExecutionCheck(mealSlot, check) {
     const status = mealSlot.querySelector('.meal-execution-status');
     const message = mealSlot.querySelector('.meal-execution-message');
@@ -523,6 +537,7 @@ export class MealPlanPage {
     }
   }
 
+  /** Replaces the panel contents for the selected day. */
   updatePanelContent(rootContainer, weekParameter, day) {
     const panel = rootContainer.querySelector(MealPlanPage.folderPanelClass);
     const heading = panel.querySelector('h3');
@@ -766,7 +781,7 @@ export class MealPlanPage {
         isPastDay || meal.isExecuted || meal.recipeIDs.length === 0;
       dailyMealSlot.querySelector('.meal-generate').disabled =
         isPastDay || meal.isExecuted || meal.recipeIDs.length > 0;
-      const searchURL = new URL('/Search/', window.location.origin);
+      const searchURL = new URL('/search/', window.location.origin);
       searchURL.searchParams.set('week', weekParameter);
       searchURL.searchParams.set('day', day);
       searchURL.searchParams.set('meal', meal.ID);
@@ -794,8 +809,8 @@ export class MealPlanPage {
         const recipeTitle = recipeItem.querySelector('.meal-slot-recipe-name');
         recipeTitle.textContent = recipeName;
         if (recipe) {
-          const detailsURL = new URL('/Recipe/', window.location.origin);
-          const returnURL = new URL('/MealPlan/', window.location.origin);
+          const detailsURL = new URL('/recipe/', window.location.origin);
+          const returnURL = new URL('/mealplan/', window.location.origin);
           detailsURL.searchParams.set('week', weekParameter);
           detailsURL.searchParams.set('recipe', recipeID);
           returnURL.searchParams.set('week', weekParameter);
@@ -803,8 +818,9 @@ export class MealPlanPage {
           detailsURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
           recipeTitle.href = `${detailsURL.pathname}${detailsURL.search}`;
           RecipePage.appendOriginFlag(recipeTitle, recipe, `${returnURL.pathname}${returnURL.search}`)
-            .catch(error => {
-              console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
+            .catch(() => {
+
+              // Non-critical lookup; the page works without it.
             });
         } else {
           recipeTitle.removeAttribute('href');
@@ -1126,10 +1142,10 @@ export class MealPlanPage {
       const message = recipeItem.querySelector('.recipe-action-message');
       try {
         if (button.matches('.meal-slot-recipe-replace')) {
-          const replaceURL = new URL('/MealPlan/', window.location.origin);
+          const replaceURL = new URL('/mealplan/', window.location.origin);
           replaceURL.searchParams.set('week', weekParameter);
           replaceURL.searchParams.set('day', day);
-          const searchURL = new URL('/Search/', window.location.origin);
+          const searchURL = new URL('/search/', window.location.origin);
           searchURL.searchParams.set('week', weekParameter);
           searchURL.searchParams.set('day', day);
           searchURL.searchParams.set('meal', sourceMealID);
@@ -1165,9 +1181,11 @@ export class MealPlanPage {
       }
     };
   }
+  /** Mounts the dashboard summary into the supplied container. */
   mountDashboard(dashboardContainer, weekParameter = this.#weekParameter) {
     this.renderWeekDashBoard(dashboardContainer, weekParameter);
   }
+  /** Renders the week strip with each day status. */
   renderWeekDashBoard(dashboardContainer, weekParameter = this.#weekParameter) {
     this.#mealPlanDashBoardTemplate = document.getElementById(MealPlanPage.mealPlanDashBoardTemplateId);
     this.#mealPlanDayTemplate = document.getElementById(MealPlanPage.mealPlanDayTemplateId);
