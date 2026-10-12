@@ -28,6 +28,22 @@ export class ShoppingPage {
     const root = this.#shoppingPageContainer;
     const list = root.querySelector('.shopping-list-items');
     const message = root.querySelector('.shopping-list-message');
+    const addForm = root.querySelector('.shopping-item-form');
+    addForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const name = root.querySelector('.shopping-name').value.trim();
+      try {
+        siteData.addShoppingListItem(
+          name,
+          Number(root.querySelector('.shopping-quantity').value),
+          root.querySelector('.shopping-unit').value
+        );
+        this.render();
+        root.querySelector('.shopping-list-message').textContent = `Added ${name} to the shopping list.`;
+      } catch (error) {
+        message.textContent = `Could not add item: ${error.message}`;
+      }
+    });
     const shoppingList = Object.values(siteData.shoppingList.toJSON().collection);
     if (!shoppingList.length) {
       const emptyMessage = document.createElement('li');

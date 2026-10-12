@@ -24,6 +24,21 @@
       <section class="shopping-list-management" aria-labelledby="shopping-list-title">
         <h2 id="shopping-list-title">Shopping list</h2>
         <p>Enter the amount bought to add it to available stock; any remaining need stays on your list.</p>
+        <form class="shopping-item-form inventory-item-form">
+          <label>
+            <span>Ingredient</span>
+            <input class="shopping-name" type="text" maxlength="120" required />
+          </label>
+          <label>
+            <span>Quantity</span>
+            <input class="shopping-quantity" type="number" min="0.01" step="any" required />
+          </label>
+          <label>
+            <span>Unit</span>
+            <input class="shopping-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required />
+          </label>
+          <button class="shopping-add" type="submit">Add to list</button>
+        </form>
         <p class="shopping-list-message" role="status" aria-live="polite"></p>
         <ul class="shopping-list-items"></ul>
       </section>

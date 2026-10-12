@@ -7,15 +7,15 @@ the effect in the recipe instructions is hard to read with the underline, try ch
 the shopping list dashboard should have a select all checkbox following the customary actions of this type of control on that dashboard.  also if nothing is selected the purchase seleted should be deactivated and subdued to a diff color in the theme.
 the low stock dashboard, should have an add all button at the bottom of the card - centered.
 the unit quantities are getting scientic level of numbers and we need more real numbers reaching a realistic measurable minimum count.
+add a item to the shopping directly similar to the add inventory item.
+when i edited the inventory stock aned change the value the display did not update to reflecty the new quantity.
 
 
 reduce session storage data load and local storage data load, do not duplicate, use memory cache where applicable to reduce api calls.
 
 
 
-add a item to the shopping directly similar to the add inventory item.
-when i edited the inventory stock aned change the value the display did not update to reflecty the new quantity.
-the edit inventory should also allow the update of unti type, not just quantity.  also allow a translation of the unit type and value of the inventory item on this page.
+the edit inventory should also allow the update of unit type, not just quantity.  also allow a translation of the unit type and value of the inventory item on this page.
 add recipe should default to by category first.
 drop box sizes need to be sure they are touching on mobile, especially noted on the add recipe case of the search page.
 the shopping list buttons fall out of alignment and provide a poor UX

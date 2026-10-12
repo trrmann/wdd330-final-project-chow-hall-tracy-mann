@@ -1123,16 +1123,7 @@ export class SiteData {
     const collection = this.#inventory.toJSON().collection;
     const current = Object.values(collection).find(item => normalizeIngredientName(item.Name || '') === keyName);
     if (current) {
-      const currentUnit = current.Unit || unit;
-      const incomingDefinition = this.#getIngredientUnitDefinition(cleanName, unit);
-      const currentDefinition = this.#getIngredientUnitDefinition(cleanName, currentUnit);
-      if (incomingDefinition.category !== currentDefinition.category) {
-        throw new Error(`Use the existing ${currentUnit} unit for ${current.Name}`);
-      }
-      current.setStock(
-        quantity * incomingDefinition.factor / currentDefinition.factor,
-        currentUnit
-      );
+      current.setStock(quantity, unit.trim());
     } else {
       const key = `stock-${keyName.replace(/[^a-z0-9]+/g, '-')}`;
       let uniqueKey = key;
@@ -1536,6 +1527,22 @@ export class SiteData {
       }
     });
     this.#saveShoppingList();
+  };
+  addShoppingListItem(name, quantity, unit) {
+    if (typeof name !== 'string' || !name.trim()) {
+      throw new TypeError('Enter an ingredient name');
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new RangeError('Shopping quantity must be greater than zero');
+    }
+    if (typeof unit !== 'string' || !unit.trim()) {
+      throw new TypeError('Enter a shopping unit');
+    }
+    this.addMealShortagesToShoppingList([{
+      name: name.trim(),
+      missing: quantity,
+      unit: unit.trim()
+    }]);
   };
   executeMeal(weekParameter, dayID, mealID, action = 'complete') {
     if (!['preparing', 'serving', 'complete'].includes(action)) {
