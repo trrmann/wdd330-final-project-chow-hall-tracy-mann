@@ -2094,4 +2094,26 @@ code {
   .meal-issue-row {
     grid-template-columns: 1fr;
   }
+
+  .recipe-search-form select,
+  .recipe-search-controls select,
+  .recipe-search-controls input,
+  .recipe-search-controls button,
+  .recipe-assignment-form select,
+  .recipe-move-controls select,
+  .inventory-management select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .recipe-search-form #recipe-search-mode {
+    padding: 8px;
+    border: 1px solid var(--field-stone);
+    border-radius: 4px;
+    background-color: var(--off-white);
+    color: var(--command-black);
+    font-family: inherit;
+  }
 }
