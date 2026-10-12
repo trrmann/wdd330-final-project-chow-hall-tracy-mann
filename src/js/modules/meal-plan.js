@@ -540,7 +540,7 @@ export class MealPlanPage {
   /** Replaces the panel contents for the selected day. */
   updatePanelContent(rootContainer, weekParameter, day) {
     const panel = rootContainer.querySelector(MealPlanPage.folderPanelClass);
-    const heading = panel.querySelector('h3');
+    const heading = panel.querySelector('h2');
     const dayStatus = panel.querySelector(MealPlanPage.dailyMealStatusClass);
     const pastDayNotice = panel.querySelector(MealPlanPage.pastDayNoticeClass);
     const pastDayEmptyNote = panel.querySelector(MealPlanPage.pastDayEmptyNoteClass);

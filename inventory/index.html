@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg" />
-  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg">
+  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventory - Chow Hall</title>
-  <meta name="description" content="Track the ingredients you have on hand and see what your planned meals still need." />
-  <meta name="author" content="Tracy Mann" />
+  <meta name="description" content="Track the ingredients you have on hand and see what your planned meals still need.">
+  <meta name="author" content="Tracy Mann">
   <script type="module" src="/src/js/inventory.js" defer></script>
 </head>
 
@@ -28,15 +28,15 @@
         <form class="inventory-item-form">
           <label>
             <span>Ingredient</span>
-            <input class="inventory-name" type="text" maxlength="120" required />
+            <input class="inventory-name" type="text" maxlength="120" required>
           </label>
           <label>
             <span>Quantity</span>
-            <input class="inventory-quantity" type="number" min="0" step="any" required />
+            <input class="inventory-quantity" type="number" min="0" step="any" required>
           </label>
           <label>
             <span>Unit</span>
-            <input class="inventory-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required />
+            <input class="inventory-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required>
           </label>
           <button class="inventory-save" type="submit">Save stock</button>
           <button class="inventory-translate" type="button" hidden>Translate quantity to unit</button>
@@ -50,23 +50,23 @@
         <form class="ingredient-unit-conversion-form">
           <label>
             <span>Ingredient</span>
-            <input class="conversion-ingredient" type="text" maxlength="120" required />
+            <input class="conversion-ingredient" type="text" maxlength="120" required>
           </label>
           <label>
             <span>First amount</span>
-            <input class="conversion-from-quantity" type="number" min="0.000001" step="any" required />
+            <input class="conversion-from-quantity" type="number" min="0.000001" step="any" required>
           </label>
           <label>
             <span>First unit</span>
-            <input class="conversion-from-unit" type="text" maxlength="40" placeholder="cup" required />
+            <input class="conversion-from-unit" type="text" maxlength="40" placeholder="cup" required>
           </label>
           <label>
             <span>Equivalent amount</span>
-            <input class="conversion-to-quantity" type="number" min="0.000001" step="any" required />
+            <input class="conversion-to-quantity" type="number" min="0.000001" step="any" required>
           </label>
           <label>
             <span>Equivalent unit</span>
-            <input class="conversion-to-unit" type="text" maxlength="40" placeholder="g" required />
+            <input class="conversion-to-unit" type="text" maxlength="40" placeholder="g" required>
           </label>
           <button type="submit">Save translation</button>
         </form>

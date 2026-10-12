@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg" />
-  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg">
+  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meal Plan - Chow Hall</title>
-  <meta name="description" content="Plan breakfast, lunch and dinner for each day of the week and follow each meal from planning to serving." />
-  <meta name="author" content="Tracy Mann" />
+  <meta name="description" content="Plan breakfast, lunch and dinner for each day of the week and follow each meal from planning to serving.">
+  <meta name="author" content="Tracy Mann">
   <script type="module" src="/src/js/meal-plan.js" defer></script>
 </head>
 
@@ -38,7 +38,7 @@
           <div class="week-copy-from-controls">
             <label>
               <span>Copy a week from its Monday date</span>
-              <input class="week-copy-source-date" type="date" />
+              <input class="week-copy-source-date" type="date">
             </label>
             <button class="week-copy-from" type="button">Copy week from date</button>
           </div>
@@ -48,7 +48,7 @@
               <p>Choose destination dates. Each date receives the matching weekday from this week, replacing its current meal plan.</p>
               <label>
                 <span>Destination date</span>
-                <input class="week-copy-date" type="date" />
+                <input class="week-copy-date" type="date">
               </label>
               <button class="week-copy-add-date" type="button">Add date</button>
               <ul class="week-copy-date-list"></ul>
@@ -68,7 +68,7 @@
           <header class="meal-plan-day-header">
             <div>
               <p class="panel-kicker">Daily schedule</p>
-              <h3>Meal Plan</h3>
+              <h2>Meal Plan</h2>
               <p class="meal-plan-day-status"></p>
             </div>
           </header>
@@ -78,7 +78,7 @@
           <form class="day-add-meal-form">
             <label>
               <span>Add a meal to this day</span>
-              <input class="day-add-meal-name" type="text" maxlength="80" required />
+              <input class="day-add-meal-name" type="text" maxlength="80" required>
             </label>
             <button class="day-add-meal" type="submit">Add meal</button>
             <p class="day-add-meal-message" role="status" aria-live="polite"></p>
@@ -91,7 +91,7 @@
               <div class="day-copy-panel">
                 <label>
                   <span class="day-copy-label">Destination date</span>
-                  <input class="day-copy-date" type="date" />
+                  <input class="day-copy-date" type="date">
                 </label>
                 <button class="day-copy" type="button">Copy day</button>
               </div>
@@ -109,16 +109,16 @@
     <li class="daily-meal-slot">
       <div class="meal-slot-header">
         <div class="meal-slot-heading">
-          <h4 class="meal-slot-label">Meal</h4>
+          <h3 class="meal-slot-label">Meal</h3>
           <label class="meal-slot-name-control">
             <span>Meal name</span>
-            <input class="meal-slot-name" type="text" maxlength="80" required />
+            <input class="meal-slot-name" type="text" maxlength="80" required>
           </label>
           <p class="meal-slot-summary"></p>
         </div>
         <label class="meal-servings-control">
           <span>Expected servings</span>
-          <input class="meal-servings-required" type="number" min="1" step="1" required />
+          <input class="meal-servings-required" type="number" min="1" step="1" required>
         </label>
       </div>
       <ul class="meal-slot-recipes"></ul>
@@ -126,10 +126,10 @@
       <p class="meal-slot-empty" hidden>No recipes planned for this meal.</p>
       <p class="meal-servings-message" role="status" aria-live="polite"></p>
       <div class="meal-slot-times">
-        <label><span>Prep start</span><input class="meal-time" data-time-field="prepStart" type="time" /></label>
-        <label><span>Prep end</span><input class="meal-time" data-time-field="prepEnd" type="time" /></label>
-        <label><span>Serve start</span><input class="meal-time" data-time-field="serveStart" type="time" /></label>
-        <label><span>Serve end</span><input class="meal-time" data-time-field="serveEnd" type="time" /></label>
+        <label><span>Prep start</span><input class="meal-time" data-time-field="prepStart" type="time"></label>
+        <label><span>Prep end</span><input class="meal-time" data-time-field="prepEnd" type="time"></label>
+        <label><span>Serve start</span><input class="meal-time" data-time-field="serveStart" type="time"></label>
+        <label><span>Serve end</span><input class="meal-time" data-time-field="serveEnd" type="time"></label>
       </div>
       <div class="meal-slot-actions">
         <label class="meal-execute-stage-control">
@@ -149,7 +149,7 @@
           <div class="meal-copy-panel">
             <label>
               <span class="meal-copy-date-label">Destination date</span>
-              <input class="meal-copy-date" type="date" />
+              <input class="meal-copy-date" type="date">
             </label>
             <label class="meal-copy-destination-label">
               <span class="meal-copy-destination-text">Destination meal</span>
@@ -175,11 +175,11 @@
       </div>
       <label class="recipe-servings-control">
         <span>Servings per batch</span>
-        <input class="recipe-servings-produced" type="number" min="0.01" step="any" required />
+        <input class="recipe-servings-produced" type="number" min="0.01" step="any" required>
       </label>
       <label class="recipe-meal-share-control">
         <span>Meal servings covered</span>
-        <input class="recipe-servings-needed" type="range" min="1" max="1" step="1" />
+        <input class="recipe-servings-needed" type="range" min="1" max="1" step="1">
       </label>
       <p class="recipe-meal-share-summary" aria-live="polite"></p>
       <div class="recipe-move-controls">

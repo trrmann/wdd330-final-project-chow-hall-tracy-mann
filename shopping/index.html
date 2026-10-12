@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg" />
-  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/images/chow-hall-tray.svg">
+  <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/oswald-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shopping - Chow Hall</title>
-  <meta name="description" content="Build a shopping list from your meal plan shortages and move purchased items into inventory." />
-  <meta name="author" content="Tracy Mann" />
+  <meta name="description" content="Build a shopping list from your meal plan shortages and move purchased items into inventory.">
+  <meta name="author" content="Tracy Mann">
   <script type="module" src="/src/js/shopping.js" defer></script>
 </head>
 
@@ -29,15 +29,15 @@
         <form class="shopping-item-form inventory-item-form">
           <label>
             <span>Ingredient</span>
-            <input class="shopping-name" type="text" maxlength="120" required />
+            <input class="shopping-name" type="text" maxlength="120" required>
           </label>
           <label>
             <span>Quantity</span>
-            <input class="shopping-quantity" type="number" min="0.01" step="any" required />
+            <input class="shopping-quantity" type="number" min="0.01" step="any" required>
           </label>
           <label>
             <span>Unit</span>
-            <input class="shopping-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required />
+            <input class="shopping-unit" type="text" maxlength="40" placeholder="each, g, ml, cup..." required>
           </label>
           <button class="shopping-add" type="submit">Add to list</button>
           <button class="shopping-translate" type="button" hidden>Translate quantity to unit</button>
