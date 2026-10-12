@@ -1,3 +1,9 @@
+const floatNoiseLimit = 1e-6;
+
+// Rounds to 0.01 but keeps any real amount at 0.01 or more; only float noise becomes 0.
+const roundMeasurable = value => value <= floatNoiseLimit ? 0 :
+  Math.max(0.01, Math.round(value * 100) / 100);
+
 export class QuantifiedIngredients {
   static fromJSON(json) {
     const instance = new QuantifiedIngredients();
@@ -163,7 +169,7 @@ export class QuantifiedIngredient {
       this.#quantity = json.quantity !== null &&
         json.quantity !== undefined &&
         json.quantity !== '' &&
-        Number.isFinite(Number(json.quantity)) ? Number(json.quantity) : null;
+        Number.isFinite(Number(json.quantity)) ? roundMeasurable(Number(json.quantity)) : null;
       this.#unit = typeof json.unit === 'string' ? json.unit : '';
     }
   }
@@ -206,7 +212,7 @@ export class QuantifiedIngredient {
     if (typeof unit !== 'string') {
       throw new TypeError('Inventory unit must be text');
     }
-    this.#quantity = quantity;
+    this.#quantity = roundMeasurable(quantity);
     this.#unit = unit.trim();
     this.#measure = '';
   }
@@ -217,7 +223,7 @@ export class QuantifiedIngredient {
     if (typeof unit !== 'string' || !unit.trim()) {
       throw new TypeError('Ingredient unit must not be empty');
     }
-    this.#quantity = quantity;
+    this.#quantity = Math.max(0.01, roundMeasurable(quantity));
     this.#unit = unit.trim();
   }
 }

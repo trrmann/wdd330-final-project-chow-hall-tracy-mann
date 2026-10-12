@@ -6,10 +6,10 @@ once items have been added to the shopping list the shortage shold still be show
 the effect in the recipe instructions is hard to read with the underline, try changing to italics instead, also the instrucitons keep repeating in serval cases this is very bad UX.
 the shopping list dashboard should have a select all checkbox following the customary actions of this type of control on that dashboard.  also if nothing is selected the purchase seleted should be deactivated and subdued to a diff color in the theme.
 the low stock dashboard, should have an add all button at the bottom of the card - centered.
+the unit quantities are getting scientic level of numbers and we need more real numbers reaching a realistic measurable minimum count.
 
 
 reduce session storage data load and local storage data load, do not duplicate, use memory cache where applicable to reduce api calls.
-
 
 
 

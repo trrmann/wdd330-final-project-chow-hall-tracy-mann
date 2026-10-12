@@ -38,6 +38,9 @@ import {
 
 const inventoryZeroTolerance = 1e-9;
 
+const roundUpQuantity = value => value <= 1e-6 ? 0 : Math.max(0.01, Math.ceil(value * 100 - 1e-6) / 100);
+const roundQuantity = value => Math.round(value * 100) / 100;
+
 const legacyDefaultRecipeIDs = new Set([
   'Eggs',
   'Omlette',
@@ -1349,7 +1352,8 @@ export class SiteData {
           total + item.Quantity * definition.factor : total;
       }, 0);
       const missing = Math.max(0, requirement.required - available);
-      if (missing <= 0) {
+      const missingDisplay = roundUpQuantity(missing / requirement.factor);
+      if (missingDisplay <= 0) {
         return [];
       }
       const mismatched = stocked.find(item =>
@@ -1359,7 +1363,7 @@ export class SiteData {
           kind: 'unit',
           recipeName: requirement.recipeNames.join(', '),
           name: requirement.name,
-          requiredQuantity: requirement.required / requirement.factor,
+          requiredQuantity: roundQuantity(requirement.required / requirement.factor),
           requiredUnit: requirement.displayUnit || requirement.unit,
           inventoryQuantity: mismatched.Quantity,
           inventoryUnit: mismatched.Unit || ''
@@ -1377,11 +1381,11 @@ export class SiteData {
       }, 0);
       return [{
         name: requirement.name,
-        required: requirement.required / requirement.factor,
-        available: available / requirement.factor,
-        missing: missing / requirement.factor,
-        planned: planned / requirement.factor,
-        toAdd: Math.max(0, missing - planned) / requirement.factor,
+        required: roundQuantity(requirement.required / requirement.factor),
+        available: roundQuantity(available / requirement.factor),
+        missing: missingDisplay,
+        planned: roundQuantity(planned / requirement.factor),
+        toAdd: roundUpQuantity(Math.max(0, missing - planned) / requirement.factor),
         unit: requirement.displayUnit || requirement.unit,
         recipeNames: requirement.recipeNames
       }];
@@ -1485,12 +1489,13 @@ export class SiteData {
           total + item.Quantity * definition.factor : total;
       }, 0);
       const missing = Math.max(0, requirement.required - available - plannedPurchase);
-      return missing > 0 ? [{
+      const missingDisplay = roundUpQuantity(missing / requirement.factor);
+      return missingDisplay > 0 ? [{
         name: requirement.name,
-        required: requirement.required / requirement.factor,
-        available: available / requirement.factor,
-        plannedPurchase: plannedPurchase / requirement.factor,
-        missing: missing / requirement.factor,
+        required: roundQuantity(requirement.required / requirement.factor),
+        available: roundQuantity(available / requirement.factor),
+        plannedPurchase: roundQuantity(plannedPurchase / requirement.factor),
+        missing: missingDisplay,
         unit: requirement.displayUnit || requirement.unit
       }] : [];
     });
@@ -1525,7 +1530,7 @@ export class SiteData {
         const key = `need-${keyName.replace(/[^a-z0-9]+/g, '-')}-${unitDefinition.unit}`;
         this.#shoppingList.addIngredient(key, new QuantifiedIngredient({
           ingredient: name,
-          quantity: missing,
+          quantity: roundUpQuantity(missing),
           unit
         }));
       }
