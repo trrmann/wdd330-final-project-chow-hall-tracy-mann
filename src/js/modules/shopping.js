@@ -130,9 +130,27 @@ export class ShoppingPage {
     itemCountContainer.textContent = shoppingList.length;
     const purchaseButton = dashboard.querySelector('.shopping-dashboard-purchase');
     purchaseButton.hidden = shoppingList.length === 0;
+    const selectAll = dashboard.querySelector('.shopping-select-all-checkbox');
+    const enabledBoxes = () => [...dashboard.querySelectorAll('.shopping-item-select:not(:disabled)')];
+    const syncSelection = () => {
+      const boxes = enabledBoxes();
+      const checkedCount = boxes.filter(box => box.checked).length;
+      selectAll.disabled = !boxes.length;
+      selectAll.checked = boxes.length > 0 && checkedCount === boxes.length;
+      selectAll.indeterminate = checkedCount > 0 && checkedCount < boxes.length;
+      purchaseButton.disabled = checkedCount === 0;
+    };
+    selectAll.closest('label').hidden = shoppingList.length === 0;
+    syncSelection();
     dashboard.addEventListener('change', event => {
-      if (!event.target.matches('.shopping-item-select')) return;
-      purchaseButton.disabled = !dashboard.querySelector('.shopping-item-select:checked');
+      if (event.target === selectAll) {
+        enabledBoxes().forEach(box => {
+          box.checked = selectAll.checked;
+        });
+      } else if (!event.target.matches('.shopping-item-select')) {
+        return;
+      }
+      syncSelection();
     });
     purchaseButton.addEventListener('click', () => {
       const selectedItems = [...dashboard.querySelectorAll('.shopping-item-select:checked')];

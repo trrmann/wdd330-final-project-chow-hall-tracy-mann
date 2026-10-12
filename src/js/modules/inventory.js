@@ -223,6 +223,16 @@ export class InventoryPage {
       item.append(label, addButton);
       list.appendChild(item);
     });
+    const addAllButton = panel.querySelector('.low-stock-add-all');
+    addAllButton.hidden = shortages.length === 0;
+    addAllButton.addEventListener('click', () => {
+      try {
+        siteData.addMealShortagesToShoppingList(shortages);
+        dashboardContainer.dispatchEvent(new CustomEvent('pantry-data-updated'));
+      } catch (error) {
+        message.textContent = `Could not add all shortages: ${error.message}`;
+      }
+    });
     const existingDashboard = dashboardContainer.querySelector(InventoryPage.lowStockDashboardClass);
     if (existingDashboard) {
       dashboardContainer.replaceChild(clone, existingDashboard);
