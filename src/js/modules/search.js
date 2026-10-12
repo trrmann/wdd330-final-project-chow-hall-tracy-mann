@@ -405,7 +405,7 @@ export class SearchPage {
       const mealServings = Number(mealServingsSlider.value);
       const recipeYield = Number(recipeYieldInput.value);
       if (!Number.isFinite(recipeYield) || recipeYield <= 0) {
-        coverageNotice.textContent = 'Enter the servings produced by one recipe.';
+        coverageNotice.textContent = 'Enter how many servings one batch of this recipe makes.';
         return;
       }
       const ingredientMultiplier = mealServings / recipeYield;

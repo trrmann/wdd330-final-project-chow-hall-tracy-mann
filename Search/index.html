@@ -54,8 +54,9 @@
           <label for="assignment-meal-servings">Meal share to cover (100% covers all expected servings)</label>
           <input id="assignment-meal-servings" name="mealServings" type="range" min="1" max="1" step="1" value="1" />
           <p class="recipe-assignment-coverage" aria-live="polite"></p>
-          <label for="assignment-recipe-yield">Servings produced by one recipe</label>
-          <input id="assignment-recipe-yield" name="recipeYield" type="number" min="0.01" step="any" value="1" required />
+          <label for="assignment-recipe-yield">How many servings does one batch of this recipe make? (required)</label>
+          <input id="assignment-recipe-yield" name="recipeYield" type="number" min="0.01" step="any" value="1" required aria-describedby="assignment-recipe-yield-help" />
+          <p id="assignment-recipe-yield-help" class="recipe-assignment-help">Enter the number of servings one batch yields. The meal plan uses this to work out how many batches the meal needs.</p>
           <button type="submit" class="recipe-suggestion-deploy">Add to meal plan</button>
         </form>
         <p class="recipe-assignment-message" role="status" aria-live="polite"></p>
