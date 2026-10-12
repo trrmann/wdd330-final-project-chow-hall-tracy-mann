@@ -1,11 +1,17 @@
-import {
-  modelArray,
-  normalizeWord,
-  objectOrEmpty,
-  stringArray
-} from '../utils.js'
-
 export class Words {
+  static normalizeWord(value) {
+    return typeof value === 'string' ? value.trim().normalize('NFC').toLocaleLowerCase() : '';
+  };
+  static objectOrEmpty(value) {
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  };
+  static modelArray(value, Model) {
+    return Array.isArray(value) ?
+      value.map(item => item instanceof Model ? item : Model.fromJSON(item)) : [];
+  };
+  static stringArray(value) {
+    return Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+  };
   static fromJSON(json) {
     const instance = new Words();
     instance.#fromJSON(json);
@@ -15,7 +21,7 @@ export class Words {
   #index;
   #rebuildIndex() {
     this.#index = this.#collection.reduce((index, word, id) => {
-      const key = word ? normalizeWord(word.Word) : '';
+      const key = word ? Words.normalizeWord(word.Word) : '';
       if (key) {
         index[key] = id;
       }
@@ -60,13 +66,13 @@ export class Words {
     return Number.isSafeInteger(wordID) && wordID >= 0 ? this.#collection[wordID] || undefined : undefined;
   };
   getWordByWord(word) {
-    return this.getWordByID(this.#index[normalizeWord(word)]);
+    return this.getWordByID(this.#index[Words.normalizeWord(word)]);
   };
   addWord(word) {
     if (!(word instanceof Word)) {
       throw new TypeError('word must be a Word instance');
     }
-    if (!normalizeWord(word.Word)) {
+    if (!Words.normalizeWord(word.Word)) {
       throw new TypeError('word must have a word value');
     }
     const newID = this.#collection.length;
@@ -188,7 +194,7 @@ export class Word {
 
 export class DictionaryWordEntry {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryWordEntry({
       word: value.word,
       entries: value.entries,
@@ -204,7 +210,7 @@ export class DictionaryWordEntry {
     source = null
   } = {}) {
     this.#word = typeof word === 'string' ? word : '';
-    this.#entries = modelArray(entries, DictionaryEntry);
+    this.#entries = Words.modelArray(entries, DictionaryEntry);
     this.#source = source ? DictionarySource.fromJSON(source) : null;
   };
   toJSON() {
@@ -227,7 +233,7 @@ export class DictionaryWordEntry {
 
 export class DictionaryEntry {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryEntry({
       language: value.language,
       partOfSpeech: value.partOfSpeech,
@@ -256,11 +262,11 @@ export class DictionaryEntry {
   } = {}) {
     this.#language = language ? DictionaryLanguage.fromJSON(language) : null;
     this.#partOfSpeech = typeof partOfSpeech === 'string' ? partOfSpeech : '';
-    this.#pronunciations = modelArray(pronunciations, DictionaryPronunciation);
-    this.#forms = modelArray(forms, DictionaryForm);
-    this.#senses = modelArray(senses, DictionarySense);
-    this.#synonyms = stringArray(synonyms);
-    this.#antonyms = stringArray(antonyms);
+    this.#pronunciations = Words.modelArray(pronunciations, DictionaryPronunciation);
+    this.#forms = Words.modelArray(forms, DictionaryForm);
+    this.#senses = Words.modelArray(senses, DictionarySense);
+    this.#synonyms = Words.stringArray(synonyms);
+    this.#antonyms = Words.stringArray(antonyms);
   };
   toJSON() {
     return {
@@ -298,7 +304,7 @@ export class DictionaryEntry {
 
 export class DictionaryLanguage {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryLanguage(value);
   };
   #code;
@@ -326,7 +332,7 @@ export class DictionaryLanguage {
 
 export class DictionaryPronunciation {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryPronunciation(value);
   };
   #type;
@@ -339,7 +345,7 @@ export class DictionaryPronunciation {
   } = {}) {
     this.#type = typeof type === 'string' ? type : '';
     this.#text = typeof text === 'string' ? text : '';
-    this.#tags = stringArray(tags);
+    this.#tags = Words.stringArray(tags);
   };
   toJSON() {
     return {
@@ -361,7 +367,7 @@ export class DictionaryPronunciation {
 
 export class DictionaryForm {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryForm(value);
   };
   #word;
@@ -371,7 +377,7 @@ export class DictionaryForm {
     tags = []
   } = {}) {
     this.#word = typeof word === 'string' ? word : '';
-    this.#tags = stringArray(tags);
+    this.#tags = Words.stringArray(tags);
   };
   toJSON() {
     return {
@@ -389,7 +395,7 @@ export class DictionaryForm {
 
 export class DictionarySense {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionarySense(value);
   };
   #definition;
@@ -411,13 +417,13 @@ export class DictionarySense {
     subsenses = []
   } = {}) {
     this.#definition = typeof definition === 'string' ? definition : '';
-    this.#tags = stringArray(tags);
-    this.#examples = stringArray(examples);
-    this.#quotes = modelArray(quotes, DictionaryQuote);
-    this.#synonyms = stringArray(synonyms);
-    this.#antonyms = stringArray(antonyms);
-    this.#translations = modelArray(translations, DictionaryTranslation);
-    this.#subsenses = modelArray(subsenses, DictionarySense);
+    this.#tags = Words.stringArray(tags);
+    this.#examples = Words.stringArray(examples);
+    this.#quotes = Words.modelArray(quotes, DictionaryQuote);
+    this.#synonyms = Words.stringArray(synonyms);
+    this.#antonyms = Words.stringArray(antonyms);
+    this.#translations = Words.modelArray(translations, DictionaryTranslation);
+    this.#subsenses = Words.modelArray(subsenses, DictionarySense);
   };
   toJSON() {
     return {
@@ -459,7 +465,7 @@ export class DictionarySense {
 
 export class DictionaryQuote {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryQuote(value);
   };
   #text;
@@ -487,7 +493,7 @@ export class DictionaryQuote {
 
 export class DictionaryTranslation {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryTranslation(value);
   };
   #language;
@@ -515,7 +521,7 @@ export class DictionaryTranslation {
 
 export class DictionarySource {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionarySource(value);
   };
   #url;
@@ -543,7 +549,7 @@ export class DictionarySource {
 
 export class DictionaryLicense {
   static fromJSON(json) {
-    const value = objectOrEmpty(json);
+    const value = Words.objectOrEmpty(json);
     return new DictionaryLicense(value);
   };
   #name;

@@ -4,6 +4,16 @@ export class Meals {
     instance.#fromJSON(json);
     return instance;
   };
+  static createDefault(mealTypes) {
+    const meals = new Meals();
+    mealTypes.forEach(([id, name]) => {
+      meals.addMeal(new Meal({
+        id,
+        name
+      }));
+    });
+    return meals;
+  };
   #collection;
   #index;
   #rebuildIndex() {

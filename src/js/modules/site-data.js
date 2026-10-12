@@ -13,6 +13,7 @@ import {
   Words
 } from './words.js'
 import {
+  Week,
   Weeks
 } from './days.js'
 import {
@@ -28,13 +29,6 @@ import {
   QuantifiedIngredient,
   QuantifiedIngredients
 } from './ingredients.js'
-import {
-  createApiConfiguration,
-  getWeekForParameter,
-  getWeekOffset,
-  parseDate,
-  toMondayDate
-} from '../utils.js'
 
 const inventoryZeroTolerance = 1e-9;
 
@@ -424,7 +418,7 @@ export class SiteData {
   #wordResolutionRequested;
   #wordLookupTasks;
   constructor() {
-    this.#apiConfiguration = createApiConfiguration(
+    this.#apiConfiguration = APIRequestQueue.createConfiguration(
       SiteData.apiConfigurationDefaults,
       SiteData.supportedRateLimitIntervals
     );
@@ -574,9 +568,9 @@ export class SiteData {
       throw new RangeError('Recipe suggestion limits must be valid positive integers');
     }
 
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const weekStartDate = week.weekStartDate;
-    const weekOffset = getWeekOffset(weekStartDate);
+    const weekOffset = Week.getOffset(weekStartDate);
     const minOffset = SiteData.weekNamedOffsets.min.offset;
     const maxOffset = SiteData.weekNamedOffsets.max.offset;
     if (
@@ -631,7 +625,7 @@ export class SiteData {
     if (!Number.isSafeInteger(expectedServings) || expectedServings <= 0) {
       throw new RangeError('Expected meal servings must be a positive whole number');
     }
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
     if (dayIndex < 0) {
       throw new TypeError('Choose a valid day and meal');
@@ -681,7 +675,7 @@ export class SiteData {
     };
   };
   #getEditableMeal(weekParameter, dayID, mealID) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
     if (dayIndex < 0) {
       throw new TypeError('Choose a valid day and meal');
@@ -711,13 +705,13 @@ export class SiteData {
     if (typeof dateValue !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
       throw new TypeError('Choose a valid date');
     }
-    const date = parseDate(dateValue);
+    const date = Week.parseDate(dateValue);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (!allowPast && date < today) {
       throw new RangeError('Plans can only be copied to today or a future day');
     }
-    const week = this.#weeks.getOrCreateWeek(toMondayDate(date));
+    const week = this.#weeks.getOrCreateWeek(Week.toMondayDate(date));
     const dayID = SiteData.weekDays[(date.getDay() + 6) % 7][0];
     const day = week.days.getDayByID(dayID);
     if (!day) {
@@ -859,7 +853,7 @@ export class SiteData {
     return ingredient;
   };
   addMealToDay(weekParameter, dayID, name) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
     if (dayIndex < 0) {
       throw new TypeError('Choose a valid day');
@@ -1326,7 +1320,7 @@ export class SiteData {
     };
   };
   getMealExecutionCheck(weekParameter, dayID, mealID) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const day = week.days.getDayByID(dayID);
     const meal = day?.meals.getMealByID(mealID);
     if (!meal) {
@@ -1392,7 +1386,7 @@ export class SiteData {
     };
   };
   getDayStatus(weekParameter, dayID) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const day = week.days.getDayByID(dayID);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
     if (!day || dayIndex < 0) {
@@ -1428,7 +1422,7 @@ export class SiteData {
     return needsInventory ? 'inventory needed' : 'ready';
   };
   getPlannedIngredientShortages(weekParameter) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const requirements = new Map();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -1627,7 +1621,7 @@ export class SiteData {
     this.#saveWeeks();
   };
   clearDayRecipes(weekParameter, dayID) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
     if (dayIndex < 0) {
       throw new TypeError('Choose a valid day');
@@ -1651,7 +1645,7 @@ export class SiteData {
     this.#saveWeeks();
   };
   copyMealPlanToDate(weekParameter, sourceDayID, sourceMealID, destinationDate, destinationMealID = sourceMealID) {
-    const sourceWeek = getWeekForParameter(weekParameter, this);
+    const sourceWeek = this.getWeekForParameter(weekParameter);
     const sourceDay = sourceWeek.days.getDayByID(sourceDayID);
     const sourceMeal = sourceDay?.meals.getMealByID(sourceMealID);
     if (!sourceDay || !sourceMeal) {
@@ -1686,7 +1680,7 @@ export class SiteData {
     const sourceDate = new Date(`${sourceWeek.weekStartDate}T00:00:00`);
     sourceDate.setDate(sourceDate.getDate() + SiteData.weekDays.findIndex(([id]) => id === sourceDayID));
     if (
-      sourceDate.toDateString() === parseDate(destinationDate).toDateString() &&
+      sourceDate.toDateString() === Week.parseDate(destinationDate).toDateString() &&
       sourceMealID === destinationMealID
     ) {
       throw new Error('Choose a different destination meal');
@@ -1700,7 +1694,7 @@ export class SiteData {
     };
   };
   copyDayPlanToDate(weekParameter, sourceDayID, destinationDate) {
-    const sourceWeek = getWeekForParameter(weekParameter, this);
+    const sourceWeek = this.getWeekForParameter(weekParameter);
     const sourceDay = sourceWeek.days.getDayByID(sourceDayID);
     if (!sourceDay) {
       throw new Error('The source day is unavailable');
@@ -1712,7 +1706,7 @@ export class SiteData {
     const destination = this.#getDayForDate(destinationDate);
     const sourceDate = new Date(`${sourceWeek.weekStartDate}T00:00:00`);
     sourceDate.setDate(sourceDate.getDate() + SiteData.weekDays.findIndex(([id]) => id === sourceDayID));
-    if (sourceDate.toDateString() === parseDate(destinationDate).toDateString()) {
+    if (sourceDate.toDateString() === Week.parseDate(destinationDate).toDateString()) {
       throw new Error('Choose a different destination day');
     }
     this.#replaceDayContents(sourceDay, destination.day);
@@ -1725,7 +1719,7 @@ export class SiteData {
       throw new TypeError('Select at least one destination date');
     }
     const uniqueDates = [...new Set(destinationDates)];
-    const sourceWeek = getWeekForParameter(weekParameter, this);
+    const sourceWeek = this.getWeekForParameter(weekParameter);
     if (!Object.values(sourceWeek.days.toJSON().collection).some(day =>
         Object.values(day.meals.toJSON().collection).some(meal => meal.recipeIDs.length)
       )) {
@@ -1733,7 +1727,7 @@ export class SiteData {
     }
     const destinations = uniqueDates.map(dateValue => {
       const destination = this.#getDayForDate(dateValue);
-      const dayIndex = (parseDate(dateValue).getDay() + 6) % 7;
+      const dayIndex = (Week.parseDate(dateValue).getDay() + 6) % 7;
       const sourceDayID = SiteData.weekDays[dayIndex][0];
       const sourceDay = sourceWeek.days.getDayByID(sourceDayID);
       if (!sourceDay) {
@@ -1785,7 +1779,7 @@ export class SiteData {
       throw new TypeError('Choose a valid destination meal');
     }
     if (
-      toMondayDate(parseDate(sourceDate)) === destinationWeek.weekStartDate &&
+      Week.toMondayDate(Week.parseDate(sourceDate)) === destinationWeek.weekStartDate &&
       destinationDayID === source.dayID &&
       destinationMealID === sourceMealID
     ) {
@@ -1800,7 +1794,7 @@ export class SiteData {
     };
   };
   copyDayPlanFromDate(weekParameter, destinationDayID, sourceDate) {
-    const destinationWeek = getWeekForParameter(weekParameter, this);
+    const destinationWeek = this.getWeekForParameter(weekParameter);
     const destinationIndex = SiteData.weekDays.findIndex(([id]) => id === destinationDayID);
     if (destinationIndex < 0) {
       throw new TypeError('Choose a valid destination day');
@@ -1830,8 +1824,8 @@ export class SiteData {
     return destinationDay.Name;
   };
   copyWeekPlanFromDate(weekParameter, sourceDate) {
-    const destinationWeek = getWeekForParameter(weekParameter, this);
-    const sourceWeek = this.#weeks.getWeekByID(toMondayDate(parseDate(sourceDate)));
+    const destinationWeek = this.getWeekForParameter(weekParameter);
+    const sourceWeek = this.#weeks.getWeekByID(Week.toMondayDate(Week.parseDate(sourceDate)));
     if (!sourceWeek) {
       throw new Error('The selected source week is unavailable');
     }
@@ -1912,7 +1906,7 @@ export class SiteData {
     if (dayIndex < 0) {
       throw new TypeError('Choose a valid day');
     }
-    const day = getWeekForParameter(weekParameter, this).days.getDayByID(dayID);
+    const day = this.getWeekForParameter(weekParameter).days.getDayByID(dayID);
     if (!day) {
       throw new Error('The selected day is unavailable');
     }
@@ -1939,7 +1933,7 @@ export class SiteData {
     };
   };
   generateWeekPlan(weekParameter) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     let days = 0;
     let meals = 0;
     let unfilled = 0;
@@ -2029,7 +2023,7 @@ export class SiteData {
     }
     let source;
     if (copy) {
-      const sourceWeek = getWeekForParameter(weekParameter, this);
+      const sourceWeek = this.getWeekForParameter(weekParameter);
       const sourceDayIndex = SiteData.weekDays.findIndex(([id]) => id === sourceDayID);
       if (sourceDayIndex < 0 || this.#isDatePast(sourceWeek.weekStartDate, sourceDayIndex)) {
         throw new RangeError('Past days are read-only');
@@ -2199,7 +2193,7 @@ export class SiteData {
     };
   };
   async dismissSuggestedRecipe(weekParameter, recipeID) {
-    const week = getWeekForParameter(weekParameter, this);
+    const week = this.getWeekForParameter(weekParameter);
     const suggestions = this.#weekRecipeSuggestions[week.weekStartDate];
     const dismissedRecipeID = String(recipeID);
     const usedRecipeIDs = this.#getWeekRecipeIDs(week);
@@ -2475,6 +2469,12 @@ export class SiteData {
     await this.importMealDBRecipes(response);
     this.#storage.objectWrite('recipes', this.#recipes, false);
     return this.#recipes.getRecipeByID(String(id));
+  };
+  getWeekForParameter(weekParameter) {
+    const namedOffset = Object.values(SiteData.weekNamedOffsets)
+      .find(item => item.param === weekParameter);
+    const offset = namedOffset ? namedOffset.offset : Number.parseInt(weekParameter, 10);
+    return this.getWeekByOffset(Number.isNaN(offset) ? 0 : offset);
   };
   getWeekByOffset(offset) {
     const week = this.#weeks.getWeekByOffset(offset);

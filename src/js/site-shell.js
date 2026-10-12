@@ -1,8 +1,9 @@
 import {
-  loadPartial,
-  getQueryParam,
-  persistQueryParameter
+  loadPartial
 } from './utils.js';
+import {
+  QueryParams
+} from './modules/query-params.js';
 import {
   SiteData,
   siteData
@@ -16,11 +17,11 @@ export function updateHeaderWeekParameters(newWeekValue) {
   if (!header) return;
   const brandAnchor = header.querySelector('a.site-brand');
   if (brandAnchor) {
-    brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', newWeekValue);
+    brandAnchor.href = QueryParams.persist(brandAnchor.href, 'week', newWeekValue);
   }
   const menuLinks = header.querySelectorAll('.site-nav-link');
   menuLinks.forEach((anchor) => {
-    anchor.href = persistQueryParameter(anchor.href, 'week', newWeekValue);
+    anchor.href = QueryParams.persist(anchor.href, 'week', newWeekValue);
   });
 }
 export async function loadSiteShell(activePage) {
@@ -37,14 +38,14 @@ export async function loadSiteShell(activePage) {
   const openIcon = menuToggle.querySelector('[data-menu-open-icon]');
   const closeIcon = menuToggle.querySelector('[data-menu-close-icon]');
   const parms = {};
-  parms.week = getQueryParam('week', 'current');
-  brandAnchor.href = persistQueryParameter(brandAnchor.href, 'week', parms.week);
+  parms.week = QueryParams.get('week', 'current');
+  brandAnchor.href = QueryParams.persist(brandAnchor.href, 'week', parms.week);
   const menuList = document.querySelector(menuListClass);
   const menuItemTemplate = document.getElementById(menuItemTemplateId);
   SiteData.shellMenuItems.forEach(item => {
     const clone = menuItemTemplate.content.cloneNode(true);
     const anchor = clone.querySelector('a');
-    anchor.href = persistQueryParameter(item.href, 'week', parms.week);
+    anchor.href = QueryParams.persist(item.href, 'week', parms.week);
     anchor.dataset.navPage = item.dataNavPage;
     anchor.textContent = item.display;
     anchor.className = item.class;

@@ -11,8 +11,8 @@ import {
   SearchPage
 } from './search.js'
 import {
-  persistQueryParameter
-} from '../utils.js';
+  QueryParams
+} from './query-params.js';
 export class HomePage {
   static homePageMainId = 'app';
   static homePageTemplateId = 'home-page-template';
@@ -40,7 +40,7 @@ export class HomePage {
   async render() {
     const homePageContent = this.#homePageTemplate.content.cloneNode(true);
     this.#homePagePrimaryActionContainer = homePageContent.querySelector(HomePage.primaryActionClass);
-    this.#homePagePrimaryActionContainer.href = persistQueryParameter(this.#homePagePrimaryActionContainer.href, 'week', this.#weekParameter);
+    this.#homePagePrimaryActionContainer.href = QueryParams.persist(this.#homePagePrimaryActionContainer.href, 'week', this.#weekParameter);
     this.#homePageDashboardContainer = homePageContent.querySelector(HomePage.homePageDashBoardClass);
     this.#mealPlanPage.mountDashboard(this.#homePageDashboardContainer, this.#weekParameter);
     this.#inventoryPage.mountDashboards(this.#homePageDashboardContainer, this.#weekParameter);

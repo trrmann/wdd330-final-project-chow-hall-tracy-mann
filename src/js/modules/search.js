@@ -1,13 +1,13 @@
 import {
-  persistQueryParameter
-} from '../utils.js';
+  QueryParams
+} from './query-params.js';
 import {
   SiteData,
   siteData
 } from './site-data.js'
 import {
-  appendRecipeOriginFlag
-} from '../recipe-origin.js'
+  RecipePage
+} from './recipe.js'
 
 export class SearchPage {
 
@@ -89,7 +89,7 @@ export class SearchPage {
         item.className = 'recipe-search-result';
         const name = document.createElement('span');
         name.textContent = recipe.Name;
-        appendRecipeOriginFlag(name, recipe).catch(error => {
+        RecipePage.appendOriginFlag(name, recipe).catch(error => {
           console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
         });
         const selectLink = document.createElement('a');
@@ -287,7 +287,7 @@ export class SearchPage {
     const recipeNameLink = this.#searchPageContainer.querySelector(SearchPage.recipeAssignmentNameClass);
     if (recipe) {
       recipeNameLink.textContent = recipe.Name;
-      appendRecipeOriginFlag(recipeNameLink, recipe).catch(error => {
+      RecipePage.appendOriginFlag(recipeNameLink, recipe).catch(error => {
         console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
       });
     } else {
@@ -583,8 +583,8 @@ export class SearchPage {
     suggestedRecipes.forEach((suggestion) => {
       const clone = this.#recipeSuggestionTemplate.content.cloneNode(true);
       const recipeLink = clone.querySelector(SearchPage.recipeSuggestionClass);
-      const recipeURL = new URL(persistQueryParameter(
-        persistQueryParameter(recipeLink.href, 'week', weekParameter),
+      const recipeURL = new URL(QueryParams.persist(
+        QueryParams.persist(recipeLink.href, 'week', weekParameter),
         'recipe',
         suggestion.recipe.ID
       ), window.location.origin);
@@ -592,14 +592,14 @@ export class SearchPage {
       returnURL.searchParams.set('week', weekParameter);
       recipeURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
       recipeLink.textContent = suggestion.recipe.Name;
-      appendRecipeOriginFlag(recipeLink, suggestion.recipe, `${returnURL.pathname}${returnURL.search}`)
+      RecipePage.appendOriginFlag(recipeLink, suggestion.recipe, `${returnURL.pathname}${returnURL.search}`)
         .catch(error => {
           console.error(`Could not load the origin flag for "${suggestion.recipe.Name}":`, error);
         });
       recipeLink.href = `${recipeURL.pathname}${recipeURL.search}`;
       const deployLink = clone.querySelector('.recipe-suggestion-deploy');
-      const deployURL = new URL(persistQueryParameter(
-        persistQueryParameter(deployLink.href, 'week', weekParameter),
+      const deployURL = new URL(QueryParams.persist(
+        QueryParams.persist(deployLink.href, 'week', weekParameter),
         'recipe',
         suggestion.recipe.ID
       ), window.location.origin);

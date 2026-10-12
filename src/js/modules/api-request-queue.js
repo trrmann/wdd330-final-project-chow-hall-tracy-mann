@@ -2,10 +2,99 @@ import {
   Storage
 } from './storage.js'
 
+const viteEnvironment = import.meta.env || {};
+
 export class APIRequestQueue {
   static configuration = {
     priorities: {},
     providers: {}
+  }
+
+  static #getProviderRateLimits(environmentVariable, defaultLimits, supportedIntervals) {
+    const configuredLimits = viteEnvironment[environmentVariable];
+    if (typeof configuredLimits !== 'string' || !configuredLimits.trim()) {
+      return defaultLimits.map(limit => ({
+        ...limit
+      }));
+    }
+
+    let limits;
+    try {
+      limits = JSON.parse(configuredLimits);
+    } catch (error) {
+      throw new Error(`${environmentVariable} must contain a JSON array of rate-limit rules`, {
+        cause: error
+      });
+    }
+
+    if (!Array.isArray(limits) || !limits.length || limits.some(limit =>
+        !limit ||
+        typeof limit !== 'object' ||
+        !Number.isSafeInteger(limit.requests) ||
+        limit.requests < 1 ||
+        !supportedIntervals.includes(limit.interval)
+      )) {
+      throw new TypeError(`${environmentVariable} must contain a JSON array of valid rate-limit rules`);
+    }
+
+    return limits.map(({
+      requests,
+      interval
+    }) => ({
+      requests,
+      interval
+    }));
+  }
+
+  static #getProviderBaseURL(environmentVariable, defaultBaseURL) {
+    const configuredBaseURL = viteEnvironment[environmentVariable];
+    const baseURL = typeof configuredBaseURL === 'string' && configuredBaseURL.trim() ?
+      configuredBaseURL.trim() :
+      defaultBaseURL;
+    let parsedURL;
+
+    try {
+      parsedURL = new URL(baseURL);
+    } catch (error) {
+      throw new Error(`${environmentVariable} must be an absolute HTTP or HTTPS URL`, {
+        cause: error
+      });
+    }
+
+    if (!['http:', 'https:'].includes(parsedURL.protocol)) {
+      throw new TypeError(`${environmentVariable} must be an absolute HTTP or HTTPS URL`);
+    }
+
+    return `${baseURL.replace(/\/+$/, '')}/`;
+  }
+
+  static createConfiguration(configurationDefaults, supportedIntervals) {
+    return {
+      intervalMilliseconds: {
+        ...configurationDefaults.intervalMilliseconds
+      },
+      priorities: {
+        ...configurationDefaults.priorities
+      },
+      providers: Object.fromEntries(
+        Object.entries(configurationDefaults.providers).map(([provider, defaults]) => [
+          provider,
+          {
+            priority: defaults.priority,
+            requestLimit: APIRequestQueue.#getProviderRateLimits(
+              defaults.rateLimitEnvironmentVariable,
+              defaults.defaultRateLimits,
+              supportedIntervals
+            ),
+            baseURL: APIRequestQueue.#getProviderBaseURL(
+              defaults.baseURLEnvironmentVariable,
+              defaults.defaultBaseURL
+            ),
+            usageStorageKey: defaults.usageStorageKey
+          }
+        ])
+      )
+    };
   }
 
   static configure(configuration) {

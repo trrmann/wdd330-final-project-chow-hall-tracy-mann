@@ -1,6 +1,6 @@
 import {
-  persistQueryParameter
-} from '../utils.js';
+  QueryParams
+} from './query-params.js';
 import {
   siteData
 } from './site-data.js'
@@ -199,7 +199,7 @@ export class InventoryPage {
     this.#inventoryStatusDashBoardTemplate = document.getElementById(InventoryPage.inventoryStatusDashBoardTemplateId);
     const inventoryStatusDashBoardClone = this.#inventoryStatusDashBoardTemplate.content.cloneNode(true);
     const inventoryStatusPanelLink = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryDashBoardPanelLinkClass);
-    inventoryStatusPanelLink.href = persistQueryParameter(inventoryStatusPanelLink.href, 'week', weekParameter);
+    inventoryStatusPanelLink.href = QueryParams.persist(inventoryStatusPanelLink.href, 'week', weekParameter);
     const targetContainer = inventoryStatusDashBoardClone.querySelector(InventoryPage.inventoryItemsClass);
     const inventoryItemTemplate = document.getElementById(InventoryPage.inventoryItemTemplateId);
     const ingredients = Object.values(siteData.inventory.toJSON().collection);

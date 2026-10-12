@@ -1,15 +1,6 @@
 import {
-  Meal,
   Meals
 } from './meals'
-import {
-  addWeeks,
-  createDefaultMeals,
-  ensureWeekDays,
-  getWeekName,
-  parseDate,
-  toMondayDate
-} from '../utils.js'
 
 export class Days {
   static #configuration;
@@ -65,6 +56,17 @@ export class Days {
   };
   getDayByName(name) {
     return this.#collection[this.#index[name]];
+  };
+  ensureWeekDays(weekDays) {
+    weekDays.forEach(([id, name]) => {
+      if (!this.getDayByID(id) && !this.getDayByName(name)) {
+        this.addDay(new Day({
+          id,
+          name
+        }));
+      }
+    });
+    return this;
   };
   addDay(day) {
     if (!(day instanceof Day)) {
@@ -134,7 +136,7 @@ export class Day {
       this.#meals = json.meals instanceof Meals ?
         json.meals :
         json.meals === undefined ?
-        createDefaultMeals(Meal, Meals, Days.configuration.mealTypes) :
+        Meals.createDefault(Days.configuration.mealTypes) :
         Meals.fromJSON(json.meals);
     }
   };
@@ -148,7 +150,7 @@ export class Day {
     this.#Name = name;
     this.#Status = status;
     this.#meals = meals === null ?
-      createDefaultMeals(Meal, Meals, Days.configuration.mealTypes) :
+      Meals.createDefault(Days.configuration.mealTypes) :
       meals instanceof Meals ?
       meals :
       Meals.fromJSON(meals);
@@ -191,6 +193,38 @@ export class Week {
     instance.#fromJSON(json);
     return instance;
   };
+  static toMondayDate(date = new Date()) {
+    const monday = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const distanceFromMonday = (monday.getUTCDay() + 6) % 7;
+    monday.setUTCDate(monday.getUTCDate() - distanceFromMonday);
+    return monday.toISOString().slice(0, 10);
+  };
+  static addWeeks(date, offset) {
+    const [year, month, day] = date.split('-').map(Number);
+    const monday = new Date(Date.UTC(year, month - 1, day));
+    monday.setUTCDate(monday.getUTCDate() + offset * 7);
+    return monday.toISOString().slice(0, 10);
+  };
+  static parseDate(date) {
+    const [year, month, day] = date.split('-').map(Number);
+    const parsed = new Date(year, month - 1, day);
+    if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
+      throw new TypeError('weekStartDate must be a valid date in YYYY-MM-DD format');
+    }
+    return parsed;
+  };
+  static getOffset(weekStartDate, referenceDate = Week.toMondayDate()) {
+    return Math.round((Date.parse(`${weekStartDate}T00:00:00.000Z`) -
+      Date.parse(`${referenceDate}T00:00:00.000Z`)) / 604800000);
+  };
+  static getName(weekStartDate, weekAliasOffsets) {
+    const offset = Week.getOffset(weekStartDate);
+    const namedOffset = Object.entries(weekAliasOffsets).find(([, value]) => value === offset);
+    if (namedOffset) {
+      return namedOffset[0];
+    }
+    return offset < 0 ? `week ${offset}` : `week +${offset}`;
+  };
   #ID;
   #weekStartDate;
   #days;
@@ -203,25 +237,25 @@ export class Week {
   };
   #fromJSON(json) {
     if (json && json.weekStartDate) {
-      this.#weekStartDate = toMondayDate(parseDate(json.weekStartDate));
+      this.#weekStartDate = Week.toMondayDate(Week.parseDate(json.weekStartDate));
       this.#ID = this.#weekStartDate;
       this.#days = json.days instanceof Days ?
         json.days :
         Days.fromJSON(json.days || {});
-      ensureWeekDays(this.#days, Day, Days.configuration.weekDays);
+      this.#days.ensureWeekDays(Days.configuration.weekDays);
     }
   };
   constructor({
-    weekStartDate = toMondayDate(),
+    weekStartDate = Week.toMondayDate(),
     days = new Days()
   } = {}) {
     if (typeof weekStartDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(weekStartDate)) {
       throw new TypeError('weekStartDate must be a valid date in YYYY-MM-DD format');
     }
-    this.#weekStartDate = toMondayDate(parseDate(weekStartDate));
+    this.#weekStartDate = Week.toMondayDate(Week.parseDate(weekStartDate));
     this.#ID = this.#weekStartDate;
     this.#days = days instanceof Days ? days : Days.fromJSON(days);
-    ensureWeekDays(this.#days, Day, Days.configuration.weekDays);
+    this.#days.ensureWeekDays(Days.configuration.weekDays);
   };
   toJSON() {
     return this.#toJSON();
@@ -230,13 +264,16 @@ export class Week {
     return this.#ID;
   };
   get Name() {
-    return getWeekName(this.#weekStartDate, Days.configuration.weekAliasOffsets);
+    return Week.getName(this.#weekStartDate, Days.configuration.weekAliasOffsets);
   };
   get weekStartDate() {
     return this.#weekStartDate;
   };
   get days() {
     return this.#days;
+  };
+  getDayList() {
+    return Object.values(this.#days.toJSON().collection);
   };
   addDay(day) {
     return this.#days.addDay(day);
@@ -301,11 +338,11 @@ export class Weeks {
     this.#rebuildIndex();
     return this.#collection[this.#index[String(name).toLocaleLowerCase()]];
   };
-  getWeekByOffset(offset, referenceDate = toMondayDate()) {
-    return this.getOrCreateWeek(addWeeks(referenceDate, offset));
+  getWeekByOffset(offset, referenceDate = Week.toMondayDate()) {
+    return this.getOrCreateWeek(Week.addWeeks(referenceDate, offset));
   };
   getOrCreateWeek(weekStartDate) {
-    const monday = toMondayDate(parseDate(weekStartDate));
+    const monday = Week.toMondayDate(Week.parseDate(weekStartDate));
     if (!this.#collection[monday]) {
       this.addWeek(new Week({
         weekStartDate: monday
@@ -337,6 +374,6 @@ export class Weeks {
     this.#index = {};
   };
   static getMondayDate(date = new Date()) {
-    return toMondayDate(date);
+    return Week.toMondayDate(date);
   };
 };

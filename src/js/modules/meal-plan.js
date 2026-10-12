@@ -1,8 +1,6 @@
 import {
-  getWeekDays,
-  getWeekForParameter,
-  persistQueryParameter
-} from '../utils.js';
+  QueryParams
+} from './query-params.js';
 import {
   updateHeaderWeekParameters
 } from '../site-shell.js';
@@ -11,8 +9,8 @@ import {
   siteData
 } from './site-data.js'
 import {
-  appendRecipeOriginFlag
-} from '../recipe-origin.js'
+  RecipePage
+} from './recipe.js'
 
 export class MealPlanPage {
   static mealPlanPageMainId = 'app';
@@ -79,7 +77,7 @@ export class MealPlanPage {
     this.#weekOffset = 0;
     this.#parseInitialWeekOffset();
     const requestedDay = new URLSearchParams(window.location.search).get('day');
-    const weekDayIDs = getWeekDays(getWeekForParameter(this.#weekParameter, siteData))
+    const weekDayIDs = siteData.getWeekForParameter(this.#weekParameter).getDayList()
       .map(day => day.ID);
     this.#selectedDay = requestedDay || (
       this.#weekOffset === 0 ?
@@ -99,8 +97,8 @@ export class MealPlanPage {
     setInterval(() => this.#refreshDayStatuses(), 60000);
   }
   #refreshDayStatuses() {
-    const week = getWeekForParameter(this.#weekParameter, siteData);
-    const days = getWeekDays(week);
+    const week = siteData.getWeekForParameter(this.#weekParameter);
+    const days = week.getDayList();
     const statuses = new Map(days.map(day => [day.ID, siteData.getDayStatus(this.#weekParameter, day.ID)]));
     const container = this.#mealPlanPageContainer;
     container.querySelectorAll(`${MealPlanPage.folderTabClass}[data-day]`).forEach(tab => {
@@ -142,8 +140,8 @@ export class MealPlanPage {
     const pageContentClone = this.#mealPlanPageTemplate.content.cloneNode(true);
     this.#renderWeekNavigationData(pageContentClone);
     const tabsContainer = pageContentClone.querySelector(MealPlanPage.folderTabsContainerClass);
-    const activeWeek = getWeekForParameter(this.#weekParameter, siteData);
-    getWeekDays(activeWeek).forEach((day, dayIndex) => {
+    const activeWeek = siteData.getWeekForParameter(this.#weekParameter);
+    activeWeek.getDayList().forEach((day, dayIndex) => {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
       const isPastDay = this.#isPastDay(activeWeek.weekStartDate, dayIndex);
@@ -264,7 +262,7 @@ export class MealPlanPage {
     const dateList = controls.querySelector('.week-copy-date-list');
     const applyButton = controls.querySelector('.week-copy-apply');
     const message = controls.querySelector('.week-copy-message');
-    const week = getWeekForParameter(this.#weekParameter, siteData);
+    const week = siteData.getWeekForParameter(this.#weekParameter);
     const hasRecipes = Object.values(week.days.toJSON().collection).some(day =>
       Object.values(day.meals.toJSON().collection).some(meal => meal.recipeIDs.length)
     );
@@ -533,7 +531,7 @@ export class MealPlanPage {
     const pastDayEmptyNote = panel.querySelector(MealPlanPage.pastDayEmptyNoteClass);
     this.#dailyMealsListContainer = rootContainer.querySelector(MealPlanPage.dailyMealsListClass);
     this.#dailyMealsListContainer.innerHTML = '';
-    const activeWeek = getWeekForParameter(weekParameter, siteData);
+    const activeWeek = siteData.getWeekForParameter(weekParameter);
     const activeDay = activeWeek.days.getDayByID(day);
     const dayIndex = SiteData.weekDays.findIndex(([dayID]) => dayID === day);
     const isPastDate = dayIndex >= 0 && this.#isPastDay(activeWeek.weekStartDate, dayIndex);
@@ -804,7 +802,7 @@ export class MealPlanPage {
           returnURL.searchParams.set('day', day);
           detailsURL.searchParams.set('returnTo', `${returnURL.pathname}${returnURL.search}`);
           recipeTitle.href = `${detailsURL.pathname}${detailsURL.search}`;
-          appendRecipeOriginFlag(recipeTitle, recipe, `${returnURL.pathname}${returnURL.search}`)
+          RecipePage.appendOriginFlag(recipeTitle, recipe, `${returnURL.pathname}${returnURL.search}`)
             .catch(error => {
               console.error(`Could not load the origin flag for "${recipe.Name}":`, error);
             });
@@ -824,7 +822,7 @@ export class MealPlanPage {
         servingsNeededInput.disabled = isPastDay || meal.isExecuted;
         recipeItem.querySelector('.meal-slot-recipe-remove').disabled = isPastDay;
         const destinationDay = recipeItem.querySelector('.recipe-destination-day');
-        const availableDays = getWeekDays(activeWeek).filter((weekDay, index) =>
+        const availableDays = activeWeek.getDayList().filter((weekDay, index) =>
           !this.#isPastDay(activeWeek.weekStartDate, index)
         );
         availableDays.forEach(weekDay => {
@@ -1181,21 +1179,21 @@ export class MealPlanPage {
       const offset = siteData.weekNamedOffsets[namedOffset];
       if (weekParameter === offset['param']) {
         weekKicker.textContent = siteData.weekNamedOffsets[namedOffset].dashboardDisplay;
-        weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets[namedOffset].nextDashboardKey);
+        weekKickerAnchor.href = QueryParams.persist(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets[namedOffset].nextDashboardKey);
         weekKickerAnchor.title = siteData.weekNamedOffsets[namedOffset].dashboardTitle;
         isWeekParameterNamedDashboardOffset = true;
       }
     });
     if (!isWeekParameterNamedDashboardOffset) {
       weekKicker.textContent = `Other Week`;
-      weekKickerAnchor.href = persistQueryParameter(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets.current.param);
+      weekKickerAnchor.href = QueryParams.persist(weekKickerAnchor.href, 'week', siteData.weekNamedOffsets.current.param);
       weekKickerAnchor.title = 'Click to change to the current week!';
     }
     const weekPanelLink = weekDashBoardClone.querySelector(MealPlanPage.mealPlanDashBoardPanelLinkClass);
-    weekPanelLink.href = persistQueryParameter(weekPanelLink.href, 'week', weekParameter);
+    weekPanelLink.href = QueryParams.persist(weekPanelLink.href, 'week', weekParameter);
     const targetContainer = weekDashBoardClone.querySelector(MealPlanPage.weekStripClass);
-    const selectedWeek = getWeekForParameter(weekParameter, siteData);
-    getWeekDays(selectedWeek).forEach(day => {
+    const selectedWeek = siteData.getWeekForParameter(weekParameter);
+    selectedWeek.getDayList().forEach(day => {
       const clone = this.#mealPlanDayTemplate.content.cloneNode(true);
       clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day.ID;
       const statusSpan = clone.querySelector(MealPlanPage.weekStripStatusClass);

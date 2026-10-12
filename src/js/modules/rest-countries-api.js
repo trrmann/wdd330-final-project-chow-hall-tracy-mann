@@ -1,7 +1,5 @@
 import {
-  fetchRequest,
-  getCountryMatchRank,
-  getCountryRecords
+  fetchRequest
 } from '../utils.js'
 import {
   Cache,
@@ -73,6 +71,68 @@ const data = await response.json();
 
 */
 export class RestCountries {
+  static normalizeCountryName(value) {
+    return String(value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  };
+  static getStrings(value) {
+    if (typeof value === 'string') {
+      return [value];
+    }
+    if (Array.isArray(value)) {
+      return value.flatMap(RestCountries.getStrings);
+    }
+    if (value && typeof value === 'object') {
+      return Object.values(value).flatMap(RestCountries.getStrings);
+    }
+    return [];
+  };
+  static getCountryRecords(response) {
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (!response || typeof response !== 'object') {
+      return [];
+    }
+    for (const key of ['data', 'objects', 'results', 'countries', 'result']) {
+      if (response[key] !== undefined) {
+        const records = RestCountries.getCountryRecords(response[key]);
+        if (records.length) {
+          return records;
+        }
+      }
+    }
+    return response.names || response.name || response.codes || response.cca3 ? [response] : [];
+  };
+  static getCountryMatchRank(country, searchName) {
+    const target = RestCountries.normalizeCountryName(searchName);
+    const primaryNames = [
+      country?.names?.common,
+      country?.names?.official,
+      country?.name?.common,
+      country?.name?.official
+    ];
+    if (primaryNames.some(name => typeof name === 'string' && RestCountries.normalizeCountryName(name) === target)) {
+      return 2;
+    }
+    const searchableNames = [
+      country?.names,
+      country?.name,
+      country?.demonyms,
+      country?.demonym,
+      country?.altSpellings,
+      country?.alt_spellings,
+      country?.nativeName,
+      country?.translations
+    ];
+    return searchableNames.some(names =>
+      RestCountries.getStrings(names).some(name => RestCountries.normalizeCountryName(name) === target)
+    ) ? 1 : 0;
+  };
   static get baseURL() {
     return APIRequestQueue.providers['rest-countries'].baseURL;
   }
@@ -201,11 +261,11 @@ export class RestCountries {
       return undefined;
     }
     const records = await this.search25CountriesWithNoOffsetByStringQuery(countryName, cache);
-    const countries = getCountryRecords(records);
+    const countries = RestCountries.getCountryRecords(records);
     const rankedMatches = countries
       .map(country => ({
         country,
-        rank: getCountryMatchRank(country, countryName)
+        rank: RestCountries.getCountryMatchRank(country, countryName)
       }))
       .filter(match => match.rank > 0)
       .sort((first, second) => second.rank - first.rank);
