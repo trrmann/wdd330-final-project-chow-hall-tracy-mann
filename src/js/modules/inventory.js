@@ -38,6 +38,8 @@ export class InventoryPage {
     const quantityInput = root.querySelector('.inventory-quantity');
     const unitInput = root.querySelector('.inventory-unit');
     const message = root.querySelector('.inventory-message');
+    const translateButton = root.querySelector('.inventory-translate');
+    let editingItem = null;
     const renderRows = () => {
       stockList.replaceChildren();
       const inventory = Object.values(siteData.inventory.toJSON().collection);
@@ -55,6 +57,8 @@ export class InventoryPage {
           nameInput.value = item.Name;
           quantityInput.value = Number.isFinite(item.Quantity) ? String(item.Quantity) : '';
           unitInput.value = item.Unit || '';
+          editingItem = item;
+          translateButton.hidden = true;
           nameInput.focus();
         });
         const remove = document.createElement('button');
@@ -70,37 +74,37 @@ export class InventoryPage {
             message.textContent = `Could not remove stock: ${error.message}`;
           }
         });
-        const targetUnit = document.createElement('input');
-        targetUnit.type = 'text';
-        targetUnit.className = 'inventory-translate-unit';
-        targetUnit.placeholder = 'New unit';
-        targetUnit.setAttribute('aria-label', `Translate ${item.Name} to unit`);
-        const translate = document.createElement('button');
-        translate.type = 'button';
-        translate.textContent = 'Translate';
-        translate.addEventListener('click', () => {
-          const unit = targetUnit.value.trim();
-          const fromUnit = item.Unit || item.Measure || '';
-          if (!unit) {
-            message.textContent = 'Enter the unit to translate to.';
-            return;
-          }
-          try {
-            const converted = siteData.translateIngredientQuantity(item.Name, item.Quantity, fromUnit, unit);
-            siteData.setInventoryItem(item.Name, converted, unit);
-            message.textContent = `${item.Name} translated to ${unit}.`;
-            renderRows();
-          } catch (error) {
-            message.textContent = `Could not translate: ${error.message} Add a translation below.`;
-            root.querySelector('.conversion-ingredient').value = item.Name;
-            root.querySelector('.conversion-from-unit').value = fromUnit;
-            root.querySelector('.conversion-to-unit').value = unit;
-          }
-        });
-        row.append(label, edit, targetUnit, translate, remove);
+        row.append(label, edit, remove);
         stockList.append(row);
       });
     };
+    translateButton.addEventListener('click', () => {
+      const item = editingItem;
+      const unit = unitInput.value.trim();
+      if (!item || !unit) {
+        message.textContent = 'Enter the unit to translate to.';
+        return;
+      }
+      const fromUnit = item.Unit || item.Measure || '';
+      try {
+        const converted = siteData.translateIngredientQuantity(item.Name, item.Quantity, fromUnit, unit);
+        quantityInput.value = String(Math.round(converted * 100) / 100);
+        message.textContent = `Translated to ${unit}. Save stock to apply.`;
+      } catch (error) {
+        message.textContent = `Could not translate: ${error.message} Add a translation below.`;
+        root.querySelector('.conversion-ingredient').value = item.Name;
+        root.querySelector('.conversion-from-unit').value = fromUnit;
+        root.querySelector('.conversion-to-unit').value = unit;
+      }
+    });
+    unitInput.addEventListener('input', () => {
+      const original = editingItem ? (editingItem.Unit || editingItem.Measure || '') : '';
+      translateButton.hidden = !editingItem || unitInput.value.trim() === original.trim();
+    });
+    form.addEventListener('reset', () => {
+      editingItem = null;
+      translateButton.hidden = true;
+    });
     form.addEventListener('submit', event => {
       event.preventDefault();
       try {
