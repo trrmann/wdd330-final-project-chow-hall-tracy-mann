@@ -60,12 +60,15 @@ export class RecipePage {
     this.#renderInstructions(instructions);
     const message = this.#page.querySelector('.recipe-detail-message');
     message.textContent = 'Looking up instruction definitions…';
+    message.classList.add('is-loading');
     siteData.resolveDictionaryWordsForRecipe(recipe, () => {
       this.#renderInstructions(instructions);
     }).then(() => {
       message.textContent = '';
+      message.classList.remove('is-loading');
       this.#renderInstructions(instructions);
     }).catch(error => {
+      message.classList.remove('is-loading');
       message.textContent = 'Some instruction definitions could not be loaded.';
       console.error(`Could not load dictionary definitions for "${recipe.Name}":`, error);
     });

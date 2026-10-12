@@ -2201,3 +2201,114 @@ code {
     font-family: inherit;
   }
 }
+
+@keyframes deploy-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes radar-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(166 106 63 / 60%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 9px rgb(166 106 63 / 0%);
+  }
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: scale(1.8) rotate(-12deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.dashboard-panel,
+.meal-slot-recipe {
+  animation: deploy-in 400ms ease-out backwards;
+}
+
+.week-strip-status-inventory-needed,
+.week-strip-status-work-in-progress,
+.week-strip-status-preparing,
+.week-strip-status-serving {
+  animation: radar-pulse 1800ms ease-out infinite;
+}
+
+.week-strip-status-completed,
+.week-strip-status-skipped {
+  animation: stamp 250ms ease-in backwards;
+}
+
+@keyframes field-scan {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes radar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.recipe-detail-message.is-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, var(--kicker) 35%, var(--copper-canteen) 50%, var(--kicker) 65%);
+  background-size: 200% 100%;
+  background-clip: text;
+  color: transparent;
+  animation: field-scan 1600ms linear infinite;
+}
+
+.recipe-detail-message.is-loading::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--field-stone);
+  border-top-color: var(--copper-canteen);
+  border-radius: 50%;
+  animation: radar-spin 900ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .recipe-detail-message.is-loading,
+  .recipe-detail-message.is-loading::before {
+    animation: none;
+  }
+
+  .recipe-detail-message.is-loading {
+    background: none;
+    color: var(--kicker);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .dashboard-panel,
+  .meal-slot-recipe,
+  .week-strip-status {
+    animation: none;
+  }
+}
