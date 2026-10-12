@@ -760,6 +760,7 @@ export class SiteData {
       const recipe = this.#recipes.getRecipeByID(wrapper.recipeID);
       destinationMeal.addRecipe(recipe, wrapper.servingsProduced, wrapper.servingsNeeded);
     });
+    this.#copyPlannedTimes(sourceMeal, destinationMeal);
   };
   #replaceDayContents(sourceDay, destinationDay) {
     if (Object.values(destinationDay.meals.toJSON().collection).some(meal => meal.isExecuted)) {
@@ -779,7 +780,13 @@ export class SiteData {
         }
         destinationMeal.addRecipe(recipe, wrapper.servingsProduced, wrapper.servingsNeeded);
       });
+      this.#copyPlannedTimes(sourceMeal, destinationMeal);
     });
+  };
+  #copyPlannedTimes(sourceMeal, destinationMeal) {
+    const times = sourceMeal.plannedTimes;
+    Meal.timeFields.forEach(field => destinationMeal.setPlannedTime(field, ''));
+    Meal.timeFields.forEach(field => destinationMeal.setPlannedTime(field, times[field] ?? ''));
   };
   #updateDayStatus(day) {
     day.status = Object.values(day.meals.toJSON().collection)
