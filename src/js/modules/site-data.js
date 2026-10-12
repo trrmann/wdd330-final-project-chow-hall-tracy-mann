@@ -1366,11 +1366,22 @@ export class SiteData {
         });
         return [];
       }
+      const planned = Object.values(this.#shoppingList.toJSON().collection).reduce((total, item) => {
+        if (normalizeIngredientName(item.Name || '') !== normalizeIngredientName(requirement.name) ||
+          !Number.isFinite(item.Quantity) || item.Quantity <= 0) {
+          return total;
+        }
+        const definition = this.#getIngredientUnitDefinition(requirement.name, item.Unit || '');
+        return definition.category === requirement.category ?
+          total + item.Quantity * definition.factor : total;
+      }, 0);
       return [{
         name: requirement.name,
-        required: requirement.required,
-        available,
-        missing,
+        required: requirement.required / requirement.factor,
+        available: available / requirement.factor,
+        missing: missing / requirement.factor,
+        planned: planned / requirement.factor,
+        toAdd: Math.max(0, missing - planned) / requirement.factor,
         unit: requirement.displayUnit || requirement.unit,
         recipeNames: requirement.recipeNames
       }];

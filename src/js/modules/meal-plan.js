@@ -498,14 +498,17 @@ export class MealPlanPage {
     shortageList.replaceChildren(...check.shortages.map(shortage => {
       const item = document.createElement('li');
       const recipes = shortage.recipeNames?.length ? ` [${shortage.recipeNames.join(', ')}]` : '';
+      const onList = shortage.planned > 0 ?
+        ` ${Math.min(shortage.planned, shortage.missing).toLocaleString()} on the shopping list${shortage.toAdd > 0 ? '' : ' (covered)'}.` : '';
       item.textContent =
-        `${shortage.name}${recipes}: ${shortage.available.toLocaleString()} ${shortage.unit} available; ${shortage.required.toLocaleString()} required (${shortage.missing.toLocaleString()} missing).`;
+        `${shortage.name}${recipes}: ${shortage.available.toLocaleString()} ${shortage.unit} available; ${shortage.required.toLocaleString()} required (${shortage.missing.toLocaleString()} missing).${onList}`;
       return item;
     }));
     const hasUnresolved = check.unresolved.length > 0;
     const hasShortages = check.shortages.length > 0;
+    const needsListing = check.shortages.some(shortage => shortage.toAdd > 0);
     status.hidden = !hasUnresolved && !hasShortages;
-    shoppingButton.hidden = hasUnresolved || !hasShortages;
+    shoppingButton.hidden = hasUnresolved || !needsListing;
     executeButton.textContent = hasUnresolved ?
       '⚠ Resolve issues' :
       hasShortages ? '⚠ Check inventory' : 'Execute meal';
@@ -513,8 +516,9 @@ export class MealPlanPage {
       message.textContent =
         'Fix the items below for all recipes in this meal. Fill in the rows you can; resolved items lose their alert and unit conversions are saved to the Inventory page.';
     } else if (hasShortages) {
-      message.textContent =
-        'Inventory is short. Add the deficit to the shopping list or reduce recipe servings, then check again.';
+      message.textContent = needsListing ?
+        'Inventory is short. Add the deficit to the shopping list or reduce recipe servings, then check again.' :
+        'Everything missing is already on the shopping list. Purchase it and update stock, then check again.';
       shoppingButton.dataset.shortages = JSON.stringify(check.shortages);
     } else {
       message.textContent = '';
@@ -1074,9 +1078,15 @@ export class MealPlanPage {
             return;
           }
           if (button.matches('.meal-shortages-shopping')) {
-            siteData.addMealShortagesToShoppingList(JSON.parse(button.dataset.shortages || '[]'));
+            const toAdd = JSON.parse(button.dataset.shortages || '[]')
+              .filter(shortage => shortage.toAdd > 0)
+              .map(shortage => ({
+                ...shortage,
+                missing: shortage.toAdd
+              }));
+            siteData.addMealShortagesToShoppingList(toAdd);
+            this.#renderExecutionCheck(mealSlot, siteData.getMealExecutionCheck(weekParameter, day, mealID));
             statusMessage.textContent = 'Missing ingredients added to the shopping list. Update stock after purchase, then check this meal again.';
-            shoppingButton.hidden = true;
             return;
           }
           const check = siteData.getMealExecutionCheck(weekParameter, day, mealID);
