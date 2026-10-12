@@ -119,16 +119,16 @@
           <input class="meal-servings-required" type="number" min="1" step="1" required />
         </label>
       </div>
+      <ul class="meal-slot-recipes"></ul>
+      <button class="meal-slot-add-recipe" type="button">Add recipe</button>
+      <p class="meal-slot-empty" hidden>No recipes planned for this meal.</p>
+      <p class="meal-servings-message" role="status" aria-live="polite"></p>
       <div class="meal-slot-times">
         <label><span>Prep start</span><input class="meal-time" data-time-field="prepStart" type="time" /></label>
         <label><span>Prep end</span><input class="meal-time" data-time-field="prepEnd" type="time" /></label>
         <label><span>Serve start</span><input class="meal-time" data-time-field="serveStart" type="time" /></label>
         <label><span>Serve end</span><input class="meal-time" data-time-field="serveEnd" type="time" /></label>
       </div>
-      <ul class="meal-slot-recipes"></ul>
-      <button class="meal-slot-add-recipe" type="button">Add recipe</button>
-      <p class="meal-slot-empty" hidden>No recipes planned for this meal.</p>
-      <p class="meal-servings-message" role="status" aria-live="polite"></p>
       <div class="meal-slot-actions">
         <label class="meal-execute-stage-control">
           <span>Execute as</span>
