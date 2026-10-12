@@ -2063,6 +2063,7 @@ code {
   grid-column: 1;
 }
 
+.shopping-list-items li>.shopping-edit,
 .shopping-list-items li>.shopping-remove {
   grid-column: 2;
   min-width: 96px;
@@ -2170,6 +2171,7 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .shopping-list-items li>.shopping-edit,
   .shopping-list-items li>.shopping-remove {
     grid-column: 1;
   }

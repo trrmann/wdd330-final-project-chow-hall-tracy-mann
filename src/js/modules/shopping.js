@@ -29,19 +29,61 @@ export class ShoppingPage {
     const list = root.querySelector('.shopping-list-items');
     const message = root.querySelector('.shopping-list-message');
     const addForm = root.querySelector('.shopping-item-form');
+    const nameInput = root.querySelector('.shopping-name');
+    const quantityInput = root.querySelector('.shopping-quantity');
+    const unitInput = root.querySelector('.shopping-unit');
+    const addButton = root.querySelector('.shopping-add');
+    const translateButton = root.querySelector('.shopping-translate');
+    let editingItem = null;
+    const originalUnit = () => editingItem ? (editingItem.Unit || '').trim() : '';
+    translateButton.addEventListener('click', () => {
+      const unit = unitInput.value.trim();
+      if (!editingItem || !unit) {
+        message.textContent = 'Enter the unit to translate to.';
+        return;
+      }
+      try {
+        const converted = siteData.translateIngredientQuantity(
+          editingItem.Name,
+          editingItem.Quantity,
+          originalUnit(),
+          unit
+        );
+        quantityInput.value = String(Math.round(converted * 100) / 100);
+        message.textContent = `Translated to ${unit}. Save to apply.`;
+      } catch (error) {
+        message.textContent = `Could not translate: ${error.message} Add a translation on the Inventory page.`;
+      }
+    });
+    unitInput.addEventListener('input', () => {
+      translateButton.hidden = !editingItem || unitInput.value.trim() === originalUnit();
+    });
+    addForm.addEventListener('reset', () => {
+      editingItem = null;
+      translateButton.hidden = true;
+      addButton.textContent = 'Add to list';
+    });
     addForm.addEventListener('submit', event => {
       event.preventDefault();
-      const name = root.querySelector('.shopping-name').value.trim();
+      const name = nameInput.value.trim();
       try {
-        siteData.addShoppingListItem(
-          name,
-          Number(root.querySelector('.shopping-quantity').value),
-          root.querySelector('.shopping-unit').value
-        );
+        if (editingItem) {
+          siteData.setShoppingListItem({
+              name: editingItem.Name,
+              unit: editingItem.Unit
+            },
+            name,
+            Number(quantityInput.value),
+            unitInput.value
+          );
+        } else {
+          siteData.addShoppingListItem(name, Number(quantityInput.value), unitInput.value);
+        }
+        const verb = editingItem ? 'Saved' : 'Added';
         this.render();
-        root.querySelector('.shopping-list-message').textContent = `Added ${name} to the shopping list.`;
+        root.querySelector('.shopping-list-message').textContent = `${verb} ${name} on the shopping list.`;
       } catch (error) {
-        message.textContent = `Could not add item: ${error.message}`;
+        message.textContent = `Could not save item: ${error.message}`;
       }
     });
     const shoppingList = Object.values(siteData.shoppingList.toJSON().collection);
@@ -92,6 +134,20 @@ export class ShoppingPage {
         });
         row.appendChild(purchaseForm);
       }
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'shopping-edit';
+      edit.textContent = 'Edit';
+      edit.addEventListener('click', () => {
+        nameInput.value = ingredient.Name;
+        quantityInput.value = Number.isFinite(ingredient.Quantity) ? String(ingredient.Quantity) : '';
+        unitInput.value = ingredient.Unit || '';
+        editingItem = ingredient;
+        translateButton.hidden = true;
+        addButton.textContent = 'Save item';
+        nameInput.focus();
+      });
+      row.appendChild(edit);
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'negative-action shopping-remove';

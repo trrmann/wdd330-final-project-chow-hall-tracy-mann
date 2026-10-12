@@ -1544,6 +1544,19 @@ export class SiteData {
       unit: unit.trim()
     }]);
   };
+  setShoppingListItem(original, name, quantity, unit) {
+    if (typeof name !== 'string' || !name.trim()) {
+      throw new TypeError('Enter an ingredient name');
+    }
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new RangeError('Shopping quantity must be greater than zero');
+    }
+    if (typeof unit !== 'string' || !unit.trim()) {
+      throw new TypeError('Enter a shopping unit');
+    }
+    this.removeShoppingListItem(original.name, original.unit || null);
+    this.addShoppingListItem(name, quantity, unit);
+  };
   executeMeal(weekParameter, dayID, mealID, action = 'complete') {
     if (!['preparing', 'serving', 'complete'].includes(action)) {
       throw new TypeError('Execution action must be "preparing", "serving", or "complete"');
