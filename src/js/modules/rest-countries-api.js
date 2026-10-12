@@ -138,13 +138,15 @@ export class RestCountries {
   #deleteCache(key) {
     this.#localCache.deleteCache(key);
   }
-  constructor(isSessionCache = true) {
+  constructor() {
     //this.#apiLiveDemoPublicAPIKey = import.meta.env.VITE_REST_COUNTRIES_LIVE_DEMO_KEY;
     this.#apiLiveFreeAPIKey = import.meta.env.VITE_REST_COUNTRIES_FREE_KEY;
     this.#useMockData = import.meta.env.VITE_REST_COUNTRIES_USE_MOCK_DATA === 'true';
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache,
-      namespace: 'rest-countries'
+      namespace: 'rest-countries',
+      storage: 'memory',
+      persist: true,
+      maxPersistChars: 4000
     });
   }
   get isUsingMockData() {

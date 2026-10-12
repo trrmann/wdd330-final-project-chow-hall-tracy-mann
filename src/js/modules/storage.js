@@ -6,7 +6,9 @@ export class Storage {
     localStorage.removeItem(key);
   }
   #baseWriteLocalStorage(key, value) {
-    localStorage.setItem(key, value);
+    if (localStorage.getItem(key) !== value) {
+      localStorage.setItem(key, value);
+    }
   }
   #baseReadSessionStorage(key) {
     return sessionStorage.getItem(key);
@@ -15,7 +17,9 @@ export class Storage {
     sessionStorage.removeItem(key);
   }
   #baseWriteSessionStorage(key, value) {
-    sessionStorage.setItem(key, value);
+    if (sessionStorage.getItem(key) !== value) {
+      sessionStorage.setItem(key, value);
+    }
   }
   #sizeLocalStorage() {
     return localStorage.length;
@@ -30,10 +34,10 @@ export class Storage {
     return Object.keys(sessionStorage);
   }
   #localStorageHasKey(key) {
-    return this.#localStorageKeys().includes(key);
+    return localStorage.getItem(key) !== null;
   }
   #sessionStorageHasKey(key) {
-    return this.#sessionStorageKeys().includes(key);
+    return sessionStorage.getItem(key) !== null;
   }
   #clearLocalStorage() {
     localStorage.clear();
@@ -167,6 +171,8 @@ export class Cache {
   #storagePrefix;
   #isSessionCache;
   #entryLifeMS;
+  #persist;
+  #maxPersistChars;
 
   #getStorageKey(key) {
     return `${this.#storagePrefix}${encodeURIComponent(key)}`;
@@ -195,12 +201,53 @@ export class Cache {
     });
   }
 
+  #hydrate(key) {
+    if (!this.#entries || !this.#persist || this.#entries.has(key)) {
+      return;
+    }
+    const storageKey = this.#getStorageKey(key);
+    if (!this.#storage.hasKey(storageKey, false)) {
+      return;
+    }
+    const record = this.#storage.objectRead(storageKey, false);
+    if (record && record.updated + this.#entryLifeMS >= Date.now()) {
+      this.#entries.set(key, {
+        created: record.updated,
+        updated: record.updated,
+        entry: record.entry
+      });
+    } else {
+      this.#storage.remove(storageKey, false);
+    }
+  }
+
+  #persistEntry(key, record) {
+    const storageKey = this.#getStorageKey(key);
+    const payload = JSON.stringify({
+      updated: record.updated,
+      entry: record.entry
+    });
+    try {
+      if (payload.length <= this.#maxPersistChars) {
+        this.#storage.write(storageKey, payload, false);
+      } else {
+        this.#storage.remove(storageKey, false);
+      }
+    } catch {
+      this.#storage.remove(storageKey, false);
+    }
+  }
+
   constructor({
     entryLifeMS = 86400000,
     isSessionCache = true,
     namespace = 'default',
-    storage = 'session'
+    storage = 'session',
+    persist = false,
+    maxPersistChars = 20000
   } = {}) {
+    this.#persist = persist && storage === 'memory';
+    this.#maxPersistChars = maxPersistChars;
     if (typeof namespace !== 'string' || !namespace.trim()) {
       throw new TypeError('Cache namespace must be a non-empty string');
     }
@@ -216,6 +263,7 @@ export class Cache {
 
   hasCache(key) {
     this.#expireCache();
+    this.#hydrate(key);
     return this.#entries ?
       this.#entries.has(key) :
       this.#storage.hasKey(this.#getStorageKey(key), this.#isSessionCache);
@@ -223,6 +271,7 @@ export class Cache {
 
   getCache(key) {
     this.#expireCache();
+    this.#hydrate(key);
     const record = this.#entries ?
       this.#entries.get(key) :
       this.#storage.objectRead(this.#getStorageKey(key), this.#isSessionCache);
@@ -242,6 +291,9 @@ export class Cache {
     };
     if (this.#entries) {
       this.#entries.set(key, entry);
+      if (this.#persist) {
+        this.#persistEntry(key, entry);
+      }
     } else {
       this.#storage.objectWrite(this.#getStorageKey(key), entry, this.#isSessionCache);
     }
@@ -250,6 +302,9 @@ export class Cache {
   deleteCache(key) {
     if (this.#entries) {
       this.#entries.delete(key);
+      if (this.#persist) {
+        this.#storage.remove(this.#getStorageKey(key), false);
+      }
     } else {
       this.#storage.remove(this.#getStorageKey(key), this.#isSessionCache);
     }
@@ -258,6 +313,11 @@ export class Cache {
   clearCache() {
     if (this.#entries) {
       this.#entries.clear();
+      if (this.#persist) {
+        this.#storage.keys(false)
+          .filter(key => key.startsWith(this.#storagePrefix))
+          .forEach(key => this.#storage.remove(key, false));
+      }
     } else {
       this.#getNamespacedKeys().forEach(key =>
         this.#storage.remove(key, this.#isSessionCache)

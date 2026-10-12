@@ -541,9 +541,7 @@ export class SiteData {
     if (this.#storage.hasKey('recipes', false)) {
       this.#recipes = Recipes.fromJSON(this.#storage.objectRead('recipes', false));
     }
-    if (this.#storage.hasKey('words', false)) {
-      this.#words = Words.fromJSON(this.#storage.objectRead('words', false));
-    }
+    this.#storage.remove('words', false);
     if (this.#storage.hasKey(SiteData.recipeSuggestionsStorageKey, false)) {
       this.#weekRecipeSuggestions = this.#storage.objectRead(
         SiteData.recipeSuggestionsStorageKey,
@@ -560,7 +558,6 @@ export class SiteData {
     }));
     await this.importMealDBMeals(meals);
     this.#currencyConversionTest = await this.#apis.convertCurrency('USD', 'PEN', 100);
-    console.log('Site data initialized:', JSON.parse(JSON.stringify(this)));
     return this;
   };
   async getSuggestedRecipesForWeek(weekParameter) {
@@ -2319,7 +2316,6 @@ export class SiteData {
         .map(word => this.#words.getWordByWord(word)?.ID)
         .filter(wordID => wordID !== undefined);
     });
-    this.#storage.objectWrite('words', this.#words, false);
     this.#storage.objectWrite('recipes', this.#recipes, false);
   };
   async #lookupDictionaryWord(word) {
@@ -2340,7 +2336,6 @@ export class SiteData {
           word: normalizedWord,
           entry
         }));
-        this.#storage.objectWrite('words', this.#words, false);
         return resolvedWord;
       })().finally(() => {
         this.#wordLookupTasks.delete(normalizedWord);
@@ -2379,9 +2374,6 @@ export class SiteData {
   };
   #restoreRecipes(storedWeeks) {
     const recipeData = [];
-    if (this.#storage.hasKey('recipes', true)) {
-      recipeData.push(this.#storage.objectRead('recipes', true));
-    }
     Object.values(storedWeeks.collection || {}).forEach(weekData => {
       recipeData.push(weekData.recipes || {});
     });

@@ -72,10 +72,12 @@ export class TheMealDBAPI {
   #deleteCache(key) {
     this.#localCache.deleteCache(key);
   }
-  constructor(isSessionCache = true) {
+  constructor() {
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache,
-      namespace: 'themealdb'
+      namespace: 'themealdb',
+      storage: 'memory',
+      persist: true,
+      maxPersistChars: 6000
     });
   }
   async #cachedRequest(cacheKey, request, cache = true) {

@@ -24,10 +24,12 @@ export class APIs {
     const mode = this.#restCountries.isUsingMockData ? 'mock' : 'live';
     return `RestCountries-${mode}-${cacheKey}`;
   }
-  constructor(isSessionCache = true) {
+  constructor() {
     this.#localCache = new Cache({
-      isSessionCache: isSessionCache,
-      namespace: 'apis'
+      namespace: 'apis',
+      storage: 'memory',
+      persist: true,
+      maxPersistChars: 4000
     });
     this.#theMealDB = new TheMealDBAPI();
     this.#restCountries = new RestCountries();
