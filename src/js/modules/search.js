@@ -71,7 +71,9 @@ export class SearchPage {
     const resultsList = this.#searchPageContainer.querySelector(SearchPage.recipeSearchResultsClass);
     const query = params.get('query') || '';
     const requestedMode = params.get('searchMode');
-    const mode = ['ingredient', 'category'].includes(requestedMode) ? requestedMode : 'name';
+    const mode = ['name', 'ingredient', 'category'].includes(requestedMode) ?
+      requestedMode :
+      (query ? 'name' : 'category');
     searchMode.value = mode;
     const searchInputLabel = searchForm.querySelector(`label[for="${searchInput.id}"]`);
 

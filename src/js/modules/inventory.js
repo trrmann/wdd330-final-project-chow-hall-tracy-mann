@@ -70,7 +70,34 @@ export class InventoryPage {
             message.textContent = `Could not remove stock: ${error.message}`;
           }
         });
-        row.append(label, edit, remove);
+        const targetUnit = document.createElement('input');
+        targetUnit.type = 'text';
+        targetUnit.className = 'inventory-translate-unit';
+        targetUnit.placeholder = 'New unit';
+        targetUnit.setAttribute('aria-label', `Translate ${item.Name} to unit`);
+        const translate = document.createElement('button');
+        translate.type = 'button';
+        translate.textContent = 'Translate';
+        translate.addEventListener('click', () => {
+          const unit = targetUnit.value.trim();
+          const fromUnit = item.Unit || item.Measure || '';
+          if (!unit) {
+            message.textContent = 'Enter the unit to translate to.';
+            return;
+          }
+          try {
+            const converted = siteData.translateIngredientQuantity(item.Name, item.Quantity, fromUnit, unit);
+            siteData.setInventoryItem(item.Name, converted, unit);
+            message.textContent = `${item.Name} translated to ${unit}.`;
+            renderRows();
+          } catch (error) {
+            message.textContent = `Could not translate: ${error.message} Add a translation below.`;
+            root.querySelector('.conversion-ingredient').value = item.Name;
+            root.querySelector('.conversion-from-unit').value = fromUnit;
+            root.querySelector('.conversion-to-unit').value = unit;
+          }
+        });
+        row.append(label, edit, targetUnit, translate, remove);
         stockList.append(row);
       });
     };
