@@ -2027,6 +2027,28 @@ code {
   flex: 1 1 220px;
 }
 
+.shopping-list-items li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.shopping-list-items li>span {
+  grid-column: 1 / -1;
+  font-weight: 600;
+}
+
+.shopping-list-items li>.shopping-purchase-form {
+  grid-column: 1;
+}
+
+.shopping-list-items li>.shopping-remove {
+  grid-column: 2;
+  min-width: 96px;
+  min-height: 38px;
+}
+
 .meal-execution-status {
   grid-column: 1 / -1;
   padding: 10px;
@@ -2122,6 +2144,14 @@ code {
   .shopping-item-form,
   .shopping-purchase-form {
     grid-template-columns: 1fr;
+  }
+
+  .shopping-list-items li {
+    grid-template-columns: 1fr;
+  }
+
+  .shopping-list-items li>.shopping-remove {
+    grid-column: 1;
   }
 
   .recipe-search-form {

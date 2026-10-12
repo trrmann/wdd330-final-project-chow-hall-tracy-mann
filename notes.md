@@ -12,11 +12,10 @@ when i edited the inventory stock aned change the value the display did not upda
 the edit inventory should also allow the update of unit type, not just quantity.  also allow a translation of the unit type and value of the inventory item on this page.
 add recipe should default to by category first.
 drop box sizes need to be sure they are touching on mobile, especially noted on the add recipe case of the search page.
-
+the shopping list buttons fall out of alignment and provide a poor UX
 
 reduce session storage data load and local storage data load, do not duplicate, use memory cache where applicable to reduce api calls.
 
 
 
 
-the shopping list buttons fall out of alignment and provide a poor UX

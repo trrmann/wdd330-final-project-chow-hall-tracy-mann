@@ -94,7 +94,7 @@ export class ShoppingPage {
       }
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.className = 'negative-action';
+      remove.className = 'negative-action shopping-remove';
       remove.textContent = 'Remove';
       remove.addEventListener('click', () => {
         try {
