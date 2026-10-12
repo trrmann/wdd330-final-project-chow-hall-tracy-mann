@@ -53,6 +53,7 @@
   --primary-contrast: var(--expedition-brown);
   --text: var(--charcoal);
   --text-h: var(--command-black);
+  --kicker: #3d2a16;
   --bg: var(--off-white);
   --border: var(--field-stone);
   --code-bg: rgba(215, 197, 164, 0.35);
@@ -108,6 +109,7 @@ button {
   :root {
     --text: var(--field-stone);
     --text-h: var(--off-white);
+    --kicker: #ead9b5;
     --bg: var(--command-black);
     --border: var(--charcoal);
     --code-bg: var(--charcoal);
@@ -274,7 +276,7 @@ p {
 .home-kicker,
 .panel-kicker {
   margin: 0 0 4px;
-  color: var(--expedition-brown);
+  color: var(--kicker);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -346,6 +348,7 @@ section.home-intro.meal-plan-intro {
 }
 
 a.panel-kicker-anchor {
+  color: inherit;
   text-decoration: none;
 }
 
