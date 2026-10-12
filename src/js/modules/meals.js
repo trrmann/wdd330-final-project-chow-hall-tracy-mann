@@ -95,6 +95,17 @@ export class Meal {
   #Name;
   #servingsRequired;
   #executedAt;
+  #stage = null;
+  #plannedTimes = {
+    prepStart: null,
+    prepEnd: null,
+    serveStart: null,
+    serveEnd: null
+  };
+  static timeFields = ['prepStart', 'prepEnd', 'serveStart', 'serveEnd'];
+  static #cleanTime(value) {
+    return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : null;
+  };
   #recipeWrappers;
   #validateMealServings(servings) {
     if (!Number.isSafeInteger(servings) || servings <= 0) {
@@ -112,6 +123,10 @@ export class Meal {
       name: this.#Name,
       servingsRequired: this.#servingsRequired,
       executedAt: this.#executedAt,
+      stage: this.#stage,
+      plannedTimes: {
+        ...this.#plannedTimes
+      },
       recipeIDs: this.recipeIDs,
       recipeWrappers: this.#recipeWrappers.map(wrapper => wrapper.toJSON())
     };
@@ -121,6 +136,10 @@ export class Meal {
       this.#ID = json.id;
       this.#Name = json.name;
       this.#executedAt = typeof json.executedAt === 'string' ? json.executedAt : null;
+      this.#stage = ['preparing', 'serving'].includes(json.stage) ? json.stage : null;
+      Meal.timeFields.forEach(field => {
+        this.#plannedTimes[field] = Meal.#cleanTime(json.plannedTimes?.[field]);
+      });
       const storedMealServings = Number(json.servingsRequired ?? 1);
       this.#servingsRequired = Number.isSafeInteger(storedMealServings) && storedMealServings > 0 ?
         storedMealServings :
@@ -193,11 +212,44 @@ export class Meal {
   get executedAt() {
     return this.#executedAt;
   };
+  get stage() {
+    return this.#stage;
+  };
+  set stage(stage) {
+    if (stage !== null && !['preparing', 'serving'].includes(stage)) {
+      throw new TypeError('meal stage must be "preparing", "serving", or null');
+    }
+    this.#stage = stage;
+  };
+  get plannedTimes() {
+    return {
+      ...this.#plannedTimes
+    };
+  };
+  setPlannedTime(field, value) {
+    if (!Meal.timeFields.includes(field)) {
+      throw new TypeError('unknown planned time field');
+    }
+    const time = value === '' || value === null ? null : Meal.#cleanTime(value);
+    if (value && time === null) {
+      throw new TypeError('planned time must be in HH:MM format');
+    }
+    const next = {
+      ...this.#plannedTimes,
+      [field]: time
+    };
+    const ordered = Meal.timeFields.map(key => next[key]).filter(Boolean);
+    if (ordered.some((entry, index) => index > 0 && entry < ordered[index - 1])) {
+      throw new RangeError('Planned times must run in order: prep start, prep end, serve start, serve end');
+    }
+    this.#plannedTimes = next;
+  };
   markExecuted(executedAt = new Date().toISOString()) {
     if (this.isExecuted) {
       throw new Error('This meal has already been executed');
     }
     this.#executedAt = executedAt;
+    this.#stage = null;
   };
   get servingsRequired() {
     return this.#servingsRequired;

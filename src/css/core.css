@@ -390,6 +390,33 @@ a.panel-kicker-anchor {
   background: transparent;
 }
 
+.week-strip-status-ready,
+.week-strip-status-completed {
+  border-color: var(--ranger-green);
+  background: var(--ranger-green);
+}
+
+.week-strip-status-preparing,
+.week-strip-status-serving {
+  border-color: var(--ranger-green);
+  background: linear-gradient(90deg, var(--ranger-green) 50%, transparent 50%);
+}
+
+.week-strip-status-work-in-progress {
+  border-color: var(--copper-canteen);
+  background: linear-gradient(90deg, var(--copper-canteen) 50%, transparent 50%);
+}
+
+.week-strip-status-inventory-needed {
+  border-color: var(--copper-canteen);
+  background: var(--copper-canteen);
+}
+
+.week-strip-status-skipped {
+  border-color: var(--supply-gray);
+  background: var(--supply-gray);
+}
+
 .week-strip-status-planned {
   border-color: var(--ranger-green);
   background: var(--ranger-green);
@@ -986,6 +1013,19 @@ a.panel-kicker-anchor {
   color: var(--charcoal);
 }
 
+.meal-slot-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.5rem 0;
+}
+
+.meal-slot-times label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+}
+
 .meal-slot-recipes {
   display: grid;
   gap: 10px;
@@ -1003,6 +1043,25 @@ a.panel-kicker-anchor {
   border-radius: 3px;
   background-color: color-mix(in srgb, var(--khaki-field) 40%, white);
   color: var(--command-black);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-left-color 0.15s ease;
+}
+
+.meal-slot-recipe:hover,
+.meal-slot-recipe:focus-within {
+  border-left-color: var(--ranger-green);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meal-slot-recipe {
+    transition: none;
+  }
+
+  .meal-slot-recipe:hover,
+  .meal-slot-recipe:focus-within {
+    transform: none;
+  }
 }
 
 .folder-panel:not(.is-past-day) .daily-meal-slot {
@@ -1025,7 +1084,10 @@ a.panel-kicker-anchor {
   flex: 1 1 auto;
   min-width: 0;
   color: var(--command-black);
+  font-size: 1.25rem;
   font-weight: 700;
+  line-height: 1.3;
+  text-decoration: none;
   overflow-wrap: anywhere;
 }
 
@@ -1037,6 +1099,8 @@ a.panel-kicker-anchor {
 .meal-slot-recipe-name:hover,
 .meal-slot-recipe-name:focus-visible {
   color: var(--ranger-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .meal-slot-recipe :where(button, input, select) {
@@ -1090,6 +1154,8 @@ a.panel-kicker-anchor {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--field-stone);
 }
 
 .recipe-move-controls select {
@@ -1760,6 +1826,7 @@ code {
   display: flex;
   flex: 0 0 auto;
   flex-wrap: wrap;
+  grid-column: 1 / -1;
   justify-content: end;
   gap: 6px;
 }

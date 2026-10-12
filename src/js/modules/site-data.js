@@ -428,6 +428,7 @@ export class SiteData {
     APIRequestQueue.configure(this.#apiConfiguration);
     this.#apis = new APIs();
     this.#storage = new Storage();
+    this.#watchStatusInputs();
     this.#countries = new Countries();
     this.#weekConfiguration = {
       weekAliasOffsets: Object.fromEntries(
@@ -783,6 +784,40 @@ export class SiteData {
   #updateDayStatus(day) {
     day.status = Object.values(day.meals.toJSON().collection)
       .some(meal => meal.recipeIDs.length) ? 'planned' : 'empty';
+  };
+  #dayStatusListeners = new Set();
+  #dayStatusNotifyQueued = false;
+  #dayStatusDispatching = false;
+  // Any write to data that feeds a day's status schedules a coalesced notification.
+  #watchStatusInputs() {
+    const statusKeys = new Set(['weeks', 'inventory', 'shoppingList', 'recipes']);
+    const originalWrite = this.#storage.objectWrite.bind(this.#storage);
+    this.#storage.objectWrite = (key, object, session) => {
+      const result = originalWrite(key, object, session);
+      if (statusKeys.has(key)) {
+        this.notifyDayStatusChange();
+      }
+      return result;
+    };
+  };
+  onDayStatusChange(listener) {
+    this.#dayStatusListeners.add(listener);
+    return () => this.#dayStatusListeners.delete(listener);
+  };
+  notifyDayStatusChange() {
+    if (this.#dayStatusNotifyQueued || this.#dayStatusDispatching) {
+      return;
+    }
+    this.#dayStatusNotifyQueued = true;
+    setTimeout(() => {
+      this.#dayStatusNotifyQueued = false;
+      this.#dayStatusDispatching = true;
+      try {
+        this.#dayStatusListeners.forEach(listener => listener());
+      } finally {
+        this.#dayStatusDispatching = false;
+      }
+    }, 0);
   };
   #saveWeeks() {
     this.#storage.objectWrite('weeks', this.#weeks, false);
@@ -1325,6 +1360,42 @@ export class SiteData {
       unresolved
     };
   };
+  getDayStatus(weekParameter, dayID) {
+    const week = getWeekForParameter(weekParameter, this);
+    const day = week.days.getDayByID(dayID);
+    const dayIndex = SiteData.weekDays.findIndex(([configuredDayID]) => configuredDayID === dayID);
+    if (!day || dayIndex < 0) {
+      return 'not started';
+    }
+    const meals = Object.values(day.meals.toJSON().collection)
+      .map(meal => day.meals.getMealByID(meal.ID));
+    if (!meals.some(meal => meal.recipeWrappers.length || meal.isExecuted)) {
+      return 'not started';
+    }
+    const pending = meals.filter(meal => !meal.isExecuted);
+    if (this.#isDatePast(week.weekStartDate, dayIndex)) {
+      return pending.length ? 'skipped' : 'completed';
+    }
+    if (!pending.length) {
+      return 'completed';
+    }
+    if (pending.some(meal => meal.stage === 'serving')) {
+      return 'serving';
+    }
+    if (pending.some(meal => meal.stage === 'preparing')) {
+      return 'preparing';
+    }
+    const unbalanced = pending.some(meal => !meal.recipeWrappers.length ||
+      meal.recipeWrappers.reduce((total, wrapper) => total + wrapper.servingsNeeded, 0) < meal.servingsRequired);
+    if (unbalanced) {
+      return 'work in progress';
+    }
+    const needsInventory = pending.some(meal => {
+      const check = this.getMealExecutionCheck(weekParameter, dayID, meal.ID);
+      return check.shortages.length || check.unresolved.length;
+    });
+    return needsInventory ? 'inventory needed' : 'ready';
+  };
   getPlannedIngredientShortages(weekParameter) {
     const week = getWeekForParameter(weekParameter, this);
     const requirements = new Map();
@@ -1429,7 +1500,10 @@ export class SiteData {
     });
     this.#saveShoppingList();
   };
-  executeMeal(weekParameter, dayID, mealID) {
+  executeMeal(weekParameter, dayID, mealID, action = 'complete') {
+    if (!['preparing', 'serving', 'complete'].includes(action)) {
+      throw new TypeError('Execution action must be "preparing", "serving", or "complete"');
+    }
     const {
       day,
       meal
@@ -1440,6 +1514,17 @@ export class SiteData {
     const check = this.getMealExecutionCheck(weekParameter, dayID, mealID);
     if (check.shortages.length || check.unresolved.length) {
       return check;
+    }
+    if (action !== 'complete') {
+      meal.stage = action;
+      this.#updateDayStatus(day);
+      this.#saveWeeks();
+      return {
+        executed: false,
+        stage: action,
+        shortages: [],
+        unresolved: []
+      };
     }
     const {
       requirements
@@ -1941,6 +2026,14 @@ export class SiteData {
     });
     this.#storage.objectWrite('weeks', this.#weeks, false);
     return meal.servingsRequired;
+  };
+  setMealPlannedTime(weekParameter, dayID, mealID, field, value) {
+    const {
+      meal
+    } = this.#getEditableMeal(weekParameter, dayID, mealID);
+    meal.setPlannedTime(field, value);
+    this.#storage.objectWrite('weeks', this.#weeks, false);
+    return meal.plannedTimes;
   };
   async #ensureActiveWeekSuggestions(week, suggestions) {
     const {

@@ -119,11 +119,25 @@
           <input class="meal-servings-required" type="number" min="1" step="1" required />
         </label>
       </div>
+      <div class="meal-slot-times">
+        <label><span>Prep start</span><input class="meal-time" data-time-field="prepStart" type="time" /></label>
+        <label><span>Prep end</span><input class="meal-time" data-time-field="prepEnd" type="time" /></label>
+        <label><span>Serve start</span><input class="meal-time" data-time-field="serveStart" type="time" /></label>
+        <label><span>Serve end</span><input class="meal-time" data-time-field="serveEnd" type="time" /></label>
+      </div>
       <ul class="meal-slot-recipes"></ul>
       <button class="meal-slot-add-recipe" type="button">Add recipe</button>
       <p class="meal-slot-empty" hidden>No recipes planned for this meal.</p>
       <p class="meal-servings-message" role="status" aria-live="polite"></p>
       <div class="meal-slot-actions">
+        <label class="meal-execute-stage-control">
+          <span>Execute as</span>
+          <select class="meal-execute-stage">
+            <option value="preparing">Start preparing</option>
+            <option value="serving">Start serving</option>
+            <option value="complete">Complete meal</option>
+          </select>
+        </label>
         <button class="meal-slot-execute" type="button">Execute meal</button>
         <button class="meal-slot-remove" type="button">Remove meal</button>
         <button class="meal-generate" type="button">Generate meal</button>
@@ -156,10 +170,6 @@
     <li class="meal-slot-recipe" data-recipe-id="">
       <div class="meal-slot-recipe-header">
         <a class="meal-slot-recipe-name" href="/Recipe/">Recipe details</a>
-        <div class="meal-slot-recipe-actions">
-          <button class="meal-slot-recipe-replace" type="button">Replace</button>
-          <button class="meal-slot-recipe-remove" type="button">Remove</button>
-        </div>
       </div>
       <label class="recipe-servings-control">
         <span>Servings per batch</span>
@@ -182,6 +192,10 @@
         <div class="recipe-move-actions">
           <button class="recipe-move" type="button">Move</button>
           <button class="recipe-copy" type="button">Copy</button>
+        </div>
+        <div class="meal-slot-recipe-actions">
+          <button class="meal-slot-recipe-replace" type="button">Replace</button>
+          <button class="meal-slot-recipe-remove" type="button">Remove</button>
         </div>
       </div>
       <p class="recipe-action-message" role="status" aria-live="polite"></p>

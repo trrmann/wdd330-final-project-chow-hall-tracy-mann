@@ -35,6 +35,7 @@ export class MealPlanPage {
   static weekNavCurrentResetButtonClass = '.week-current-reset-button';
   static folderTabsContainerClass = '.folder-tabs';
   static folderTabAttentionIndicatorClass = 'tab-attention-indicator';
+  static attentionStatuses = ['not started', 'work in progress', 'inventory needed'];
   static folderTabTemplateId = 'folder-tab-template';
   static folderTabClass = '.folder-tab';
   static folderPanelClass = '.folder-panel';
@@ -85,6 +86,53 @@ export class MealPlanPage {
       weekDayIDs[(new Date().getDay() + 6) % 7] :
       weekDayIDs[0]
     );
+    this.#watchDayStatuses();
+  }
+  #watchDayStatuses() {
+    siteData.onDayStatusChange(() => this.#refreshDayStatuses());
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.#refreshDayStatuses();
+      }
+    });
+    // Statuses depend on today's date, so re-check periodically (covers midnight rollover).
+    setInterval(() => this.#refreshDayStatuses(), 60000);
+  }
+  #refreshDayStatuses() {
+    const week = getWeekForParameter(this.#weekParameter, siteData);
+    const days = getWeekDays(week);
+    const statuses = new Map(days.map(day => [day.ID, siteData.getDayStatus(this.#weekParameter, day.ID)]));
+    const container = this.#mealPlanPageContainer;
+    container.querySelectorAll(`${MealPlanPage.folderTabClass}[data-day]`).forEach(tab => {
+      const status = statuses.get(tab.dataset.day);
+      const dayIndex = days.findIndex(day => day.ID === tab.dataset.day);
+      if (!status) {
+        return;
+      }
+      const needsAttention = !this.#isPastDay(week.weekStartDate, dayIndex) &&
+        MealPlanPage.attentionStatuses.includes(status);
+      tab.classList.toggle(MealPlanPage.folderTabAttentionIndicatorClass, needsAttention);
+    });
+    const dayStatus = container.querySelector(MealPlanPage.dailyMealStatusClass);
+    const selectedStatus = statuses.get(this.#selectedDay);
+    if (dayStatus && selectedStatus) {
+      dayStatus.textContent = selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1);
+    }
+    document.querySelectorAll(`${MealPlanPage.mealPlanDashBoardClass} ${MealPlanPage.weekStripClass}`)
+      .forEach(strip => {
+        strip.querySelectorAll(MealPlanPage.weekStripStatusClass).forEach((statusSpan, index) => {
+          const status = statuses.get(days[index]?.ID);
+          if (!status) {
+            return;
+          }
+          [...statusSpan.classList]
+          .filter(name => name.startsWith(MealPlanPage.weekStripStatusClassPrefix))
+            .forEach(name => statusSpan.classList.remove(name));
+          statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${status.replace(/\s+/g, '-')}`);
+          statusSpan.setAttribute('aria-label', status);
+          statusSpan.title = status;
+        });
+      });
   }
   get selectedDay() {
     return this.#selectedDay;
@@ -99,13 +147,13 @@ export class MealPlanPage {
       const tabClone = this.#folderTabTemplate.content.cloneNode(true);
       const tabElement = tabClone.querySelector(MealPlanPage.folderTabClass);
       const isPastDay = this.#isPastDay(activeWeek.weekStartDate, dayIndex);
-      const activeStatus = day.status || 'empty';
+      const activeStatus = siteData.getDayStatus(this.#weekParameter, day.ID);
       if (isPastDay) {
         tabElement.classList.add('is-past-day');
         tabElement.title = 'Past day: meal planning is closed';
         tabElement.setAttribute('aria-label', `${day.Name}, past day. Meal planning is closed.`);
       }
-      if (!isPastDay && activeStatus !== 'planned') {
+      if (!isPastDay && MealPlanPage.attentionStatuses.includes(activeStatus)) {
         tabElement.classList.add(MealPlanPage.folderTabAttentionIndicatorClass);
       } else {
         tabElement.classList.remove(MealPlanPage.folderTabAttentionIndicatorClass);
@@ -451,10 +499,13 @@ export class MealPlanPage {
     const activeWeek = getWeekForParameter(weekParameter, siteData);
     const activeDay = activeWeek.days.getDayByID(day);
     const dayIndex = SiteData.weekDays.findIndex(([dayID]) => dayID === day);
-    const isPastDay = dayIndex >= 0 && this.#isPastDay(activeWeek.weekStartDate, dayIndex);
-    panel.classList.toggle('is-past-day', isPastDay);
-    pastDayNotice.hidden = !isPastDay;
-    const activeStatus = activeDay?.status || 'empty';
+    const isPastDate = dayIndex >= 0 && this.#isPastDay(activeWeek.weekStartDate, dayIndex);
+    const activeStatus = siteData.getDayStatus(weekParameter, day);
+    const isCompleted = activeStatus === 'completed';
+    // A day is read-only (isPastDay) once its date has passed or it is completed.
+    const isPastDay = isPastDate || isCompleted;
+    panel.classList.toggle('is-past-day', isPastDate);
+    pastDayNotice.hidden = !isPastDate;
     const activeMeals = activeDay?.meals.toJSON().collection || {};
     const hasMealPlan = Object.values(activeMeals).some(meal => meal.recipeIDs.length);
     const hasExecutedMeal = Object.values(activeMeals).some(meal => meal.isExecuted);
@@ -483,11 +534,9 @@ export class MealPlanPage {
         select.value = preferredID;
       }
     };
-    pastDayEmptyNote.hidden = !isPastDay || hasMealPlan;
+    pastDayEmptyNote.hidden = !isPastDate || hasMealPlan;
     heading.textContent = `${activeDay?.Name || day}'s Meal Plan`;
-    dayStatus.textContent = activeStatus === 'planned' ?
-      'Planned' :
-      hasMealPlan ? activeStatus : 'No meals planned';
+    dayStatus.textContent = activeStatus.charAt(0).toUpperCase() + activeStatus.slice(1);
     const dayActions = panel.querySelector('.day-plan-actions');
     const addMealForm = panel.querySelector('.day-add-meal-form');
     const addMealInput = panel.querySelector('.day-add-meal-name');
@@ -526,10 +575,11 @@ export class MealPlanPage {
       dayCopyButton.textContent = 'Copy day from date';
       dayCopyDate.removeAttribute('min');
     }
-    dayCopyDetails.hidden = isPastDay;
+    dayCopyDetails.hidden = isPastDay && !isCompleted;
     const dayHasEmptyMeals = Object.values(activeMeals).some(meal => !meal.recipeIDs.length);
     dayActions.querySelectorAll('button, input').forEach(control => {
-      control.disabled = isPastDay;
+      control.disabled = isPastDay &&
+        !(isCompleted && control.matches('.day-copy-toggle, .day-copy, .day-copy-date'));
     });
     dayActions.querySelector('.day-generate').disabled = isPastDay || !dayHasEmptyMeals;
     dayActions.onclick = event => {
@@ -625,7 +675,7 @@ export class MealPlanPage {
       const mealCopyAction = dailyMealSlot.querySelector('.meal-slot-copy');
       const mealCopyDestinationLabel = dailyMealSlot.querySelector('.meal-copy-destination-text');
       const mealHasRecipes = meal.recipeIDs.length > 0;
-      mealCopyDetails.hidden = isPastDay;
+      mealCopyDetails.hidden = isPastDay && !isCompleted;
       if (mealHasRecipes) {
         mealCopyToggle.textContent = 'Copy meal to date';
         mealCopyDateLabel.textContent = 'Destination date';
@@ -652,10 +702,29 @@ export class MealPlanPage {
       mealCopyDestination.value = meal.ID;
       dailyMealSlot.querySelectorAll('.meal-slot-actions button, .meal-slot-actions input, .meal-slot-actions select')
         .forEach(control => {
-          control.disabled = isPastDay || (meal.isExecuted &&
+          control.disabled = (isPastDay && !isCompleted) || (meal.isExecuted &&
             !control.matches('.meal-slot-copy, .meal-copy-date, .meal-copy-destination'));
         });
       executeButton.disabled = isPastDay || meal.isExecuted || meal.recipeIDs.length === 0;
+      const stageSelect = dailyMealSlot.querySelector('.meal-execute-stage');
+      const nextStage = {
+        preparing: 'serving',
+        serving: 'complete'
+      } [meal.stage] ?? 'preparing';
+      stageSelect.value = nextStage;
+      stageSelect.disabled = executeButton.disabled;
+      const timeValues = meal.plannedTimes;
+      dailyMealSlot.querySelectorAll('.meal-time').forEach(timeInput => {
+        timeInput.value = timeValues[timeInput.dataset.timeField] ?? '';
+        timeInput.disabled = isPastDay || meal.isExecuted;
+      });
+      if (!meal.isExecuted) {
+        executeButton.textContent = {
+          preparing: 'Start preparing',
+          serving: 'Start serving',
+          complete: 'Complete meal'
+        } [nextStage];
+      }
       removeMealButton.disabled = isPastDay || meal.isExecuted;
       mealNameInput.disabled = isPastDay || meal.isExecuted;
       dailyMealSlot.querySelector('.meal-slot-clear').disabled =
@@ -792,6 +861,22 @@ export class MealPlanPage {
           this.#updateRecipeCoverageSummary(recipeItem, meal);
           return;
         }
+      }
+      const timeInput = event.target.closest('.meal-time');
+      if (timeInput) {
+        const timeSlot = timeInput.closest(MealPlanPage.dailyMealSlotClass);
+        const timeMeal = activeDay.meals.getMealByID(
+          timeSlot.querySelector(MealPlanPage.dailyMealSlotServingsClass).dataset.mealId
+        );
+        const timeMessage = timeSlot.querySelector(MealPlanPage.dailyMealSlotMessageClass);
+        try {
+          siteData.setMealPlannedTime(weekParameter, day, timeMeal.ID, timeInput.dataset.timeField, timeInput.value);
+          timeMessage.textContent = 'Planned time updated.';
+        } catch (error) {
+          timeInput.value = timeMeal.plannedTimes[timeInput.dataset.timeField] ?? '';
+          timeMessage.textContent = `Could not update planned time: ${error.message}`;
+        }
+        return;
       }
       const servingsInput = event.target.closest(MealPlanPage.dailyMealSlotServingsClass);
       if (!servingsInput) {
@@ -949,13 +1034,17 @@ export class MealPlanPage {
           }
           status.hidden = false;
           statusMessage.textContent = 'Inventory covers this meal.';
-          if (!window.confirm('Execute this meal? Required ingredients will be deducted from inventory and the meal will be locked.')) {
+          const action = mealSlot.querySelector('.meal-execute-stage').value;
+          if (action === 'complete' && !window.confirm('Execute this meal? Required ingredients will be deducted from inventory and the meal will be locked.')) {
             return;
           }
-          siteData.executeMeal(weekParameter, day, mealID);
+          siteData.executeMeal(weekParameter, day, mealID, action);
           this.render();
-          this.#mealPlanPageContainer.querySelector('.day-plan-message').textContent =
-            'Meal executed. Ingredients were deducted and this meal is now locked; it can still be copied.';
+          this.#mealPlanPageContainer.querySelector('.day-plan-message').textContent = {
+            preparing: 'Meal marked as preparing.',
+            serving: 'Meal marked as serving.',
+            complete: 'Meal executed. Ingredients were deducted and this meal is now locked; it can still be copied.'
+          } [action];
         } catch (error) {
           status.hidden = false;
           statusMessage.textContent = button.matches('.meal-slot-remove') ?
@@ -1047,9 +1136,10 @@ export class MealPlanPage {
       const clone = this.#mealPlanDayTemplate.content.cloneNode(true);
       clone.querySelector(MealPlanPage.weekStripLabelClass).textContent = day.ID;
       const statusSpan = clone.querySelector(MealPlanPage.weekStripStatusClass);
-      const status = day.status || 'empty';
-      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${status}`);
+      const status = siteData.getDayStatus(weekParameter, day.ID);
+      statusSpan.classList.add(`${MealPlanPage.weekStripStatusClassPrefix}${status.replace(/\s+/g, '-')}`);
       statusSpan.setAttribute('aria-label', status);
+      statusSpan.title = status;
       targetContainer.appendChild(clone);
     });
     const existingDashboard = dashboardContainer.querySelector(MealPlanPage.mealPlanDashBoardClass);
