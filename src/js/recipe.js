@@ -107,6 +107,12 @@ function renderInstructions(container, currentRecipe) {
   const instructionText = currentRecipe.Instructions;
   const wordPattern = /[\p{L}]+(?:['’][\p{L}]+)*/gu;
   let lastIndex = 0;
+  const openDefinitions = new Set(
+    [...container.querySelectorAll('.recipe-word-entry')]
+    .filter(entry => !entry.querySelector('.recipe-word-definition').hidden)
+    .map(entry => entry.querySelector('button').textContent.toLowerCase())
+  );
+  container.replaceChildren();
 
   for (const match of instructionText.matchAll(wordPattern)) {
     const [matchedWord] = match;
@@ -129,7 +135,8 @@ function renderInstructions(container, currentRecipe) {
 
       const definition = document.createElement('span');
       definition.className = 'recipe-word-definition';
-      definition.hidden = true;
+      definition.hidden = !openDefinitions.has(matchedWord.toLowerCase());
+      button.setAttribute('aria-expanded', String(!definition.hidden));
       definition.textContent = definitions
         .map((item, index) => `${index + 1}. ${item}`)
         .join(' ');

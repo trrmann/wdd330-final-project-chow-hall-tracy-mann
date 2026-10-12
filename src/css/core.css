@@ -1670,8 +1670,8 @@ a.panel-kicker-anchor {
   background: transparent;
   color: inherit;
   font: inherit;
-  text-decoration: underline dotted var(--tactical-olive);
-  text-underline-offset: 3px;
+  font-style: italic;
+  text-decoration: none;
   cursor: help;
 }
 
